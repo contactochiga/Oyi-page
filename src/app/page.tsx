@@ -3,10 +3,16 @@
 import Image from "next/image";
 import { useMemo, useRef, useState, useEffect } from "react";
 
+type Mode = "dark" | "light";
+
 type RevealProps = {
   children: React.ReactNode;
   className?: string;
 };
+
+function cn(...classes: Array<string | false | null | undefined>) {
+  return classes.filter(Boolean).join(" ");
+}
 
 function useInViewOnce(threshold = 0.15) {
   const ref = useRef<HTMLDivElement | null>(null);
@@ -52,45 +58,298 @@ function Reveal({ children, className }: RevealProps) {
   );
 }
 
+function IconWrap({ children, mode }: { children: React.ReactNode; mode: Mode }) {
+  const isDark = mode === "dark";
+  return (
+    <div
+      className={cn(
+        "h-10 w-10 rounded-xl border flex items-center justify-center",
+        isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.03]"
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+
+/** Consistent “line” icons (stroke uses currentColor) */
+function LineIcon({
+  children,
+  mode,
+}: {
+  children: React.ReactNode;
+  mode: Mode;
+}) {
+  const isDark = mode === "dark";
+  return (
+    <div className={cn(isDark ? "text-white/80" : "text-black/70")}>{children}</div>
+  );
+}
+
+function IHome({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1V10.5Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function ISliders({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M4 21v-7m0-4V3m10 18v-9m0-4V3m6 18v-5m0-4V3"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M4 14h4m6-2h6m-6 4h6"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function IBolt({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M13 2 4 14h7l-1 8 10-12h-7l0-8Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function IDoor({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M8 21V4a1 1 0 0 1 1-1h9v19"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M6 21h14"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M14.5 12h.01"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function IShield({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 2 20 6v7c0 5-3.5 9-8 9s-8-4-8-9V6l8-4Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M9 12l2 2 4-5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function IPlug({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M9 2v6m6-6v6"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M7 8h10v4a5 5 0 0 1-5 5 5 5 0 0 1-5-5V8Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M12 17v5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function ICredit({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M3 7a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M3 10h18"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M7 15h4"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function IFile({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7l-5-5Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M14 2v5h5"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8 13h8M8 17h6"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+function IGear({ mode }: { mode: Mode }) {
+  return (
+    <LineIcon mode={mode}>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+        <path
+          d="M19.4 15a7.9 7.9 0 0 0 .1-2l2-1.2-2-3.4-2.3.6a7.7 7.7 0 0 0-1.7-1l-.3-2.4H11l-.3 2.4a7.7 7.7 0 0 0-1.7 1l-2.3-.6-2 3.4 2 1.2a7.9 7.9 0 0 0 .1 2l-2 1.2 2 3.4 2.3-.6c.5.4 1.1.7 1.7 1l.3 2.4h4l.3-2.4c.6-.3 1.2-.6 1.7-1l2.3.6 2-3.4-2-1.2Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </LineIcon>
+  );
+}
+
 function GlowCard({
   title,
   desc,
   icon,
+  mode,
 }: {
   title: string;
   desc: string;
   icon: React.ReactNode;
+  mode: Mode;
 }) {
+  const isDark = mode === "dark";
   return (
-    <div className="group relative rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-[0_0_0_1px_rgba(255,255,255,0.04)]">
-      <div className="pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-[radial-gradient(1200px_circle_at_20%_10%,rgba(59,130,246,0.25),transparent_45%),radial-gradient(900px_circle_at_80%_30%,rgba(168,85,247,0.18),transparent_40%),radial-gradient(900px_circle_at_40%_90%,rgba(16,185,129,0.16),transparent_45%)]" />
+    <div
+      className={cn(
+        "group relative rounded-2xl border p-6 backdrop-blur-xl transition",
+        isDark
+          ? "border-white/10 bg-white/5 shadow-[0_0_0_1px_rgba(255,255,255,0.04)] hover:bg-white/[0.07]"
+          : "border-black/10 bg-black/[0.02] shadow-[0_0_0_1px_rgba(0,0,0,0.04)] hover:bg-black/[0.04]"
+      )}
+    >
+      <div
+        className={cn(
+          "pointer-events-none absolute -inset-px rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500",
+          isDark
+            ? "bg-[radial-gradient(1200px_circle_at_20%_10%,rgba(59,130,246,0.22),transparent_45%),radial-gradient(900px_circle_at_80%_30%,rgba(168,85,247,0.16),transparent_40%),radial-gradient(900px_circle_at_40%_90%,rgba(16,185,129,0.14),transparent_45%)]"
+            : "bg-[radial-gradient(1200px_circle_at_20%_10%,rgba(59,130,246,0.10),transparent_45%),radial-gradient(900px_circle_at_80%_30%,rgba(168,85,247,0.08),transparent_40%),radial-gradient(900px_circle_at_40%_90%,rgba(16,185,129,0.08),transparent_45%)]"
+        )}
+      />
       <div className="relative">
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center">
-            {icon}
-          </div>
-          <h3 className="text-base font-semibold text-white">{title}</h3>
+          <IconWrap mode={mode}>{icon}</IconWrap>
+          <h3 className={cn("text-base font-semibold", isDark ? "text-white" : "text-black")}>
+            {title}
+          </h3>
         </div>
-        <p className="mt-3 text-sm leading-6 text-white/70">{desc}</p>
+        <p className={cn("mt-3 text-sm leading-6", isDark ? "text-white/70" : "text-black/70")}>
+          {desc}
+        </p>
       </div>
     </div>
   );
 }
 
-function Pill({ children }: { children: React.ReactNode }) {
+function Pill({ children, mode }: { children: React.ReactNode; mode: Mode }) {
+  const isDark = mode === "dark";
   return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+    <span
+      className={cn(
+        "inline-flex items-center rounded-full border px-3 py-1 text-xs",
+        isDark ? "border-white/10 bg-white/5 text-white/70" : "border-black/10 bg-black/[0.03] text-black/70"
+      )}
+    >
       {children}
     </span>
   );
 }
 
-function LiveDot() {
-  return <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />;
+function LiveDot({ mode }: { mode: Mode }) {
+  const isDark = mode === "dark";
+  return <span className={cn("h-1.5 w-1.5 rounded-full", isDark ? "bg-emerald-400/80" : "bg-emerald-600")} />;
 }
 
 /** Different mini spark lines per system */
-function Sparkline({ variant }: { variant: "power" | "water" | "security" | "access" }) {
+function Sparkline({
+  variant,
+  mode,
+}: {
+  variant: "power" | "water" | "security" | "access";
+  mode: Mode;
+}) {
   const paths: Record<string, string> = {
     power: "M2 26 L14 22 L26 24 L38 18 L50 20 L62 14 L74 16 L86 10 L98 12 L110 8 L122 10",
     water: "M2 10 L14 12 L26 14 L38 16 L50 18 L62 22 L74 20 L86 18 L98 16 L110 14 L122 12",
@@ -98,17 +357,23 @@ function Sparkline({ variant }: { variant: "power" | "water" | "security" | "acc
     access: "M2 26 L14 26 L26 18 L38 18 L50 22 L62 22 L74 12 L86 12 L98 16 L110 10 L122 10",
   };
 
+  const isDark = mode === "dark";
   return (
     <svg viewBox="0 0 124 32" className="h-full w-full">
       <path
         d={paths[variant]}
         fill="none"
-        stroke="rgba(255,255,255,0.55)"
+        stroke={isDark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)"}
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path d="M2 28 H122" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+      <path
+        d="M2 28 H122"
+        fill="none"
+        stroke={isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.12)"}
+        strokeWidth="1"
+      />
     </svg>
   );
 }
@@ -118,33 +383,61 @@ function CompactPreview({
   kpi1,
   kpi2,
   variant,
+  mode,
 }: {
   label: string;
   kpi1: string;
   kpi2: string;
   variant: "power" | "water" | "security" | "access";
+  mode: Mode;
 }) {
+  const isDark = mode === "dark";
   return (
-    <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
+    <div
+      className={cn(
+        "mt-3 rounded-xl border p-3",
+        isDark ? "border-white/10 bg-black/25" : "border-black/10 bg-white/60"
+      )}
+    >
       <div className="flex items-center justify-between">
-        <div className="text-[11px] text-white/60">{label}</div>
-        <div className="flex items-center gap-2 text-[11px] text-white/55">
-          <LiveDot />
+        <div className={cn("text-[11px]", isDark ? "text-white/60" : "text-black/55")}>{label}</div>
+        <div className={cn("flex items-center gap-2 text-[11px]", isDark ? "text-white/55" : "text-black/55")}>
+          <LiveDot mode={mode} />
           Realtime
         </div>
       </div>
 
-      <div className="mt-2 h-10 rounded-lg border border-white/10 bg-white/5 relative overflow-hidden">
-        <div className="absolute inset-0 opacity-70 bg-[radial-gradient(500px_circle_at_20%_40%,rgba(59,130,246,0.18),transparent_45%),radial-gradient(420px_circle_at_75%_60%,rgba(168,85,247,0.14),transparent_50%)]" />
-        <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:22px_22px]" />
+      <div
+        className={cn(
+          "mt-2 h-10 rounded-lg border relative overflow-hidden",
+          isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.03]"
+        )}
+      >
+        <div
+          className={cn(
+            "absolute inset-0 opacity-70",
+            isDark
+              ? "bg-[radial-gradient(500px_circle_at_20%_40%,rgba(59,130,246,0.18),transparent_45%),radial-gradient(420px_circle_at_75%_60%,rgba(168,85,247,0.14),transparent_50%)]"
+              : "bg-[radial-gradient(500px_circle_at_20%_40%,rgba(59,130,246,0.10),transparent_45%),radial-gradient(420px_circle_at_75%_60%,rgba(168,85,247,0.08),transparent_50%)]"
+          )}
+        />
+        <div
+          className={cn(
+            "absolute inset-0 opacity-[0.12]",
+            isDark
+              ? "[background-image:linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px)]"
+              : "[background-image:linear-gradient(to_right,rgba(0,0,0,0.18)_1px,transparent_1px)]"
+          )}
+          style={{ backgroundSize: "22px 22px" }}
+        />
         <div className="absolute inset-0 px-2 py-1">
-          <Sparkline variant={variant} />
+          <Sparkline variant={variant} mode={mode} />
         </div>
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-3">
-        <div className="text-[11px] text-white/70">{kpi1}</div>
-        <div className="text-[11px] text-white/70">{kpi2}</div>
+        <div className={cn("text-[11px]", isDark ? "text-white/70" : "text-black/70")}>{kpi1}</div>
+        <div className={cn("text-[11px]", isDark ? "text-white/70" : "text-black/70")}>{kpi2}</div>
       </div>
     </div>
   );
@@ -157,6 +450,7 @@ function SystemCard({
   kpi1,
   kpi2,
   variant,
+  mode,
 }: {
   title: string;
   oneLine: string;
@@ -164,25 +458,114 @@ function SystemCard({
   kpi1: string;
   kpi2: string;
   variant: "power" | "water" | "security" | "access";
+  mode: Mode;
 }) {
+  const isDark = mode === "dark";
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
+    <div
+      className={cn(
+        "rounded-2xl border p-4 backdrop-blur-xl",
+        isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.02]"
+      )}
+    >
       <div className="flex items-start justify-between gap-3">
-        <div className="text-sm font-semibold">{title}</div>
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/60">
-          <LiveDot />
+        <div className={cn("text-sm font-semibold", isDark ? "text-white" : "text-black")}>{title}</div>
+        <span
+          className={cn(
+            "inline-flex items-center gap-2 rounded-full border px-2 py-1 text-[11px]",
+            isDark ? "border-white/10 bg-white/5 text-white/60" : "border-black/10 bg-black/[0.03] text-black/60"
+          )}
+        >
+          <LiveDot mode={mode} />
           Live
         </span>
       </div>
 
-      <div className="mt-2 text-sm text-white/70 leading-6">{oneLine}</div>
+      <div className={cn("mt-2 text-sm leading-6", isDark ? "text-white/70" : "text-black/70")}>{oneLine}</div>
 
-      <CompactPreview label={previewLabel} kpi1={kpi1} kpi2={kpi2} variant={variant} />
+      <CompactPreview
+        label={previewLabel}
+        kpi1={kpi1}
+        kpi2={kpi2}
+        variant={variant}
+        mode={mode}
+      />
     </div>
   );
 }
 
+function FeatureTile({
+  title,
+  desc,
+  icon,
+  mode,
+}: {
+  title: string;
+  desc: string;
+  icon: React.ReactNode;
+  mode: Mode;
+}) {
+  const isDark = mode === "dark";
+  return (
+    <div
+      className={cn(
+        "group rounded-2xl border p-5 backdrop-blur-xl transition",
+        isDark ? "border-white/10 bg-white/5 hover:bg-white/[0.07]" : "border-black/10 bg-black/[0.02] hover:bg-black/[0.04]"
+      )}
+    >
+      <div className="flex flex-col items-center text-center">
+        <div
+          className={cn(
+            "mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border",
+            isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.03]"
+          )}
+        >
+          {icon}
+        </div>
+        <div className={cn("text-sm font-semibold", isDark ? "text-white" : "text-black")}>{title}</div>
+        <div className={cn("mt-2 text-sm leading-6 max-w-[28ch]", isDark ? "text-white/65" : "text-black/65")}>
+          {desc}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ThemeSwitch({ mode, setMode }: { mode: Mode; setMode: (m: Mode) => void }) {
+  const isDark = mode === "dark";
+  return (
+    <button
+      onClick={() => setMode(isDark ? "light" : "dark")}
+      className={cn(
+        "inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm transition",
+        isDark ? "border-white/10 bg-white/5 text-white/80 hover:bg-white/10" : "border-black/10 bg-black/[0.03] text-black/70 hover:bg-black/[0.06]"
+      )}
+      aria-label="Toggle theme"
+    >
+      <span
+        className={cn(
+          "inline-block h-2 w-2 rounded-full",
+          isDark ? "bg-white/70" : "bg-black/60"
+        )}
+      />
+      {isDark ? "Dark" : "Light"}
+    </button>
+  );
+}
+
 export default function Page() {
+  const [mode, setMode] = useState<Mode>("dark");
+  const isDark = mode === "dark";
+
+  useEffect(() => {
+    const saved = (localStorage.getItem("oyi-mode") as Mode | null) ?? null;
+    if (saved === "light" || saved === "dark") setMode(saved);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("oyi-mode", mode);
+  }, [mode]);
+
   const stats = useMemo(
     () => [
       { k: "Home Control", v: "Devices + automations" },
@@ -197,12 +580,32 @@ export default function Page() {
     "mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20deployment.%0A%0AName:%0AEstate/Company:%0ALocation:%0APhone:%0AScope%20(what%20to%20integrate):%0A%0AThanks";
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#070A12] text-white overflow-x-hidden">
+    <div
+      className={cn(
+        "min-h-screen flex flex-col overflow-x-hidden",
+        isDark ? "bg-[#070A12] text-white" : "bg-[#F6F7FB] text-black"
+      )}
+    >
       {/* Ambient background */}
       <div aria-hidden className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.12),transparent_50%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.10),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(16,185,129,0.08),transparent_55%)]" />
-        <div className="absolute inset-0 opacity-[0.22] [background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)] [background-size:64px_64px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
+        <div
+          className={cn(
+            "absolute inset-0",
+            isDark
+              ? "bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.12),transparent_50%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.10),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(16,185,129,0.08),transparent_55%)]"
+              : "bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.10),transparent_55%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.08),transparent_60%),radial-gradient(900px_circle_at_50%_90%,rgba(16,185,129,0.06),transparent_60%)]"
+          )}
+        />
+        <div
+          className={cn(
+            "absolute inset-0 opacity-[0.20]",
+            isDark
+              ? "[background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)]"
+              : "[background-image:linear-gradient(to_right,rgba(0,0,0,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.06)_1px,transparent_1px)]"
+          )}
+          style={{ backgroundSize: "64px 64px" }}
+        />
+        <div className={cn("absolute inset-0", isDark ? "bg-gradient-to-b from-black/30 via-transparent to-black/60" : "bg-gradient-to-b from-white/40 via-transparent to-white/70")} />
       </div>
 
       {/* Top nav */}
@@ -210,7 +613,7 @@ export default function Page() {
         <div className="mx-auto w-full max-w-6xl px-5 py-5">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+              <div className={cn("h-10 w-10 rounded-xl overflow-hidden border", isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.03]")}>
                 <Image
                   src="/oyi-logo-transparent.png"
                   alt="Oyi"
@@ -222,35 +625,46 @@ export default function Page() {
               </div>
               <div>
                 <div className="text-sm font-semibold leading-4">Oyi</div>
-                <div className="text-xs text-white/60">Estate Operations Console</div>
+                <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>
+                  Estate Operations Console
+                </div>
               </div>
             </div>
 
             <nav className="hidden md:flex items-center gap-2">
-              <a href="#platform" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+              <a href="#platform" className={cn("px-3 py-2 text-sm", isDark ? "text-white/70 hover:text-white" : "text-black/70 hover:text-black")}>
                 Platform
               </a>
-              <a href="#stack" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+              <a href="#stack" className={cn("px-3 py-2 text-sm", isDark ? "text-white/70 hover:text-white" : "text-black/70 hover:text-black")}>
                 Stack
               </a>
-              <a href="#systems" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+              <a href="#systems" className={cn("px-3 py-2 text-sm", isDark ? "text-white/70 hover:text-white" : "text-black/70 hover:text-black")}>
                 Systems
               </a>
-              <a href="#deployments" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+              <a href="#deployments" className={cn("px-3 py-2 text-sm", isDark ? "text-white/70 hover:text-white" : "text-black/70 hover:text-black")}>
                 Deployments
               </a>
             </nav>
 
             <div className="flex items-center gap-2">
+              <ThemeSwitch mode={mode} setMode={setMode} />
               <a
                 href={deployMailto}
-                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 transition"
+                className={cn(
+                  "rounded-xl border px-4 py-2 text-sm transition",
+                  isDark
+                    ? "border-white/10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10"
+                    : "border-black/10 bg-black/[0.03] text-black/70 hover:bg-black/[0.06]"
+                )}
               >
                 Request Deployment
               </a>
               <a
                 href={deployMailto}
-                className="rounded-xl bg-white text-black px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
+                className={cn(
+                  "rounded-xl px-4 py-2 text-sm font-semibold transition",
+                  isDark ? "bg-white text-black hover:opacity-90" : "bg-black text-white hover:bg-black/90"
+                )}
               >
                 Deploy
               </a>
@@ -271,7 +685,7 @@ export default function Page() {
                   Control in real time.
                 </h1>
 
-                <p className="mt-5 text-white/70 leading-7">
+                <p className={cn("mt-5 leading-7", isDark ? "text-white/70" : "text-black/70")}>
                   Oyi is a two-way operating layer for estates — residents control in-home devices and automations,
                   while operators run facility infrastructure with live dashboards, alerts, and audited actions.
                 </p>
@@ -279,13 +693,21 @@ export default function Page() {
                 <div className="mt-7 flex flex-wrap gap-3">
                   <a
                     href={deployMailto}
-                    className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition"
+                    className={cn(
+                      "rounded-xl px-5 py-3 text-sm font-semibold transition",
+                      isDark ? "bg-white text-black hover:opacity-90" : "bg-black text-white hover:bg-black/90"
+                    )}
                   >
                     Request Deployment
                   </a>
                   <a
                     href="#platform"
-                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/80 hover:text-white hover:bg-white/10 transition"
+                    className={cn(
+                      "rounded-xl border px-5 py-3 text-sm transition",
+                      isDark
+                        ? "border-white/10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10"
+                        : "border-black/10 bg-black/[0.03] text-black/70 hover:bg-black/[0.06]"
+                    )}
                   >
                     Explore Platform
                   </a>
@@ -295,10 +717,13 @@ export default function Page() {
                   {stats.map((s) => (
                     <div
                       key={s.k}
-                      className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl"
+                      className={cn(
+                        "rounded-2xl border p-4 backdrop-blur-xl",
+                        isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.02]"
+                      )}
                     >
-                      <div className="text-xs text-white/60">{s.k}</div>
-                      <div className="mt-1 text-sm text-white/85">{s.v}</div>
+                      <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>{s.k}</div>
+                      <div className={cn("mt-1 text-sm", isDark ? "text-white/85" : "text-black/80")}>{s.v}</div>
                     </div>
                   ))}
                 </div>
@@ -308,31 +733,60 @@ export default function Page() {
             {/* Hero visual */}
             <div className="md:col-span-6">
               <Reveal className="md:pl-6">
-                <div className="relative rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl overflow-hidden">
-                  <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
-                  <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
+                <div
+                  className={cn(
+                    "relative rounded-3xl border p-4 backdrop-blur-xl overflow-hidden",
+                    isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.02]"
+                  )}
+                >
+                  <div className={cn("absolute -top-24 -right-24 h-72 w-72 rounded-full blur-3xl", isDark ? "bg-white/10" : "bg-black/10")} />
+                  <div className={cn("absolute -bottom-24 -left-24 h-72 w-72 rounded-full blur-3xl", isDark ? "bg-white/10" : "bg-black/10")} />
 
-                  <div className="rounded-2xl border border-white/10 bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.22),transparent_45%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.18),transparent_45%),radial-gradient(900px_circle_at_40%_90%,rgba(16,185,129,0.14),transparent_45%)] p-6">
+                  <div
+                    className={cn(
+                      "rounded-2xl border p-6",
+                      isDark
+                        ? "border-white/10 bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.22),transparent_45%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.18),transparent_45%),radial-gradient(900px_circle_at_40%_90%,rgba(16,185,129,0.14),transparent_45%)]"
+                        : "border-black/10 bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.14),transparent_45%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.12),transparent_45%),radial-gradient(900px_circle_at_40%_90%,rgba(16,185,129,0.10),transparent_45%)]"
+                    )}
+                  >
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-semibold">Command Center</div>
-                      <div className="text-xs text-white/60">Live • Secure • Audited</div>
+                      <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>
+                        Live • Secure • Audited
+                      </div>
                     </div>
 
                     <div className="mt-5 grid grid-cols-12 gap-3">
-                      <div className="col-span-12 md:col-span-7 rounded-xl border border-white/10 bg-black/30 p-4">
+                      <div
+                        className={cn(
+                          "col-span-12 md:col-span-7 rounded-xl border p-4",
+                          isDark ? "border-white/10 bg-black/30" : "border-black/10 bg-white/60"
+                        )}
+                      >
                         <div className="flex items-center justify-between">
-                          <div className="text-xs text-white/60">Map / Site View</div>
-                          <span className="inline-flex items-center gap-2 text-[11px] text-white/55">
-                            <LiveDot />
+                          <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>
+                            Map / Site View
+                          </div>
+                          <span className={cn("inline-flex items-center gap-2 text-[11px]", isDark ? "text-white/55" : "text-black/55")}>
+                            <LiveDot mode={mode} />
                             Realtime
                           </span>
                         </div>
-                        <div className="mt-3 h-28 rounded-lg border border-white/10 bg-white/5" />
+                        <div
+                          className={cn(
+                            "mt-3 h-28 rounded-lg border",
+                            isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.03]"
+                          )}
+                        />
                         <div className="mt-3 flex gap-2 flex-wrap">
                           {["Assets: 124", "Alerts: 3", "Uptime: 99.9%"].map((t) => (
                             <span
                               key={t}
-                              className="text-[11px] text-white/70 border border-white/10 bg-white/5 rounded-full px-2 py-1"
+                              className={cn(
+                                "text-[11px] border rounded-full px-2 py-1",
+                                isDark ? "text-white/70 border-white/10 bg-white/5" : "text-black/70 border-black/10 bg-black/[0.03]"
+                              )}
                             >
                               {t}
                             </span>
@@ -340,11 +794,16 @@ export default function Page() {
                         </div>
                       </div>
 
-                      <div className="col-span-12 md:col-span-5 rounded-xl border border-white/10 bg-black/30 p-4">
+                      <div
+                        className={cn(
+                          "col-span-12 md:col-span-5 rounded-xl border p-4",
+                          isDark ? "border-white/10 bg-black/30" : "border-black/10 bg-white/60"
+                        )}
+                      >
                         <div className="flex items-center justify-between">
-                          <div className="text-xs text-white/60">Systems</div>
-                          <span className="inline-flex items-center gap-2 text-[11px] text-white/55">
-                            <LiveDot />
+                          <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>Systems</div>
+                          <span className={cn("inline-flex items-center gap-2 text-[11px]", isDark ? "text-white/55" : "text-black/55")}>
+                            <LiveDot mode={mode} />
                             Realtime
                           </span>
                         </div>
@@ -357,20 +816,30 @@ export default function Page() {
                           ].map(([a, b]) => (
                             <div
                               key={a}
-                              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                              className={cn(
+                                "flex items-center justify-between rounded-lg border px-3 py-2",
+                                isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.03]"
+                              )}
                             >
-                              <span className="text-xs text-white/80">{a}</span>
-                              <span className="text-[11px] text-white/60">{b}</span>
+                              <span className={cn("text-xs", isDark ? "text-white/80" : "text-black/80")}>{a}</span>
+                              <span className={cn("text-[11px]", isDark ? "text-white/60" : "text-black/60")}>{b}</span>
                             </div>
                           ))}
                         </div>
                       </div>
                     </div>
 
-                    <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
+                    <div
+                      className={cn(
+                        "mt-4 rounded-xl border p-4",
+                        isDark ? "border-white/10 bg-black/30" : "border-black/10 bg-white/60"
+                      )}
+                    >
                       <div className="flex items-center justify-between">
-                        <div className="text-xs text-white/60">Activity</div>
-                        <span className="text-[11px] text-white/60">Last 5 mins</span>
+                        <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>Activity</div>
+                        <span className={cn("text-[11px]", isDark ? "text-white/60" : "text-black/60")}>
+                          Last 5 mins
+                        </span>
                       </div>
                       <div className="mt-3 grid md:grid-cols-3 gap-2">
                         {[
@@ -380,7 +849,10 @@ export default function Page() {
                         ].map((t) => (
                           <div
                             key={t}
-                            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/70"
+                            className={cn(
+                              "rounded-lg border px-3 py-2 text-[11px]",
+                              isDark ? "border-white/10 bg-white/5 text-white/70" : "border-black/10 bg-black/[0.03] text-black/70"
+                            )}
                           >
                             {t}
                           </div>
@@ -391,7 +863,9 @@ export default function Page() {
 
                   <div className="mt-4 flex flex-wrap gap-2">
                     {["Map View", "3D Twin View", "Home Automations", "Alerts + Audit"].map((t) => (
-                      <Pill key={t}>{t}</Pill>
+                      <Pill key={t} mode={mode}>
+                        {t}
+                      </Pill>
                     ))}
                   </div>
                 </div>
@@ -405,19 +879,19 @@ export default function Page() {
           <Reveal>
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
-                <div className="text-xs text-white/60">Platform</div>
+                <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>Platform</div>
                 <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
                   One console for home + estate operations
                 </h2>
-                <p className="mt-3 text-white/70 leading-7 max-w-2xl">
+                <p className={cn("mt-3 leading-7 max-w-2xl", isDark ? "text-white/70" : "text-black/70")}>
                   Designed for real operators and real residents — clear views, controlled actions, fast response,
                   and every activity recorded.
                 </p>
               </div>
               <div className="flex gap-2">
-                <Pill>Realtime</Pill>
-                <Pill>Secure</Pill>
-                <Pill>Scalable</Pill>
+                <Pill mode={mode}>Realtime</Pill>
+                <Pill mode={mode}>Secure</Pill>
+                <Pill mode={mode}>Scalable</Pill>
               </div>
             </div>
           </Reveal>
@@ -425,61 +899,114 @@ export default function Page() {
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <Reveal>
               <GlowCard
+                mode={mode}
                 title="Operations UX"
                 desc="Live status, alerts, actions, reporting — legible at a glance."
-                icon={<span className="text-sm">⌘</span>}
+                icon={<IGear mode={mode} />}
               />
             </Reveal>
             <Reveal>
               <GlowCard
+                mode={mode}
                 title="Digital Twin Ready"
                 desc="Map view now, 3D/4D later — built to expand."
-                icon={<span className="text-sm">◻︎</span>}
+                icon={<IFile mode={mode} />}
               />
             </Reveal>
             <Reveal>
               <GlowCard
+                mode={mode}
                 title="Controls + Audit"
                 desc="Permissions, approvals, logs — accountability built-in."
-                icon={<span className="text-sm">✓</span>}
+                icon={<IShield mode={mode} />}
               />
             </Reveal>
           </div>
         </section>
 
-        {/* STACK */}
+        {/* STACK (Matisse-style clear tiles) */}
         <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <Reveal>
-            <div className="text-xs text-white/60">Stack</div>
+            <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>Stack</div>
             <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-              Three layers. One operating system.
+              What Oyi delivers
             </h2>
-            <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-              Residents control devices and interact with services. Operators run infrastructure. The control plane ties
-              everything together with events, rules, and audit.
+            <p className={cn("mt-3 leading-7 max-w-2xl", isDark ? "text-white/70" : "text-black/70")}>
+              Clear modules. Real estate operations + home control — in one system.
             </p>
           </Reveal>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <Reveal>
-              <GlowCard
+              <FeatureTile
+                mode={mode}
                 title="Resident App"
-                desc="Home control (lights, AC, TV), scenes/automations, visitor access, requests — structured and traceable."
-                icon={<span className="text-sm">🏠</span>}
+                desc="Requests, passes, approvals."
+                icon={<IHome mode={mode} />}
               />
             </Reveal>
             <Reveal>
-              <GlowCard
-                title="Facility Console"
-                desc="Access control, street lighting, utilities, CCTV health, incidents, reporting."
-                icon={<span className="text-sm">🏢</span>}
+              <FeatureTile
+                mode={mode}
+                title="Device Control"
+                desc="Lights, AC, TV, sockets."
+                icon={<ISliders mode={mode} />}
               />
             </Reveal>
             <Reveal>
-              <GlowCard
+              <FeatureTile
+                mode={mode}
+                title="Automations"
+                desc="Scenes, schedules, rules."
+                icon={<IBolt mode={mode} />}
+              />
+            </Reveal>
+            <Reveal>
+              <FeatureTile
+                mode={mode}
+                title="Access Control"
+                desc="QR/code entry + logs."
+                icon={<IDoor mode={mode} />}
+              />
+            </Reveal>
+            <Reveal>
+              <FeatureTile
+                mode={mode}
+                title="Security Ops"
+                desc="Incidents + escalation."
+                icon={<IShield mode={mode} />}
+              />
+            </Reveal>
+            <Reveal>
+              <FeatureTile
+                mode={mode}
+                title="Utilities Ops"
+                desc="Power + water monitoring."
+                icon={<IPlug mode={mode} />}
+              />
+            </Reveal>
+            <Reveal>
+              <FeatureTile
+                mode={mode}
+                title="Billing & Wallet"
+                desc="Payments + receipts."
+                icon={<ICredit mode={mode} />}
+              />
+            </Reveal>
+            <Reveal>
+              <FeatureTile
+                mode={mode}
+                title="Reports & Audit"
+                desc="Traceable operations."
+                icon={<IFile mode={mode} />}
+              />
+            </Reveal>
+            <Reveal>
+              <FeatureTile
+                mode={mode}
                 title="Control Plane"
-                desc="Rules, event processing, alert routing, audit trails, observability."
-                icon={<span className="text-sm">⚙️</span>}
+                desc="Events + reliability layer."
+                icon={<IGear mode={mode} />}
               />
             </Reveal>
           </div>
@@ -490,11 +1017,11 @@ export default function Page() {
           <div className="grid gap-6 md:grid-cols-12 items-start">
             <div className="md:col-span-5">
               <Reveal>
-                <div className="text-xs text-white/60">Systems</div>
+                <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>Systems</div>
                 <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
                   One operating layer for estate infrastructure
                 </h2>
-                <p className="mt-3 text-white/70 leading-7">
+                <p className={cn("mt-3 leading-7", isDark ? "text-white/70" : "text-black/70")}>
                   Oyi connects estate infrastructure and in-home controls into one system — so actions, alerts,
                   automations, and approvals flow through a single control layer. Operators run facilities. Residents
                   control devices. Everything stays visible, governed, and auditable.
@@ -506,6 +1033,7 @@ export default function Page() {
               <div className="grid gap-4 md:grid-cols-2">
                 <Reveal>
                   <SystemCard
+                    mode={mode}
                     title="Power Operations"
                     oneLine="Supply health and backup readiness."
                     previewLabel="Last 60 minutes"
@@ -517,6 +1045,7 @@ export default function Page() {
 
                 <Reveal>
                   <SystemCard
+                    mode={mode}
                     title="Water Systems"
                     oneLine="Supply stability and consumption."
                     previewLabel="Last 60 minutes"
@@ -528,6 +1057,7 @@ export default function Page() {
 
                 <Reveal>
                   <SystemCard
+                    mode={mode}
                     title="Security"
                     oneLine="Incidents and coverage health."
                     previewLabel="Last 60 minutes"
@@ -539,6 +1069,7 @@ export default function Page() {
 
                 <Reveal>
                   <SystemCard
+                    mode={mode}
                     title="Access Control"
                     oneLine="Entry flow and verification."
                     previewLabel="Last 60 minutes"
@@ -555,14 +1086,19 @@ export default function Page() {
         {/* DEPLOYMENTS */}
         <section id="deployments" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <Reveal>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-xl">
+            <div
+              className={cn(
+                "rounded-3xl border p-6 md:p-10 backdrop-blur-xl",
+                isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.02]"
+              )}
+            >
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
                 <div>
-                  <div className="text-xs text-white/60">Deployments</div>
+                  <div className={cn("text-xs", isDark ? "text-white/60" : "text-black/55")}>Deployments</div>
                   <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
                     Request deployment
                   </h2>
-                  <p className="mt-3 text-white/70 leading-7 max-w-2xl">
+                  <p className={cn("mt-3 leading-7 max-w-2xl", isDark ? "text-white/70" : "text-black/70")}>
                     We deploy in phases: map the estate, connect systems, go live with the first core workflows, then
                     expand with automations, reporting, and digital twin views.
                   </p>
@@ -571,13 +1107,21 @@ export default function Page() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
                     href={deployMailto}
-                    className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition text-center"
+                    className={cn(
+                      "rounded-xl px-5 py-3 text-sm font-semibold transition text-center",
+                      isDark ? "bg-white text-black hover:opacity-90" : "bg-black text-white hover:bg-black/90"
+                    )}
                   >
                     Request Deployment
                   </a>
                   <a
                     href={deployMailto}
-                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/85 hover:text-white hover:bg-white/10 transition text-center"
+                    className={cn(
+                      "rounded-xl border px-5 py-3 text-sm transition text-center",
+                      isDark
+                        ? "border-white/10 bg-white/5 text-white/85 hover:text-white hover:bg-white/10"
+                        : "border-black/10 bg-black/[0.03] text-black/75 hover:bg-black/[0.06]"
+                    )}
                   >
                     Deployment Scope
                   </a>
@@ -586,13 +1130,19 @@ export default function Page() {
 
               <div className="mt-6 grid gap-3 md:grid-cols-3">
                 {[
-                  ["Estate-ready", "Facilities, access, utilities, security, and monitoring."],
-                  ["Home-ready", "Resident device control + automations where enabled."],
-                  ["Operations-grade", "Roles, logs, approvals, alert routing, reporting."],
+                  ["Estate-ready", "Facilities, access, utilities, security."],
+                  ["Home-ready", "Resident device control + automations."],
+                  ["Operations-grade", "Roles, logs, routing, reporting."],
                 ].map(([a, b]) => (
-                  <div key={a} className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                  <div
+                    key={a}
+                    className={cn(
+                      "rounded-2xl border p-5",
+                      isDark ? "border-white/10 bg-black/30" : "border-black/10 bg-white/60"
+                    )}
+                  >
                     <div className="text-sm font-semibold">{a}</div>
-                    <div className="mt-2 text-sm text-white/70">{b}</div>
+                    <div className={cn("mt-2 text-sm", isDark ? "text-white/70" : "text-black/70")}>{b}</div>
                   </div>
                 ))}
               </div>
@@ -603,9 +1153,13 @@ export default function Page() {
 
       <footer className="relative z-10 mt-auto">
         <div className="mx-auto w-full max-w-6xl px-5 py-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-t border-white/10 pt-6">
-            <div className="text-sm text-white/70">© {new Date().getFullYear()} Oyi</div>
-            <div className="text-xs text-white/50">Estate Operations Console</div>
+          <div className={cn("flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-t pt-6", isDark ? "border-white/10" : "border-black/10")}>
+            <div className={cn("text-sm", isDark ? "text-white/70" : "text-black/70")}>
+              © {new Date().getFullYear()} Oyi
+            </div>
+            <div className={cn("text-xs", isDark ? "text-white/50" : "text-black/50")}>
+              Estate Operations Console
+            </div>
           </div>
         </div>
       </footer>
