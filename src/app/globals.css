@@ -1,26 +1,184 @@
+/* src/app/globals.css */
 @import "tailwindcss";
 
+/* -------------------------------
+   Theme tokens
+-------------------------------- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: 8 10 14;              /* near-black graphite */
+  --panel: 12 14 20;          /* elevated surface */
+  --text: 240 245 255;        /* soft white */
+  --muted: 170 180 200;       /* muted copy */
+  --line: 255 255 255;        /* grid line color (used with low alpha) */
+  --accent: 77 163 255;       /* Oyi blue glow */
+  --ring: 120 210 255;        /* highlight ring */
+
+  --grid-a: 0.06;             /* major grid alpha */
+  --grid-b: 0.035;            /* minor grid alpha */
+  --noise: 0.06;              /* overlay strength */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html.theme-light {
+  --bg: 245 247 250;          /* concrete white */
+  --panel: 255 255 255;
+  --text: 12 16 24;           /* ink */
+  --muted: 70 80 98;
+  --line: 0 0 0;
+  --accent: 39 120 255;       /* Oyi blue (cleaner for light) */
+  --ring: 25 90 200;
+
+  --grid-a: 0.08;
+  --grid-b: 0.05;
+  --noise: 0.045;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  background: rgb(var(--bg));
+  color: rgb(var(--text));
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* -------------------------------
+   Infra grid background utility
+-------------------------------- */
+.oyi-surface {
+  position: relative;
+  min-height: 100vh;
+
+  /* layered: vignette + glow + two grids */
+  background:
+    radial-gradient(1200px 800px at 20% 10%,
+      rgba(var(--accent), 0.12),
+      rgba(var(--accent), 0.00) 60%),
+    radial-gradient(900px 700px at 85% 30%,
+      rgba(var(--ring), 0.08),
+      rgba(var(--ring), 0.00) 65%),
+    radial-gradient(1400px 900px at 50% 120%,
+      rgba(0, 0, 0, 0.28),
+      rgba(0, 0, 0, 0.00) 55%),
+
+    /* minor grid */
+    linear-gradient(
+      to right,
+      rgba(var(--line), var(--grid-b)) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(var(--line), var(--grid-b)) 1px,
+      transparent 1px
+    ),
+
+    /* major grid */
+    linear-gradient(
+      to right,
+      rgba(var(--line), var(--grid-a)) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      rgba(var(--line), var(--grid-a)) 1px,
+      transparent 1px
+    );
+
+  background-size:
+    auto,
+    auto,
+    auto,
+    24px 24px,
+    24px 24px,
+    120px 120px,
+    120px 120px;
+
+  background-position:
+    center,
+    center,
+    center,
+    center,
+    center,
+    center,
+    center;
+}
+
+/* subtle noise overlay */
+.oyi-surface::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+  background-size: 12px 12px;
+  opacity: var(--noise);
+  mix-blend-mode: overlay;
+}
+
+/* vignette frame */
+.oyi-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 800px at 50% 40%,
+      rgba(0,0,0,0.00),
+      rgba(0,0,0,0.35));
+  opacity: 0.75;
+}
+
+/* -------------------------------
+   Small UI primitives
+-------------------------------- */
+.oyi-card {
+  background: rgba(var(--panel), 0.72);
+  border: 1px solid rgba(var(--line), 0.10);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 16px 50px rgba(0,0,0,0.35);
+  backdrop-filter: blur(10px);
+}
+
+html.theme-light .oyi-card {
+  box-shadow:
+    0 1px 0 rgba(0,0,0,0.04) inset,
+    0 18px 45px rgba(0,0,0,0.10);
+}
+
+.oyi-btn {
+  border: 1px solid rgba(var(--line), 0.14);
+  background: rgba(var(--panel), 0.55);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.oyi-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(var(--line), 0.22);
+  background: rgba(var(--panel), 0.68);
+}
+
+.oyi-pill {
+  border: 1px solid rgba(var(--line), 0.16);
+  background: rgba(var(--panel), 0.45);
+}
+
+a.oyi-link {
+  color: rgb(var(--text));
+  text-decoration: none;
+  border-bottom: 1px solid rgba(var(--line), 0.18);
+}
+a.oyi-link:hover {
+  border-bottom-color: rgba(var(--line), 0.35);
+}
+
+/* keep content above overlays */
+.oyi-layer {
+  position: relative;
+  z-index: 1;
 }
