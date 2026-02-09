@@ -77,14 +77,6 @@ function GlowCard({
   );
 }
 
-function Pill({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
-      {children}
-    </span>
-  );
-}
-
 export default function Page() {
   const stats = useMemo(
     () => [
@@ -123,13 +115,17 @@ export default function Page() {
               </div>
               <div>
                 <div className="text-sm font-semibold leading-4">Oyi</div>
-                <div className="text-xs text-white/60">Infrastructure Operations</div>
+                {/* Suggested tagline */}
+                <div className="text-xs text-white/60">Estate Operations Console</div>
               </div>
             </div>
 
             <nav className="hidden md:flex items-center gap-2">
               <a href="#platform" className="px-3 py-2 text-sm text-white/70 hover:text-white">
                 Platform
+              </a>
+              <a href="#stack" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                Stack
               </a>
               <a href="#systems" className="px-3 py-2 text-sm text-white/70 hover:text-white">
                 Systems
@@ -158,13 +154,7 @@ export default function Page() {
             </div>
           </div>
 
-          {/* pills under logo (removed 2026 + OE) */}
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Pill>Infrastructure</Pill>
-            <Pill>Operations</Pill>
-            <Pill>Processing</Pill>
-            <Pill>Facilities</Pill>
-          </div>
+          {/* ✅ Removed pills entirely */}
         </div>
       </header>
 
@@ -233,15 +223,14 @@ export default function Page() {
                         <div className="text-xs text-white/60">Map / Site View</div>
                         <div className="mt-3 h-28 rounded-lg border border-white/10 bg-white/5" />
                         <div className="mt-3 flex gap-2">
-                          <span className="text-[11px] text-white/70 border border-white/10 bg-white/5 rounded-full px-2 py-1">
-                            Assets: 124
-                          </span>
-                          <span className="text-[11px] text-white/70 border border-white/10 bg-white/5 rounded-full px-2 py-1">
-                            Alerts: 3
-                          </span>
-                          <span className="text-[11px] text-white/70 border border-white/10 bg-white/5 rounded-full px-2 py-1">
-                            Uptime: 99.9%
-                          </span>
+                          {["Assets: 124", "Alerts: 3", "Uptime: 99.9%"].map((t) => (
+                            <span
+                              key={t}
+                              className="text-[11px] text-white/70 border border-white/10 bg-white/5 rounded-full px-2 py-1"
+                            >
+                              {t}
+                            </span>
+                          ))}
                         </div>
                       </div>
 
@@ -286,10 +275,14 @@ export default function Page() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <Pill>Map View</Pill>
-                    <Pill>3D Twin View</Pill>
-                    <Pill>Role-based Ops</Pill>
-                    <Pill>Alerts + Audit</Pill>
+                    {["Map View", "3D Twin View", "Role-based Ops", "Alerts + Audit"].map((t) => (
+                      <span
+                        key={t}
+                        className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70"
+                      >
+                        {t}
+                      </span>
+                    ))}
                   </div>
                 </div>
               </Reveal>
@@ -304,17 +297,22 @@ export default function Page() {
               <div>
                 <div className="text-xs text-white/60">Platform</div>
                 <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                  This is your estate’s operations console
+                  Your estate’s operations console
                 </h2>
                 <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                  Clean spacing, high-signal cards, and visuals that carry the story —
-                  built for real operators, not page scroll.
+                  Built for real operations: clean spacing, high-signal cards, and the right views for
+                  monitoring, response, enforcement, and reporting.
                 </p>
               </div>
               <div className="flex gap-2">
-                <Pill>Realtime</Pill>
-                <Pill>Secure</Pill>
-                <Pill>Scalable</Pill>
+                {["Realtime", "Secure", "Scalable"].map((t) => (
+                  <span
+                    key={t}
+                    className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70"
+                  >
+                    {t}
+                  </span>
+                ))}
               </div>
             </div>
           </Reveal>
@@ -344,6 +342,44 @@ export default function Page() {
           </div>
         </section>
 
+        {/* STACK (✅ NEW: consumer app / resident layer without “smart home marketing”) */}
+        <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
+          <Reveal>
+            <div className="text-xs text-white/60">Stack</div>
+            <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
+              Three layers, one operating system
+            </h2>
+            <p className="mt-3 text-white/70 leading-7 max-w-2xl">
+              Oyi is designed like estate infrastructure: residents interact with services, operators run systems,
+              and the control plane keeps everything traceable and reliable.
+            </p>
+          </Reveal>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Reveal>
+              <GlowCard
+                title="Resident Layer"
+                desc="Access requests, visitor passes, incident reporting, service requests — structured and auditable."
+                icon={<span className="text-sm">👤</span>}
+              />
+            </Reveal>
+            <Reveal>
+              <GlowCard
+                title="Operations Layer"
+                desc="Security, utilities, tasks, approvals, reporting — live dashboards for real teams."
+                icon={<span className="text-sm">🛠️</span>}
+              />
+            </Reveal>
+            <Reveal>
+              <GlowCard
+                title="Control Plane"
+                desc="Automation, event processing, audit trails, observability — reliability behind the whole estate."
+                icon={<span className="text-sm">⚙️</span>}
+              />
+            </Reveal>
+          </div>
+        </section>
+
         {/* SYSTEMS */}
         <section id="systems" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <div className="grid gap-6 md:grid-cols-12 items-start">
@@ -357,11 +393,6 @@ export default function Page() {
                   Power, water, access, security, lighting, maintenance —
                   represented as live cards with status, actions, and history.
                 </p>
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {["Power", "Water", "Security", "Access", "Lighting", "Maintenance"].map((t) => (
-                    <Pill key={t}>{t}</Pill>
-                  ))}
-                </div>
               </Reveal>
             </div>
 
@@ -465,7 +496,7 @@ export default function Page() {
         <div className="mx-auto w-full max-w-6xl px-5 py-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-t border-white/10 pt-6">
             <div className="text-sm text-white/70">© {new Date().getFullYear()} Oyi</div>
-            <div className="text-xs text-white/50">Infrastructure • Operations • Facilities</div>
+            <div className="text-xs text-white/50">Estate Operations Console</div>
           </div>
         </div>
       </footer>
