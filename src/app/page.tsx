@@ -94,6 +94,81 @@ function LiveBadge() {
   );
 }
 
+/* -------------------------------------------------------
+   Mini dashboard preview inside each Systems card
+   - small metrics chips
+   - tiny “sparkline” style chart using pure divs (no libs)
+   - status rows
+-------------------------------------------------------- */
+function MiniPreview({
+  metrics,
+  rows,
+}: {
+  metrics: Array<{ k: string; v: string }>;
+  rows: Array<{ label: string; value: string }>;
+}) {
+  return (
+    <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
+      {/* Metrics */}
+      <div className="flex flex-wrap gap-2">
+        {metrics.map((m) => (
+          <span
+            key={m.k}
+            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/70"
+          >
+            <span className="text-white/55">{m.k}:</span>
+            <span className="text-white/80">{m.v}</span>
+          </span>
+        ))}
+      </div>
+
+      {/* Tiny chart */}
+      <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3">
+        <div className="flex items-end gap-1 h-10">
+          {/* fixed bars for “sparkline” vibe */}
+          {[
+            "h-2",
+            "h-4",
+            "h-6",
+            "h-5",
+            "h-7",
+            "h-4",
+            "h-8",
+            "h-6",
+            "h-9",
+            "h-7",
+            "h-10",
+            "h-8",
+          ].map((h, i) => (
+            <div
+              key={i}
+              className={`w-2 ${h} rounded-sm bg-white/25`}
+              aria-hidden
+            />
+          ))}
+        </div>
+        <div className="mt-2 flex items-center justify-between text-[11px] text-white/55">
+          <span>Last 60 mins</span>
+          <span>Realtime</span>
+        </div>
+      </div>
+
+      {/* Status rows */}
+      <div className="mt-4 grid gap-2">
+        {rows.map((r) => (
+          <div
+            key={r.label}
+            className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+          >
+            <span className="text-[11px] text-white/70">{r.label}</span>
+            <span className="text-[11px] text-white/60">{r.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Page() {
   const stats = useMemo(
     () => [
@@ -101,6 +176,68 @@ export default function Page() {
       { k: "Estate Ops", v: "Realtime monitoring + response" },
       { k: "Digital Twin", v: "Map + 3D view ready" },
       { k: "Audit", v: "Roles, rules, activity logs" },
+    ],
+    []
+  );
+
+  const systemCards = useMemo(
+    () => [
+      {
+        title: "Power Operations",
+        summary: "Monitor supply and switching reliability.",
+        metrics: [
+          { k: "Uptime", v: "99.9%" },
+          { k: "Load", v: "62%" },
+          { k: "Fuel", v: "74%" },
+        ],
+        rows: [
+          { label: "Grid Status", value: "Stable" },
+          { label: "Generator", value: "Standby" },
+          { label: "ATS", value: "Auto" },
+        ],
+      },
+      {
+        title: "Water Systems",
+        summary: "Track pressure, storage and flow performance.",
+        metrics: [
+          { k: "Pressure", v: "2.4 bar" },
+          { k: "Tank", v: "68%" },
+          { k: "Flow", v: "Normal" },
+        ],
+        rows: [
+          { label: "Main Pump", value: "Running" },
+          { label: "Leak Alerts", value: "0" },
+          { label: "Consumption", value: "Normal" },
+        ],
+      },
+      {
+        title: "Security",
+        summary: "Incidents, zones and CCTV health in one view.",
+        metrics: [
+          { k: "Zones", v: "12" },
+          { k: "CCTV", v: "Online" },
+          { k: "Incidents", v: "1" },
+        ],
+        rows: [
+          { label: "Perimeter", value: "Active" },
+          { label: "Patrol Log", value: "Updated" },
+          { label: "Escalations", value: "0" },
+        ],
+      },
+      {
+        title: "Access Control",
+        summary: "Gate rules, visitor passes and audit logs.",
+        metrics: [
+          { k: "Entries", v: "214" },
+          { k: "Exceptions", v: "2" },
+          { k: "Approvals", v: "Live" },
+        ],
+        rows: [
+          { label: "Gate Status", value: "Operational" },
+          { label: "Visitor Passes", value: "Active" },
+          { label: "Device Logs", value: "Synced" },
+        ],
+      },
     ],
     []
   );
@@ -149,20 +286,21 @@ export default function Page() {
               <a href="#how" className="px-3 py-2 text-sm text-white/70 hover:text-white">
                 How it works
               </a>
-              <a href="#demo" className="px-3 py-2 text-sm text-white/70 hover:text-white">
-                Demo
+              <a href="#video" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                Video
               </a>
             </nav>
 
             <div className="flex items-center gap-2">
+              {/* Request Demo -> Watch Video */}
               <a
-                href="#demo"
+                href="#video"
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 transition"
               >
-                Request Demo
+                Watch Video
               </a>
               <a
-                href="#demo"
+                href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
                 className="rounded-xl bg-white text-black px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
               >
                 Deploy
@@ -187,16 +325,16 @@ export default function Page() {
 
                 <p className="mt-5 text-white/70 leading-7">
                   Oyi is a two-way operating layer for estates —
-                  residents can control in-home devices and automations, while operators run facility infrastructure
+                  residents control in-home devices and automations, while operators run facility infrastructure
                   with live dashboards, alerts, and audited actions.
                 </p>
 
                 <div className="mt-7 flex flex-wrap gap-3">
                   <a
-                    href="#demo"
+                    href="#video"
                     className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition"
                   >
-                    Request Demo
+                    Watch Video
                   </a>
                   <a
                     href="#platform"
@@ -319,8 +457,7 @@ export default function Page() {
                   One console for home + estate operations
                 </h2>
                 <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                  Designed for real operators and real residents — clear views, controlled actions, fast response,
-                  and every activity recorded.
+                  Clear views, controlled actions, fast response, and every activity recorded — built for real operators and real residents.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -356,7 +493,7 @@ export default function Page() {
           </div>
         </section>
 
-        {/* STACK (Resident app message tightened + “controls devices” included) */}
+        {/* STACK */}
         <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <Reveal>
             <div className="text-xs text-white/60">Stack</div>
@@ -364,8 +501,7 @@ export default function Page() {
               Three layers. One operating system.
             </h2>
             <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-              Residents control and interact with services. Operators run infrastructure. The control plane ties
-              everything together with events, rules, and audit.
+              Residents control devices and interact with services. Operators run infrastructure. The control plane ties everything together with events, rules, and audit.
             </p>
           </Reveal>
 
@@ -373,14 +509,14 @@ export default function Page() {
             <Reveal>
               <GlowCard
                 title="Resident App"
-                desc="Control in-home devices (lights, AC, TV), run scenes/automations, request access, visitors, and services — all tracked."
+                desc="Control devices (lights, AC, TV), run scenes/automations, access requests, visitors, and services — all tracked."
                 icon={<span className="text-sm">🏠</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
                 title="Facility Console"
-                desc="Run estate systems: access control, street lighting, utilities, CCTV health, incidents, and operational reporting."
+                desc="Run estate systems: access control, street lighting, utilities, CCTV health, incidents, and reporting."
                 icon={<span className="text-sm">🏢</span>}
               />
             </Reveal>
@@ -394,7 +530,7 @@ export default function Page() {
           </div>
         </section>
 
-        {/* SYSTEMS */}
+        {/* SYSTEMS (updated: short summary + mini previews) */}
         <section id="systems" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <div className="grid gap-6 md:grid-cols-12 items-start">
             <div className="md:col-span-5">
@@ -404,42 +540,26 @@ export default function Page() {
                   One operating layer for estate infrastructure
                 </h2>
                 <p className="mt-3 text-white/70 leading-7">
-                  Power, water, access, security, lighting, maintenance —
-                  represented as live cards with status, actions, and history.
+                  Power, water, access, security — represented as live cards with status, actions, and logs.
                 </p>
               </Reveal>
             </div>
 
             <div className="md:col-span-7">
               <div className="grid gap-4 md:grid-cols-2">
-                {[
-                  ["Power Operations", "Generator/ATS status, faults, fuel, runtime, switching events."],
-                  ["Water Systems", "Tanks, pumps, leaks, pressure, consumption, alarms."],
-                  ["Security", "CCTV health, incidents, patrol logs, zones, escalation."],
-                  ["Access Control", "Residents/visitors, QR/code, device logs, exceptions."],
-                ].map(([t, d]) => (
-                  <Reveal key={t}>
+                {systemCards.map((c) => (
+                  <Reveal key={c.title}>
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="text-sm font-semibold">{t}</div>
-                          <div className="mt-2 text-sm text-white/70 leading-6">{d}</div>
+                          <div className="text-sm font-semibold">{c.title}</div>
+                          <div className="mt-2 text-sm text-white/70 leading-6">{c.summary}</div>
                         </div>
                         <LiveBadge />
                       </div>
 
-                      {/* subtle placeholder panel (keeps your design but feels “alive”) */}
-                      <div className="mt-4 h-20 rounded-xl border border-white/10 bg-white/5" />
-                      <div className="mt-3 flex gap-2 flex-wrap">
-                        {["Status", "Actions", "Logs"].map((x) => (
-                          <span
-                            key={x}
-                            className="text-[11px] text-white/60 border border-white/10 bg-white/5 rounded-full px-2 py-1"
-                          >
-                            {x}
-                          </span>
-                        ))}
-                      </div>
+                      {/* The “details” are now the preview (metrics + chart + status rows) */}
+                      <MiniPreview metrics={c.metrics} rows={c.rows} />
                     </div>
                   </Reveal>
                 ))}
@@ -473,50 +593,46 @@ export default function Page() {
           </Reveal>
         </section>
 
-        {/* DEMO */}
-        <section id="demo" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
+        {/* VIDEO (replaces demo section) */}
+        <section id="video" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <Reveal>
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-xl">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
                 <div>
-                  <div className="text-xs text-white/60">Demo</div>
+                  <div className="text-xs text-white/60">Walkthrough</div>
                   <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                    Want to see it live?
+                    Watch the walkthrough
                   </h2>
                   <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                    We’ll walk you through the resident controls, the facility console, and the command center view —
-                    including alerts, logs, and automations.
+                    A quick view of the resident controls, facility console, and command center —
+                    including alerts, logs, automations, and digital twin views.
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
-                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Demo%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20demo.%0A%0AName:%0ACompany/Estate:%0ALocation:%0APhone:%0AUse-case:%0A%0AHome%20devices%20to%20control%20(optional):%0A%0AThanks"
+                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
                     className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition text-center"
                   >
-                    Request Demo
+                    Deployment Request
                   </a>
 
                   <a
-                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
+                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Video%20Request"
                     className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/85 hover:text-white hover:bg-white/10 transition text-center"
                   >
-                    Deployment Request
+                    Request Video Link
                   </a>
                 </div>
               </div>
 
-              <div className="mt-6 grid gap-3 md:grid-cols-3">
-                {[
-                  ["Home + Estate", "Residents control devices; operators run infrastructure."],
-                  ["Hardware + Software", "Full integration contracts supported."],
-                  ["Operations-grade", "Logs, roles, escalation, reporting."],
-                ].map(([a, b]) => (
-                  <div key={a} className="rounded-2xl border border-white/10 bg-black/30 p-5">
-                    <div className="text-sm font-semibold">{a}</div>
-                    <div className="mt-2 text-sm text-white/70">{b}</div>
+              {/* placeholder video frame (swap with embed later) */}
+              <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-4">
+                <div className="h-56 md:h-72 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center">
+                  <div className="text-sm text-white/60">
+                    Video placeholder — paste your embed here later.
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </Reveal>
