@@ -85,86 +85,82 @@ function Pill({ children }: { children: React.ReactNode }) {
   );
 }
 
-function LiveBadge() {
+function LiveDot() {
   return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/70">
+    <span className="inline-flex items-center gap-2 text-[11px] text-white/60">
       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
-      Live
+      realtime
     </span>
   );
 }
 
-/* -------------------------------------------------------
-   Mini dashboard preview inside each Systems card
-   - small metrics chips
-   - tiny “sparkline” style chart using pure divs (no libs)
-   - status rows
--------------------------------------------------------- */
-function MiniPreview({
+/**
+ * Compact preview strip (small, not bulky):
+ * - tiny label row ("Last 60 mins" + realtime)
+ * - tiny sparkline bar (inside a slim height)
+ * - 2-3 tiny metric chips (short)
+ */
+function CompactPreview({
+  timeframe = "Last 60 mins",
   metrics,
-  rows,
 }: {
-  metrics: Array<{ k: string; v: string }>;
-  rows: Array<{ label: string; value: string }>;
+  timeframe?: string;
+  metrics: string[];
 }) {
   return (
-    <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
-      {/* Metrics */}
-      <div className="flex flex-wrap gap-2">
-        {metrics.map((m) => (
+    <div className="mt-3">
+      <div className="flex items-center justify-between">
+        <span className="text-[11px] text-white/55">{timeframe}</span>
+        <LiveDot />
+      </div>
+
+      {/* slim sparkline */}
+      <div className="mt-2 h-10 rounded-lg border border-white/10 bg-white/5 overflow-hidden relative">
+        <div className="absolute inset-0 opacity-70 bg-[radial-gradient(420px_circle_at_20%_60%,rgba(59,130,246,0.20),transparent_55%),radial-gradient(360px_circle_at_80%_40%,rgba(168,85,247,0.14),transparent_55%)]" />
+        <div className="absolute inset-0 opacity-[0.16] [background-image:linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:22px_22px]" />
+        {/* faux line segments */}
+        <div className="absolute left-3 right-3 top-5 h-[2px] bg-white/20 rounded-full" />
+        <div className="absolute left-3 top-6 h-[2px] w-1/3 bg-white/28 rounded-full" />
+        <div className="absolute right-3 top-4 h-[2px] w-1/4 bg-white/16 rounded-full" />
+      </div>
+
+      <div className="mt-2 flex flex-wrap gap-2">
+        {metrics.slice(0, 3).map((m) => (
           <span
-            key={m.k}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/70"
+            key={m}
+            className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/65"
           >
-            <span className="text-white/55">{m.k}:</span>
-            <span className="text-white/80">{m.v}</span>
+            {m}
           </span>
         ))}
       </div>
+    </div>
+  );
+}
 
-      {/* Tiny chart */}
-      <div className="mt-4 rounded-lg border border-white/10 bg-white/5 p-3">
-        <div className="flex items-end gap-1 h-10">
-          {/* fixed bars for “sparkline” vibe */}
-          {[
-            "h-2",
-            "h-4",
-            "h-6",
-            "h-5",
-            "h-7",
-            "h-4",
-            "h-8",
-            "h-6",
-            "h-9",
-            "h-7",
-            "h-10",
-            "h-8",
-          ].map((h, i) => (
-            <div
-              key={i}
-              className={`w-2 ${h} rounded-sm bg-white/25`}
-              aria-hidden
-            />
-          ))}
+function SystemTile({
+  title,
+  oneLiner,
+  metrics,
+}: {
+  title: string;
+  oneLiner: string;
+  metrics: string[];
+}) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-xl">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-white">{title}</div>
+          <div className="mt-1 text-sm text-white/70 leading-6">{oneLiner}</div>
         </div>
-        <div className="mt-2 flex items-center justify-between text-[11px] text-white/55">
-          <span>Last 60 mins</span>
-          <span>Realtime</span>
-        </div>
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/65">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
+          Live
+        </span>
       </div>
 
-      {/* Status rows */}
-      <div className="mt-4 grid gap-2">
-        {rows.map((r) => (
-          <div
-            key={r.label}
-            className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
-          >
-            <span className="text-[11px] text-white/70">{r.label}</span>
-            <span className="text-[11px] text-white/60">{r.value}</span>
-          </div>
-        ))}
-      </div>
+      <CompactPreview metrics={metrics} />
     </div>
   );
 }
@@ -176,68 +172,6 @@ export default function Page() {
       { k: "Estate Ops", v: "Realtime monitoring + response" },
       { k: "Digital Twin", v: "Map + 3D view ready" },
       { k: "Audit", v: "Roles, rules, activity logs" },
-    ],
-    []
-  );
-
-  const systemCards = useMemo(
-    () => [
-      {
-        title: "Power Operations",
-        summary: "Monitor supply and switching reliability.",
-        metrics: [
-          { k: "Uptime", v: "99.9%" },
-          { k: "Load", v: "62%" },
-          { k: "Fuel", v: "74%" },
-        ],
-        rows: [
-          { label: "Grid Status", value: "Stable" },
-          { label: "Generator", value: "Standby" },
-          { label: "ATS", value: "Auto" },
-        ],
-      },
-      {
-        title: "Water Systems",
-        summary: "Track pressure, storage and flow performance.",
-        metrics: [
-          { k: "Pressure", v: "2.4 bar" },
-          { k: "Tank", v: "68%" },
-          { k: "Flow", v: "Normal" },
-        ],
-        rows: [
-          { label: "Main Pump", value: "Running" },
-          { label: "Leak Alerts", value: "0" },
-          { label: "Consumption", value: "Normal" },
-        ],
-      },
-      {
-        title: "Security",
-        summary: "Incidents, zones and CCTV health in one view.",
-        metrics: [
-          { k: "Zones", v: "12" },
-          { k: "CCTV", v: "Online" },
-          { k: "Incidents", v: "1" },
-        ],
-        rows: [
-          { label: "Perimeter", value: "Active" },
-          { label: "Patrol Log", value: "Updated" },
-          { label: "Escalations", value: "0" },
-        ],
-      },
-      {
-        title: "Access Control",
-        summary: "Gate rules, visitor passes and audit logs.",
-        metrics: [
-          { k: "Entries", v: "214" },
-          { k: "Exceptions", v: "2" },
-          { k: "Approvals", v: "Live" },
-        ],
-        rows: [
-          { label: "Gate Status", value: "Operational" },
-          { label: "Visitor Passes", value: "Active" },
-          { label: "Device Logs", value: "Synced" },
-        ],
-      },
     ],
     []
   );
@@ -286,21 +220,20 @@ export default function Page() {
               <a href="#how" className="px-3 py-2 text-sm text-white/70 hover:text-white">
                 How it works
               </a>
-              <a href="#video" className="px-3 py-2 text-sm text-white/70 hover:text-white">
-                Video
+              <a href="#walkthrough" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                Walkthrough
               </a>
             </nav>
 
             <div className="flex items-center gap-2">
-              {/* Request Demo -> Watch Video */}
               <a
-                href="#video"
+                href="#walkthrough"
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 transition"
               >
-                Watch Video
+                Request Walkthrough
               </a>
               <a
-                href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
+                href="#walkthrough"
                 className="rounded-xl bg-white text-black px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
               >
                 Deploy
@@ -324,17 +257,16 @@ export default function Page() {
                 </h1>
 
                 <p className="mt-5 text-white/70 leading-7">
-                  Oyi is a two-way operating layer for estates —
-                  residents control in-home devices and automations, while operators run facility infrastructure
-                  with live dashboards, alerts, and audited actions.
+                  Oyi is a two-way operating layer for estates — residents control in-home devices and automations,
+                  while operators run facility infrastructure with live dashboards, alerts, and audited actions.
                 </p>
 
                 <div className="mt-7 flex flex-wrap gap-3">
                   <a
-                    href="#video"
+                    href="#walkthrough"
                     className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition"
                   >
-                    Watch Video
+                    Request Walkthrough
                   </a>
                   <a
                     href="#platform"
@@ -375,7 +307,7 @@ export default function Page() {
                       <div className="col-span-12 md:col-span-7 rounded-xl border border-white/10 bg-black/30 p-4">
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-white/60">Map / Site View</div>
-                          <LiveBadge />
+                          <span className="text-[11px] text-white/60">realtime</span>
                         </div>
                         <div className="mt-3 h-28 rounded-lg border border-white/10 bg-white/5" />
                         <div className="mt-3 flex gap-2 flex-wrap">
@@ -393,7 +325,7 @@ export default function Page() {
                       <div className="col-span-12 md:col-span-5 rounded-xl border border-white/10 bg-black/30 p-4">
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-white/60">Systems</div>
-                          <LiveBadge />
+                          <span className="text-[11px] text-white/60">realtime</span>
                         </div>
                         <div className="mt-3 space-y-2">
                           {[
@@ -457,7 +389,7 @@ export default function Page() {
                   One console for home + estate operations
                 </h2>
                 <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                  Clear views, controlled actions, fast response, and every activity recorded — built for real operators and real residents.
+                  Clear views, controlled actions, fast response — and every activity recorded.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -472,7 +404,7 @@ export default function Page() {
             <Reveal>
               <GlowCard
                 title="Operations UX"
-                desc="Live status, alerts, actions, and reporting — clean and legible at a glance."
+                desc="Live status, alerts, actions, and reporting — legible at a glance."
                 icon={<span className="text-sm">⌘</span>}
               />
             </Reveal>
@@ -486,7 +418,7 @@ export default function Page() {
             <Reveal>
               <GlowCard
                 title="Controls + Audit"
-                desc="Permissions, approvals, logs, and traceability — infrastructure-grade accountability."
+                desc="Permissions, approvals, logs — infrastructure-grade accountability."
                 icon={<span className="text-sm">✓</span>}
               />
             </Reveal>
@@ -501,7 +433,8 @@ export default function Page() {
               Three layers. One operating system.
             </h2>
             <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-              Residents control devices and interact with services. Operators run infrastructure. The control plane ties everything together with events, rules, and audit.
+              Residents control devices and interact with services. Operators run infrastructure. The control plane ties
+              everything together with events, rules, and audit.
             </p>
           </Reveal>
 
@@ -509,28 +442,28 @@ export default function Page() {
             <Reveal>
               <GlowCard
                 title="Resident App"
-                desc="Control devices (lights, AC, TV), run scenes/automations, access requests, visitors, and services — all tracked."
+                desc="Home control (lights, AC, TV), scenes/automations, visitor access, requests — traceable."
                 icon={<span className="text-sm">🏠</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
                 title="Facility Console"
-                desc="Run estate systems: access control, street lighting, utilities, CCTV health, incidents, and reporting."
+                desc="Access control, street lighting, utilities, CCTV health, incidents, reporting."
                 icon={<span className="text-sm">🏢</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
                 title="Control Plane"
-                desc="Automation rules, event processing, alert routing, audit trails, and observability — reliability behind everything."
+                desc="Rules, event processing, alert routing, audit trails, observability."
                 icon={<span className="text-sm">⚙️</span>}
               />
             </Reveal>
           </div>
         </section>
 
-        {/* SYSTEMS (updated: short summary + mini previews) */}
+        {/* SYSTEMS (compact) */}
         <section id="systems" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <div className="grid gap-6 md:grid-cols-12 items-start">
             <div className="md:col-span-5">
@@ -540,29 +473,44 @@ export default function Page() {
                   One operating layer for estate infrastructure
                 </h2>
                 <p className="mt-3 text-white/70 leading-7">
-                  Power, water, access, security — represented as live cards with status, actions, and logs.
+                  Live cards that show status, actions, and history — without clutter.
                 </p>
               </Reveal>
             </div>
 
             <div className="md:col-span-7">
               <div className="grid gap-4 md:grid-cols-2">
-                {systemCards.map((c) => (
-                  <Reveal key={c.title}>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="text-sm font-semibold">{c.title}</div>
-                          <div className="mt-2 text-sm text-white/70 leading-6">{c.summary}</div>
-                        </div>
-                        <LiveBadge />
-                      </div>
+                <Reveal>
+                  <SystemTile
+                    title="Power Operations"
+                    oneLiner="Supply health and backup readiness."
+                    metrics={["Voltage (V)", "Load (kW)", "Runtime (hrs)"]}
+                  />
+                </Reveal>
 
-                      {/* The “details” are now the preview (metrics + chart + status rows) */}
-                      <MiniPreview metrics={c.metrics} rows={c.rows} />
-                    </div>
-                  </Reveal>
-                ))}
+                <Reveal>
+                  <SystemTile
+                    title="Water Systems"
+                    oneLiner="Levels, pressure, and flow visibility."
+                    metrics={["Tank (%)", "Flow (L/min)", "Pressure (bar)"]}
+                  />
+                </Reveal>
+
+                <Reveal>
+                  <SystemTile
+                    title="Security"
+                    oneLiner="Incidents and coverage health."
+                    metrics={["Incidents", "CCTV Uptime", "Zones Active"]}
+                  />
+                </Reveal>
+
+                <Reveal>
+                  <SystemTile
+                    title="Access Control"
+                    oneLiner="Entry flow and verification."
+                    metrics={["Entries", "Denied", "Visitor Passes"]}
+                  />
+                </Reveal>
               </div>
             </div>
           </div>
@@ -593,46 +541,49 @@ export default function Page() {
           </Reveal>
         </section>
 
-        {/* VIDEO (replaces demo section) */}
-        <section id="video" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
+        {/* WALKTHROUGH */}
+        <section id="walkthrough" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <Reveal>
             <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-xl">
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
                 <div>
-                  <div className="text-xs text-white/60">Walkthrough</div>
-                  <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                    Watch the walkthrough
+                  <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                    Request a walkthrough
                   </h2>
                   <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                    A quick view of the resident controls, facility console, and command center —
-                    including alerts, logs, automations, and digital twin views.
+                    We’ll show the resident controls, the facility console, and the command center view — including alerts,
+                    logs, and automations.
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
-                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
+                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Walkthrough%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20walkthrough.%0A%0AName:%0AEstate/Company:%0ALocation:%0APhone:%0AUse-case:%0A%0AThanks"
                     className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition text-center"
                   >
-                    Deployment Request
+                    Request Walkthrough
                   </a>
 
                   <a
-                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Video%20Request"
+                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
                     className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/85 hover:text-white hover:bg-white/10 transition text-center"
                   >
-                    Request Video Link
+                    Deployment Request
                   </a>
                 </div>
               </div>
 
-              {/* placeholder video frame (swap with embed later) */}
-              <div className="mt-6 rounded-2xl border border-white/10 bg-black/30 p-4">
-                <div className="h-56 md:h-72 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center">
-                  <div className="text-sm text-white/60">
-                    Video placeholder — paste your embed here later.
+              <div className="mt-6 grid gap-3 md:grid-cols-3">
+                {[
+                  ["Home + Estate", "Residents control devices; operators run infrastructure."],
+                  ["Hardware + Software", "Full integration contracts supported."],
+                  ["Operations-grade", "Logs, roles, escalation, reporting."],
+                ].map(([a, b]) => (
+                  <div key={a} className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                    <div className="text-sm font-semibold">{a}</div>
+                    <div className="mt-2 text-sm text-white/70">{b}</div>
                   </div>
-                </div>
+                ))}
               </div>
             </div>
           </Reveal>
