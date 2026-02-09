@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 
 type RevealProps = {
   children: React.ReactNode;
@@ -77,13 +77,30 @@ function GlowCard({
   );
 }
 
+function Pill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+      {children}
+    </span>
+  );
+}
+
+function LiveBadge() {
+  return (
+    <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/70">
+      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
+      Live
+    </span>
+  );
+}
+
 export default function Page() {
   const stats = useMemo(
     () => [
-      { k: "Live Ops", v: "Realtime control + alerts" },
+      { k: "Home Control", v: "Devices + automations" },
+      { k: "Estate Ops", v: "Realtime monitoring + response" },
       { k: "Digital Twin", v: "Map + 3D view ready" },
-      { k: "Devices", v: "Multi-system integration" },
-      { k: "Access", v: "Roles, rules, audit trail" },
+      { k: "Audit", v: "Roles, rules, activity logs" },
     ],
     []
   );
@@ -115,7 +132,6 @@ export default function Page() {
               </div>
               <div>
                 <div className="text-sm font-semibold leading-4">Oyi</div>
-                {/* Suggested tagline */}
                 <div className="text-xs text-white/60">Estate Operations Console</div>
               </div>
             </div>
@@ -153,8 +169,6 @@ export default function Page() {
               </a>
             </div>
           </div>
-
-          {/* ✅ Removed pills entirely */}
         </div>
       </header>
 
@@ -172,8 +186,9 @@ export default function Page() {
                 </h1>
 
                 <p className="mt-5 text-white/70 leading-7">
-                  Oyi is an operations-grade control layer for estates and facilities —
-                  dashboards, alerts, roles, devices, and digital twin views in one console.
+                  Oyi is a two-way operating layer for estates —
+                  residents can control in-home devices and automations, while operators run facility infrastructure
+                  with live dashboards, alerts, and audited actions.
                 </p>
 
                 <div className="mt-7 flex flex-wrap gap-3">
@@ -205,7 +220,7 @@ export default function Page() {
               </Reveal>
             </div>
 
-            {/* HERO VISUAL (Command Center only) */}
+            {/* HERO VISUAL */}
             <div className="md:col-span-6">
               <Reveal className="md:pl-6">
                 <div className="relative rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl overflow-hidden">
@@ -220,9 +235,12 @@ export default function Page() {
 
                     <div className="mt-5 grid grid-cols-12 gap-3">
                       <div className="col-span-12 md:col-span-7 rounded-xl border border-white/10 bg-black/30 p-4">
-                        <div className="text-xs text-white/60">Map / Site View</div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-white/60">Map / Site View</div>
+                          <LiveBadge />
+                        </div>
                         <div className="mt-3 h-28 rounded-lg border border-white/10 bg-white/5" />
-                        <div className="mt-3 flex gap-2">
+                        <div className="mt-3 flex gap-2 flex-wrap">
                           {["Assets: 124", "Alerts: 3", "Uptime: 99.9%"].map((t) => (
                             <span
                               key={t}
@@ -235,7 +253,10 @@ export default function Page() {
                       </div>
 
                       <div className="col-span-12 md:col-span-5 rounded-xl border border-white/10 bg-black/30 p-4">
-                        <div className="text-xs text-white/60">Systems</div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-white/60">Systems</div>
+                          <LiveBadge />
+                        </div>
                         <div className="mt-3 space-y-2">
                           {[
                             ["Power", "Stable"],
@@ -256,7 +277,10 @@ export default function Page() {
                     </div>
 
                     <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
-                      <div className="text-xs text-white/60">Activity</div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-white/60">Activity</div>
+                        <span className="text-[11px] text-white/60">Last 5 mins</span>
+                      </div>
                       <div className="mt-3 grid md:grid-cols-3 gap-2">
                         {[
                           "Gate access granted — Admin",
@@ -275,13 +299,8 @@ export default function Page() {
                   </div>
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {["Map View", "3D Twin View", "Role-based Ops", "Alerts + Audit"].map((t) => (
-                      <span
-                        key={t}
-                        className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70"
-                      >
-                        {t}
-                      </span>
+                    {["Map View", "3D Twin View", "Home Automations", "Alerts + Audit"].map((t) => (
+                      <Pill key={t}>{t}</Pill>
                     ))}
                   </div>
                 </div>
@@ -297,22 +316,17 @@ export default function Page() {
               <div>
                 <div className="text-xs text-white/60">Platform</div>
                 <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                  Your estate’s operations console
+                  One console for home + estate operations
                 </h2>
                 <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                  Built for real operations: clean spacing, high-signal cards, and the right views for
-                  monitoring, response, enforcement, and reporting.
+                  Designed for real operators and real residents — clear views, controlled actions, fast response,
+                  and every activity recorded.
                 </p>
               </div>
               <div className="flex gap-2">
-                {["Realtime", "Secure", "Scalable"].map((t) => (
-                  <span
-                    key={t}
-                    className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70"
-                  >
-                    {t}
-                  </span>
-                ))}
+                <Pill>Realtime</Pill>
+                <Pill>Secure</Pill>
+                <Pill>Scalable</Pill>
               </div>
             </div>
           </Reveal>
@@ -320,60 +334,60 @@ export default function Page() {
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <Reveal>
               <GlowCard
-                title="Command Center UX"
-                desc="Operators see status, alerts, and actions without clutter — everything is legible at a glance."
+                title="Operations UX"
+                desc="Live status, alerts, actions, and reporting — clean and legible at a glance."
                 icon={<span className="text-sm">⌘</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
                 title="Digital Twin Ready"
-                desc="Map view now, 3D/4D extensions later — designed to expand without redesign."
+                desc="Map view now, 3D/4D later — designed to expand without redesign."
                 icon={<span className="text-sm">◻︎</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
-                title="Roles + Audit"
-                desc="Admins, operators, facility teams — permissions and activity logs built into the flow."
+                title="Controls + Audit"
+                desc="Permissions, approvals, logs, and traceability — infrastructure-grade accountability."
                 icon={<span className="text-sm">✓</span>}
               />
             </Reveal>
           </div>
         </section>
 
-        {/* STACK (✅ NEW: consumer app / resident layer without “smart home marketing”) */}
+        {/* STACK (Resident app message tightened + “controls devices” included) */}
         <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <Reveal>
             <div className="text-xs text-white/60">Stack</div>
             <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-              Three layers, one operating system
+              Three layers. One operating system.
             </h2>
             <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-              Oyi is designed like estate infrastructure: residents interact with services, operators run systems,
-              and the control plane keeps everything traceable and reliable.
+              Residents control and interact with services. Operators run infrastructure. The control plane ties
+              everything together with events, rules, and audit.
             </p>
           </Reveal>
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             <Reveal>
               <GlowCard
-                title="Resident Layer"
-                desc="Access requests, visitor passes, incident reporting, service requests — structured and auditable."
-                icon={<span className="text-sm">👤</span>}
+                title="Resident App"
+                desc="Control in-home devices (lights, AC, TV), run scenes/automations, request access, visitors, and services — all tracked."
+                icon={<span className="text-sm">🏠</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
-                title="Operations Layer"
-                desc="Security, utilities, tasks, approvals, reporting — live dashboards for real teams."
-                icon={<span className="text-sm">🛠️</span>}
+                title="Facility Console"
+                desc="Run estate systems: access control, street lighting, utilities, CCTV health, incidents, and operational reporting."
+                icon={<span className="text-sm">🏢</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
                 title="Control Plane"
-                desc="Automation, event processing, audit trails, observability — reliability behind the whole estate."
+                desc="Automation rules, event processing, alert routing, audit trails, and observability — reliability behind everything."
                 icon={<span className="text-sm">⚙️</span>}
               />
             </Reveal>
@@ -399,16 +413,33 @@ export default function Page() {
             <div className="md:col-span-7">
               <div className="grid gap-4 md:grid-cols-2">
                 {[
-                  ["Power Operations", "Monitor supply, generator, ATS, faults, fuel, runtime."],
+                  ["Power Operations", "Generator/ATS status, faults, fuel, runtime, switching events."],
                   ["Water Systems", "Tanks, pumps, leaks, pressure, consumption, alarms."],
                   ["Security", "CCTV health, incidents, patrol logs, zones, escalation."],
-                  ["Access Control", "Visitors, staff, QR/code, device logs, exceptions."],
+                  ["Access Control", "Residents/visitors, QR/code, device logs, exceptions."],
                 ].map(([t, d]) => (
                   <Reveal key={t}>
                     <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
-                      <div className="text-sm font-semibold">{t}</div>
-                      <div className="mt-2 text-sm text-white/70 leading-6">{d}</div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-sm font-semibold">{t}</div>
+                          <div className="mt-2 text-sm text-white/70 leading-6">{d}</div>
+                        </div>
+                        <LiveBadge />
+                      </div>
+
+                      {/* subtle placeholder panel (keeps your design but feels “alive”) */}
                       <div className="mt-4 h-20 rounded-xl border border-white/10 bg-white/5" />
+                      <div className="mt-3 flex gap-2 flex-wrap">
+                        {["Status", "Actions", "Logs"].map((x) => (
+                          <span
+                            key={x}
+                            className="text-[11px] text-white/60 border border-white/10 bg-white/5 rounded-full px-2 py-1"
+                          >
+                            {x}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </Reveal>
                 ))}
@@ -429,7 +460,7 @@ export default function Page() {
               <div className="mt-8 grid gap-4 md:grid-cols-3">
                 {[
                   ["1) Model the estate", "Site plan / map, assets, roles, and operating rules."],
-                  ["2) Connect devices", "Integrate controllers, sensors, cameras, meters, gateways."],
+                  ["2) Connect devices", "Controllers, sensors, cameras, meters, gateways, and home devices."],
                   ["3) Run operations", "Dashboards, alerts, escalation, maintenance, reporting."],
                 ].map(([t, d]) => (
                   <div key={t} className="rounded-2xl border border-white/10 bg-black/30 p-6">
@@ -453,13 +484,14 @@ export default function Page() {
                     Want to see it live?
                   </h2>
                   <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                    Request a demo and we’ll walk you through the command center, systems cards, and the digital twin flow.
+                    We’ll walk you through the resident controls, the facility console, and the command center view —
+                    including alerts, logs, and automations.
                   </p>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <a
-                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Demo%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20demo.%0A%0AName:%0ACompany/Estate:%0ALocation:%0APhone:%0AUse-case:%0A%0AThanks"
+                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Demo%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20demo.%0A%0AName:%0ACompany/Estate:%0ALocation:%0APhone:%0AUse-case:%0A%0AHome%20devices%20to%20control%20(optional):%0A%0AThanks"
                     className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition text-center"
                   >
                     Request Demo
@@ -476,7 +508,7 @@ export default function Page() {
 
               <div className="mt-6 grid gap-3 md:grid-cols-3">
                 {[
-                  ["Fast setup", "Start with one estate, then scale to multiple sites."],
+                  ["Home + Estate", "Residents control devices; operators run infrastructure."],
                   ["Hardware + Software", "Full integration contracts supported."],
                   ["Operations-grade", "Logs, roles, escalation, reporting."],
                 ].map(([a, b]) => (
