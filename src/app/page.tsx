@@ -89,19 +89,12 @@ function LiveDot() {
   return <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />;
 }
 
-/**
- * Different mini “sparklines” per card.
- * We’re not doing real charts; just SVG strokes that look like different activities.
- */
+/** Different mini spark lines per system */
 function Sparkline({ variant }: { variant: "power" | "water" | "security" | "access" }) {
-  const paths: Record<typeof variant, string> = {
-    // steady with slight spikes
+  const paths: Record<string, string> = {
     power: "M2 26 L14 22 L26 24 L38 18 L50 20 L62 14 L74 16 L86 10 L98 12 L110 8 L122 10",
-    // gentle downtrend then recovery
     water: "M2 10 L14 12 L26 14 L38 16 L50 18 L62 22 L74 20 L86 18 L98 16 L110 14 L122 12",
-    // spiky / incident-like
     security: "M2 24 L14 24 L26 12 L38 24 L50 22 L62 8 L74 26 L86 14 L98 26 L110 18 L122 24",
-    // step-like / access bursts
     access: "M2 26 L14 26 L26 18 L38 18 L50 22 L62 22 L74 12 L86 12 L98 16 L110 10 L122 10",
   };
 
@@ -115,12 +108,7 @@ function Sparkline({ variant }: { variant: "power" | "water" | "security" | "acc
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <path
-        d="M2 28 H122"
-        fill="none"
-        stroke="rgba(255,255,255,0.12)"
-        strokeWidth="1"
-      />
+      <path d="M2 28 H122" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
     </svg>
   );
 }
@@ -146,7 +134,6 @@ function CompactPreview({
         </div>
       </div>
 
-      {/* tiny graph strip (now different per card) */}
       <div className="mt-2 h-10 rounded-lg border border-white/10 bg-white/5 relative overflow-hidden">
         <div className="absolute inset-0 opacity-70 bg-[radial-gradient(500px_circle_at_20%_40%,rgba(59,130,246,0.18),transparent_45%),radial-gradient(420px_circle_at_75%_60%,rgba(168,85,247,0.14),transparent_50%)]" />
         <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:22px_22px]" />
@@ -190,12 +177,7 @@ function SystemCard({
 
       <div className="mt-2 text-sm text-white/70 leading-6">{oneLine}</div>
 
-      <CompactPreview
-        label={previewLabel}
-        kpi1={kpi1}
-        kpi2={kpi2}
-        variant={variant}
-      />
+      <CompactPreview label={previewLabel} kpi1={kpi1} kpi2={kpi2} variant={variant} />
     </div>
   );
 }
@@ -290,9 +272,8 @@ export default function Page() {
                 </h1>
 
                 <p className="mt-5 text-white/70 leading-7">
-                  Oyi is a two-way operating layer for estates —
-                  residents control in-home devices and automations, while operators run facility infrastructure
-                  with live dashboards, alerts, and audited actions.
+                  Oyi is a two-way operating layer for estates — residents control in-home devices and automations,
+                  while operators run facility infrastructure with live dashboards, alerts, and audited actions.
                 </p>
 
                 <div className="mt-7 flex flex-wrap gap-3">
@@ -359,4 +340,275 @@ export default function Page() {
                         </div>
                       </div>
 
-                      <div className="col-span-12 md:col-span-5 rounded-xl border border-white/10
+                      <div className="col-span-12 md:col-span-5 rounded-xl border border-white/10 bg-black/30 p-4">
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-white/60">Systems</div>
+                          <span className="inline-flex items-center gap-2 text-[11px] text-white/55">
+                            <LiveDot />
+                            Realtime
+                          </span>
+                        </div>
+                        <div className="mt-3 space-y-2">
+                          {[
+                            ["Power", "Stable"],
+                            ["Water", "Normal"],
+                            ["Security", "Active"],
+                            ["Lighting", "Auto"],
+                          ].map(([a, b]) => (
+                            <div
+                              key={a}
+                              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
+                            >
+                              <span className="text-xs text-white/80">{a}</span>
+                              <span className="text-[11px] text-white/60">{b}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-white/60">Activity</div>
+                        <span className="text-[11px] text-white/60">Last 5 mins</span>
+                      </div>
+                      <div className="mt-3 grid md:grid-cols-3 gap-2">
+                        {[
+                          "Gate access granted — Admin",
+                          "Generator auto-switch — Ops",
+                          "Leak alert resolved — Facility",
+                        ].map((t) => (
+                          <div
+                            key={t}
+                            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/70"
+                          >
+                            {t}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {["Map View", "3D Twin View", "Home Automations", "Alerts + Audit"].map((t) => (
+                      <Pill key={t}>{t}</Pill>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        {/* PLATFORM */}
+        <section id="platform" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
+          <Reveal>
+            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
+              <div>
+                <div className="text-xs text-white/60">Platform</div>
+                <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
+                  One console for home + estate operations
+                </h2>
+                <p className="mt-3 text-white/70 leading-7 max-w-2xl">
+                  Designed for real operators and real residents — clear views, controlled actions, fast response,
+                  and every activity recorded.
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <Pill>Realtime</Pill>
+                <Pill>Secure</Pill>
+                <Pill>Scalable</Pill>
+              </div>
+            </div>
+          </Reveal>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Reveal>
+              <GlowCard
+                title="Operations UX"
+                desc="Live status, alerts, actions, reporting — legible at a glance."
+                icon={<span className="text-sm">⌘</span>}
+              />
+            </Reveal>
+            <Reveal>
+              <GlowCard
+                title="Digital Twin Ready"
+                desc="Map view now, 3D/4D later — built to expand."
+                icon={<span className="text-sm">◻︎</span>}
+              />
+            </Reveal>
+            <Reveal>
+              <GlowCard
+                title="Controls + Audit"
+                desc="Permissions, approvals, logs — accountability built-in."
+                icon={<span className="text-sm">✓</span>}
+              />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* STACK */}
+        <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
+          <Reveal>
+            <div className="text-xs text-white/60">Stack</div>
+            <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
+              Three layers. One operating system.
+            </h2>
+            <p className="mt-3 text-white/70 leading-7 max-w-2xl">
+              Residents control devices and interact with services. Operators run infrastructure. The control plane ties
+              everything together with events, rules, and audit.
+            </p>
+          </Reveal>
+
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <Reveal>
+              <GlowCard
+                title="Resident App"
+                desc="Home control (lights, AC, TV), scenes/automations, visitor access, requests — structured and traceable."
+                icon={<span className="text-sm">🏠</span>}
+              />
+            </Reveal>
+            <Reveal>
+              <GlowCard
+                title="Facility Console"
+                desc="Access control, street lighting, utilities, CCTV health, incidents, reporting."
+                icon={<span className="text-sm">🏢</span>}
+              />
+            </Reveal>
+            <Reveal>
+              <GlowCard
+                title="Control Plane"
+                desc="Rules, event processing, alert routing, audit trails, observability."
+                icon={<span className="text-sm">⚙️</span>}
+              />
+            </Reveal>
+          </div>
+        </section>
+
+        {/* SYSTEMS */}
+        <section id="systems" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
+          <div className="grid gap-6 md:grid-cols-12 items-start">
+            <div className="md:col-span-5">
+              <Reveal>
+                <div className="text-xs text-white/60">Systems</div>
+                <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
+                  One operating layer for estate infrastructure
+                </h2>
+                <p className="mt-3 text-white/70 leading-7">
+                  Oyi connects estate infrastructure and in-home controls into one system — so actions, alerts,
+                  automations, and approvals flow through a single control layer. Operators run facilities. Residents
+                  control devices. Everything stays visible, governed, and auditable.
+                </p>
+              </Reveal>
+            </div>
+
+            <div className="md:col-span-7">
+              <div className="grid gap-4 md:grid-cols-2">
+                <Reveal>
+                  <SystemCard
+                    title="Power Operations"
+                    oneLine="Supply health and backup readiness."
+                    previewLabel="Last 60 minutes"
+                    kpi1="Voltage (V)"
+                    kpi2="Load (kW)"
+                    variant="power"
+                  />
+                </Reveal>
+
+                <Reveal>
+                  <SystemCard
+                    title="Water Systems"
+                    oneLine="Supply stability and consumption."
+                    previewLabel="Last 60 minutes"
+                    kpi1="Tank (%)"
+                    kpi2="Flow (L/min)"
+                    variant="water"
+                  />
+                </Reveal>
+
+                <Reveal>
+                  <SystemCard
+                    title="Security"
+                    oneLine="Incidents and coverage health."
+                    previewLabel="Last 60 minutes"
+                    kpi1="Incidents"
+                    kpi2="CCTV Uptime"
+                    variant="security"
+                  />
+                </Reveal>
+
+                <Reveal>
+                  <SystemCard
+                    title="Access Control"
+                    oneLine="Entry flow and verification."
+                    previewLabel="Last 60 minutes"
+                    kpi1="Entries"
+                    kpi2="Denied"
+                    variant="access"
+                  />
+                </Reveal>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* DEPLOYMENTS */}
+        <section id="deployments" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
+          <Reveal>
+            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-xl">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+                <div>
+                  <div className="text-xs text-white/60">Deployments</div>
+                  <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
+                    Request deployment
+                  </h2>
+                  <p className="mt-3 text-white/70 leading-7 max-w-2xl">
+                    We deploy in phases: map the estate, connect systems, go live with the first core workflows, then
+                    expand with automations, reporting, and digital twin views.
+                  </p>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href={deployMailto}
+                    className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition text-center"
+                  >
+                    Request Deployment
+                  </a>
+                  <a
+                    href={deployMailto}
+                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/85 hover:text-white hover:bg-white/10 transition text-center"
+                  >
+                    Deployment Scope
+                  </a>
+                </div>
+              </div>
+
+              <div className="mt-6 grid gap-3 md:grid-cols-3">
+                {[
+                  ["Estate-ready", "Facilities, access, utilities, security, and monitoring."],
+                  ["Home-ready", "Resident device control + automations where enabled."],
+                  ["Operations-grade", "Roles, logs, approvals, alert routing, reporting."],
+                ].map(([a, b]) => (
+                  <div key={a} className="rounded-2xl border border-white/10 bg-black/30 p-5">
+                    <div className="text-sm font-semibold">{a}</div>
+                    <div className="mt-2 text-sm text-white/70">{b}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+        </section>
+      </main>
+
+      <footer className="relative z-10 mt-auto">
+        <div className="mx-auto w-full max-w-6xl px-5 py-10">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-t border-white/10 pt-6">
+            <div className="text-sm text-white/70">© {new Date().getFullYear()} Oyi</div>
+            <div className="text-xs text-white/50">Estate Operations Console</div>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
