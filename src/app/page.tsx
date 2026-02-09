@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type RevealProps = {
@@ -108,21 +109,37 @@ export default function Page() {
       <header className="relative z-10">
         <div className="mx-auto w-full max-w-6xl px-5 py-5">
           <div className="flex items-center justify-between gap-4">
+            {/* Logo + Brand */}
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center">
-                <span className="text-sm font-semibold tracking-wide">OY</span>
+              <div className="h-10 w-10 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                <Image
+                  src="/oyi-logo-transparent.png"
+                  alt="Oyi"
+                  width={64}
+                  height={64}
+                  className="h-full w-full object-cover"
+                  priority
+                />
               </div>
               <div>
-                <div className="text-sm font-semibold leading-4">Ochiga</div>
-                <div className="text-xs text-white/60">Infrastructure • Operations</div>
+                <div className="text-sm font-semibold leading-4">Oyi</div>
+                <div className="text-xs text-white/60">Infrastructure Operations</div>
               </div>
             </div>
 
             <nav className="hidden md:flex items-center gap-2">
-              <a href="#platform" className="px-3 py-2 text-sm text-white/70 hover:text-white">Platform</a>
-              <a href="#systems" className="px-3 py-2 text-sm text-white/70 hover:text-white">Systems</a>
-              <a href="#how" className="px-3 py-2 text-sm text-white/70 hover:text-white">How it works</a>
-              <a href="#demo" className="px-3 py-2 text-sm text-white/70 hover:text-white">Demo</a>
+              <a href="#platform" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                Platform
+              </a>
+              <a href="#systems" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                Systems
+              </a>
+              <a href="#how" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                How it works
+              </a>
+              <a href="#demo" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                Demo
+              </a>
             </nav>
 
             <div className="flex items-center gap-2">
@@ -141,10 +158,8 @@ export default function Page() {
             </div>
           </div>
 
-          {/* small “2026 / OE / …” strip */}
+          {/* pills under logo (removed 2026 + OE) */}
           <div className="mt-4 flex flex-wrap gap-2">
-            <Pill>2026</Pill>
-            <Pill>OE</Pill>
             <Pill>Infrastructure</Pill>
             <Pill>Operations</Pill>
             <Pill>Processing</Pill>
@@ -165,9 +180,10 @@ export default function Page() {
                   See everything. <br />
                   Control in real time.
                 </h1>
+
                 <p className="mt-5 text-white/70 leading-7">
-                  Ochiga is an infrastructure-grade control system for estates, facilities, and urban assets —
-                  dashboards, alerts, roles, devices, and digital twin views in one operating layer.
+                  Oyi is an operations-grade control layer for estates and facilities —
+                  dashboards, alerts, roles, devices, and digital twin views in one console.
                 </p>
 
                 <div className="mt-7 flex flex-wrap gap-3">
@@ -199,15 +215,13 @@ export default function Page() {
               </Reveal>
             </div>
 
-            {/* HERO IMAGE / PLACEHOLDER */}
+            {/* HERO VISUAL (Command Center only) */}
             <div className="md:col-span-6">
               <Reveal className="md:pl-6">
                 <div className="relative rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl overflow-hidden">
-                  {/* “cool” dashboard placeholder */}
                   <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
                   <div className="absolute -bottom-24 -left-24 h-72 w-72 rounded-full bg-white/10 blur-3xl" />
 
-                  {/* Replace this with your real screenshot later */}
                   <div className="rounded-2xl border border-white/10 bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.22),transparent_45%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.18),transparent_45%),radial-gradient(900px_circle_at_40%_90%,rgba(16,185,129,0.14),transparent_45%)] p-6">
                     <div className="flex items-center justify-between">
                       <div className="text-sm font-semibold">Command Center</div>
@@ -278,35 +292,23 @@ export default function Page() {
                     <Pill>Alerts + Audit</Pill>
                   </div>
                 </div>
-
-                {/* extra image placeholders (swap later with real screenshots) */}
-                <div className="mt-4 grid gap-3 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
-                    <div className="text-xs text-white/60">Placeholder Image 1</div>
-                    <div className="mt-3 h-28 rounded-xl border border-white/10 bg-white/5" />
-                  </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
-                    <div className="text-xs text-white/60">Placeholder Image 2</div>
-                    <div className="mt-3 h-28 rounded-xl border border-white/10 bg-white/5" />
-                  </div>
-                </div>
               </Reveal>
             </div>
           </div>
         </section>
 
-        {/* PLATFORM SECTION */}
+        {/* PLATFORM */}
         <section id="platform" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
           <Reveal>
             <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
               <div>
                 <div className="text-xs text-white/60">Platform</div>
                 <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                  Built like an operations console — not a brochure
+                  This is your estate’s operations console
                 </h2>
                 <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                  Clean spacing, high-signal cards, and visuals that carry the story.
-                  This is the layout style you pointed at: premium, structured, and “infrastructure-grade”.
+                  Clean spacing, high-signal cards, and visuals that carry the story —
+                  built for real operators, not page scroll.
                 </p>
               </div>
               <div className="flex gap-2">
@@ -328,14 +330,14 @@ export default function Page() {
             <Reveal>
               <GlowCard
                 title="Digital Twin Ready"
-                desc="Map view today, 3D/4D extensions tomorrow — designed to grow without redesigning the whole product."
+                desc="Map view now, 3D/4D extensions later — designed to expand without redesign."
                 icon={<span className="text-sm">◻︎</span>}
               />
             </Reveal>
             <Reveal>
               <GlowCard
                 title="Roles + Audit"
-                desc="Admin, Manager, Operator, Facility — permissions and activity logs built into the flow."
+                desc="Admins, operators, facility teams — permissions and activity logs built into the flow."
                 icon={<span className="text-sm">✓</span>}
               />
             </Reveal>
@@ -352,8 +354,8 @@ export default function Page() {
                   One operating layer for estate infrastructure
                 </h2>
                 <p className="mt-3 text-white/70 leading-7">
-                  Power, water, access, security, lighting, maintenance — represented as cards with status,
-                  actions, and history.
+                  Power, water, access, security, lighting, maintenance —
+                  represented as live cards with status, actions, and history.
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   {["Power", "Water", "Security", "Access", "Lighting", "Maintenance"].map((t) => (
@@ -395,7 +397,7 @@ export default function Page() {
 
               <div className="mt-8 grid gap-4 md:grid-cols-3">
                 {[
-                  ["1) Model the estate", "Site plan / map, assets, roles, and operational rules."],
+                  ["1) Model the estate", "Site plan / map, assets, roles, and operating rules."],
                   ["2) Connect devices", "Integrate controllers, sensors, cameras, meters, gateways."],
                   ["3) Run operations", "Dashboards, alerts, escalation, maintenance, reporting."],
                 ].map(([t, d]) => (
@@ -425,17 +427,15 @@ export default function Page() {
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  {/* Option A: mailto */}
                   <a
-                    href="mailto:hello@ochiga.com.ng?subject=Ochiga%20Demo%20Request&body=Hi%20Ochiga,%0A%0AI%20want%20to%20request%20a%20demo.%0A%0AName:%0ACompany/Estate:%0ALocation:%0APhone:%0AUse-case:%0A%0AThanks"
+                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Demo%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20demo.%0A%0AName:%0ACompany/Estate:%0ALocation:%0APhone:%0AUse-case:%0A%0AThanks"
                     className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition text-center"
                   >
                     Request Demo
                   </a>
 
-                  {/* Option B: link to your form page */}
                   <a
-                    href="/deploy"
+                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
                     className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/85 hover:text-white hover:bg-white/10 transition text-center"
                   >
                     Deployment Request
@@ -445,7 +445,7 @@ export default function Page() {
 
               <div className="mt-6 grid gap-3 md:grid-cols-3">
                 {[
-                  ["Fast setup", "We can start with a single estate and expand."],
+                  ["Fast setup", "Start with one estate, then scale to multiple sites."],
                   ["Hardware + Software", "Full integration contracts supported."],
                   ["Operations-grade", "Logs, roles, escalation, reporting."],
                 ].map(([a, b]) => (
@@ -460,14 +460,12 @@ export default function Page() {
         </section>
       </main>
 
-      {/* Footer (will stay at bottom because wrapper is flex-col + main is flex-1) */}
+      {/* Footer */}
       <footer className="relative z-10 mt-auto">
         <div className="mx-auto w-full max-w-6xl px-5 py-10">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-t border-white/10 pt-6">
-            <div className="text-sm text-white/70">© {new Date().getFullYear()} Ochiga</div>
-            <div className="text-xs text-white/50">
-              Infrastructure • Operations • Facilities
-            </div>
+            <div className="text-sm text-white/70">© {new Date().getFullYear()} Oyi</div>
+            <div className="text-xs text-white/50">Infrastructure • Operations • Facilities</div>
           </div>
         </div>
       </footer>
