@@ -1,184 +1,181 @@
-/* src/app/globals.css */
 @import "tailwindcss";
 
-/* -------------------------------
-   Theme tokens
--------------------------------- */
+/* -------------------------------------------------
+   Infrastructure-grade theme system
+-------------------------------------------------- */
+
 :root {
-  --bg: 8 10 14;              /* near-black graphite */
-  --panel: 12 14 20;          /* elevated surface */
-  --text: 240 245 255;        /* soft white */
-  --muted: 170 180 200;       /* muted copy */
-  --line: 255 255 255;        /* grid line color (used with low alpha) */
-  --accent: 77 163 255;       /* Oyi blue glow */
-  --ring: 120 210 255;        /* highlight ring */
-
-  --grid-a: 0.06;             /* major grid alpha */
-  --grid-b: 0.035;            /* minor grid alpha */
-  --noise: 0.06;              /* overlay strength */
+  --bg: 248 250 252;         /* light concrete */
+  --fg: 10 10 10;            /* near-black text */
+  --muted: 100 116 139;      /* slate */
+  --card: 255 255 255;       /* white cards */
+  --border: 226 232 240;     /* light border */
+  --accent: 59 130 246;      /* Oyi blue */
+  --shadow: 15 23 42;        /* deep slate for shadows */
 }
 
-html.theme-light {
-  --bg: 245 247 250;          /* concrete white */
-  --panel: 255 255 255;
-  --text: 12 16 24;           /* ink */
-  --muted: 70 80 98;
-  --line: 0 0 0;
-  --accent: 39 120 255;       /* Oyi blue (cleaner for light) */
-  --ring: 25 90 200;
-
-  --grid-a: 0.08;
-  --grid-b: 0.05;
-  --noise: 0.045;
+html.dark {
+  --bg: 6 8 12;              /* graphite */
+  --fg: 245 245 245;         /* near-white */
+  --muted: 148 163 184;      /* slate */
+  --card: 10 12 16;          /* dark cards */
+  --border: 30 41 59;        /* dark border */
+  --accent: 59 130 246;      /* same Oyi blue */
+  --shadow: 0 0 0;
 }
 
-html,
-body {
+html, body {
   height: 100%;
 }
 
 body {
-  margin: 0;
   background: rgb(var(--bg));
-  color: rgb(var(--text));
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: rgb(var(--fg));
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji",
+    "Segoe UI Emoji";
 }
 
-/* -------------------------------
-   Infra grid background utility
--------------------------------- */
-.oyi-surface {
+/* -------------------------------------------------
+   Background: blueprint grid (light) + command grid (dark)
+-------------------------------------------------- */
+
+.oyi-bg {
   position: relative;
   min-height: 100vh;
+  overflow: hidden;
+}
 
-  /* layered: vignette + glow + two grids */
+.oyi-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.55;
+
+  /* Light: concrete + blueprint grid lines */
   background:
-    radial-gradient(1200px 800px at 20% 10%,
-      rgba(var(--accent), 0.12),
-      rgba(var(--accent), 0.00) 60%),
-    radial-gradient(900px 700px at 85% 30%,
-      rgba(var(--ring), 0.08),
-      rgba(var(--ring), 0.00) 65%),
-    radial-gradient(1400px 900px at 50% 120%,
-      rgba(0, 0, 0, 0.28),
-      rgba(0, 0, 0, 0.00) 55%),
-
-    /* minor grid */
-    linear-gradient(
-      to right,
-      rgba(var(--line), var(--grid-b)) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(var(--line), var(--grid-b)) 1px,
-      transparent 1px
-    ),
-
-    /* major grid */
-    linear-gradient(
-      to right,
-      rgba(var(--line), var(--grid-a)) 1px,
-      transparent 1px
-    ),
-    linear-gradient(
-      to bottom,
-      rgba(var(--line), var(--grid-a)) 1px,
-      transparent 1px
-    );
-
+    radial-gradient(1200px 700px at 15% 10%, rgba(var(--accent), 0.14), transparent 60%),
+    radial-gradient(1000px 700px at 85% 30%, rgba(2, 132, 199, 0.10), transparent 60%),
+    linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.0) 35%),
+    linear-gradient(rgba(15, 23, 42, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.06) 1px, transparent 1px);
   background-size:
     auto,
     auto,
     auto,
-    24px 24px,
-    24px 24px,
-    120px 120px,
-    120px 120px;
-
-  background-position:
-    center,
-    center,
-    center,
-    center,
-    center,
-    center,
-    center;
+    36px 36px,
+    36px 36px;
 }
 
-/* subtle noise overlay */
-.oyi-surface::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image:
-    radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
-  background-size: 12px 12px;
-  opacity: var(--noise);
-  mix-blend-mode: overlay;
-}
+html.dark .oyi-bg::before {
+  opacity: 0.7;
 
-/* vignette frame */
-.oyi-surface::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
+  /* Dark: command center grid + glow */
   background:
-    radial-gradient(1200px 800px at 50% 40%,
-      rgba(0,0,0,0.00),
-      rgba(0,0,0,0.35));
-  opacity: 0.75;
+    radial-gradient(1000px 600px at 20% 15%, rgba(var(--accent), 0.22), transparent 55%),
+    radial-gradient(900px 600px at 80% 35%, rgba(34, 211, 238, 0.10), transparent 55%),
+    linear-gradient(to bottom, rgba(255,255,255,0.04), rgba(0,0,0,0.0) 35%),
+    linear-gradient(rgba(148, 163, 184, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size:
+    auto,
+    auto,
+    auto,
+    34px 34px,
+    34px 34px;
 }
 
-/* -------------------------------
-   Small UI primitives
--------------------------------- */
-.oyi-card {
-  background: rgba(var(--panel), 0.72);
-  border: 1px solid rgba(var(--line), 0.10);
-  box-shadow:
-    0 1px 0 rgba(255,255,255,0.04) inset,
-    0 16px 50px rgba(0,0,0,0.35);
+/* Subtle noise overlay */
+.oyi-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
+.oyi-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 20px 64px;
+}
+
+/* -------------------------------------------------
+   Cards + typography helpers
+-------------------------------------------------- */
+
+.oyi-panel {
+  background: rgba(var(--card), 0.82);
+  border: 1px solid rgba(var(--border), 0.9);
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(var(--shadow), 0.08);
   backdrop-filter: blur(10px);
 }
 
-html.theme-light .oyi-card {
-  box-shadow:
-    0 1px 0 rgba(0,0,0,0.04) inset,
-    0 18px 45px rgba(0,0,0,0.10);
+html.dark .oyi-panel {
+  background: rgba(var(--card), 0.62);
+  box-shadow: 0 22px 70px rgba(0, 0, 0, 0.55);
+}
+
+.oyi-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(var(--muted), 1);
+}
+
+.oyi-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(var(--accent), 1);
+  box-shadow: 0 0 0 6px rgba(var(--accent), 0.12);
+}
+
+.oyi-h1 {
+  font-weight: 650;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.oyi-p {
+  color: rgba(var(--muted), 1);
 }
 
 .oyi-btn {
-  border: 1px solid rgba(var(--line), 0.14);
-  background: rgba(var(--panel), 0.55);
-  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--border), 1);
+  background: rgba(var(--card), 0.85);
+  color: rgb(var(--fg));
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
 }
 
 .oyi-btn:hover {
   transform: translateY(-1px);
-  border-color: rgba(var(--line), 0.22);
-  background: rgba(var(--panel), 0.68);
+  border-color: rgba(var(--accent), 0.55);
+  background: rgba(var(--card), 0.95);
 }
 
-.oyi-pill {
-  border: 1px solid rgba(var(--line), 0.16);
-  background: rgba(var(--panel), 0.45);
+.oyi-btn-primary {
+  border-color: rgba(var(--accent), 0.7);
+  background: rgba(var(--accent), 1);
+  color: white;
 }
 
-a.oyi-link {
-  color: rgb(var(--text));
-  text-decoration: none;
-  border-bottom: 1px solid rgba(var(--line), 0.18);
-}
-a.oyi-link:hover {
-  border-bottom-color: rgba(var(--line), 0.35);
+.oyi-btn-primary:hover {
+  background: rgba(var(--accent), 0.92);
 }
 
-/* keep content above overlays */
-.oyi-layer {
-  position: relative;
-  z-index: 1;
-}
