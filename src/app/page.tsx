@@ -86,81 +86,116 @@ function Pill({ children }: { children: React.ReactNode }) {
 }
 
 function LiveDot() {
-  return (
-    <span className="inline-flex items-center gap-2 text-[11px] text-white/60">
-      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
-      realtime
-    </span>
-  );
+  return <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />;
 }
 
 /**
- * Compact preview strip (small, not bulky):
- * - tiny label row ("Last 60 mins" + realtime)
- * - tiny sparkline bar (inside a slim height)
- * - 2-3 tiny metric chips (short)
+ * Different mini “sparklines” per card.
+ * We’re not doing real charts; just SVG strokes that look like different activities.
  */
+function Sparkline({ variant }: { variant: "power" | "water" | "security" | "access" }) {
+  const paths: Record<typeof variant, string> = {
+    // steady with slight spikes
+    power: "M2 26 L14 22 L26 24 L38 18 L50 20 L62 14 L74 16 L86 10 L98 12 L110 8 L122 10",
+    // gentle downtrend then recovery
+    water: "M2 10 L14 12 L26 14 L38 16 L50 18 L62 22 L74 20 L86 18 L98 16 L110 14 L122 12",
+    // spiky / incident-like
+    security: "M2 24 L14 24 L26 12 L38 24 L50 22 L62 8 L74 26 L86 14 L98 26 L110 18 L122 24",
+    // step-like / access bursts
+    access: "M2 26 L14 26 L26 18 L38 18 L50 22 L62 22 L74 12 L86 12 L98 16 L110 10 L122 10",
+  };
+
+  return (
+    <svg viewBox="0 0 124 32" className="h-full w-full">
+      <path
+        d={paths[variant]}
+        fill="none"
+        stroke="rgba(255,255,255,0.55)"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2 28 H122"
+        fill="none"
+        stroke="rgba(255,255,255,0.12)"
+        strokeWidth="1"
+      />
+    </svg>
+  );
+}
+
 function CompactPreview({
-  timeframe = "Last 60 mins",
-  metrics,
+  label,
+  kpi1,
+  kpi2,
+  variant,
 }: {
-  timeframe?: string;
-  metrics: string[];
+  label: string;
+  kpi1: string;
+  kpi2: string;
+  variant: "power" | "water" | "security" | "access";
 }) {
   return (
-    <div className="mt-3">
+    <div className="mt-3 rounded-xl border border-white/10 bg-black/25 p-3">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] text-white/55">{timeframe}</span>
-        <LiveDot />
+        <div className="text-[11px] text-white/60">{label}</div>
+        <div className="flex items-center gap-2 text-[11px] text-white/55">
+          <LiveDot />
+          Realtime
+        </div>
       </div>
 
-      {/* slim sparkline */}
-      <div className="mt-2 h-10 rounded-lg border border-white/10 bg-white/5 overflow-hidden relative">
-        <div className="absolute inset-0 opacity-70 bg-[radial-gradient(420px_circle_at_20%_60%,rgba(59,130,246,0.20),transparent_55%),radial-gradient(360px_circle_at_80%_40%,rgba(168,85,247,0.14),transparent_55%)]" />
-        <div className="absolute inset-0 opacity-[0.16] [background-image:linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:22px_22px]" />
-        {/* faux line segments */}
-        <div className="absolute left-3 right-3 top-5 h-[2px] bg-white/20 rounded-full" />
-        <div className="absolute left-3 top-6 h-[2px] w-1/3 bg-white/28 rounded-full" />
-        <div className="absolute right-3 top-4 h-[2px] w-1/4 bg-white/16 rounded-full" />
+      {/* tiny graph strip (now different per card) */}
+      <div className="mt-2 h-10 rounded-lg border border-white/10 bg-white/5 relative overflow-hidden">
+        <div className="absolute inset-0 opacity-70 bg-[radial-gradient(500px_circle_at_20%_40%,rgba(59,130,246,0.18),transparent_45%),radial-gradient(420px_circle_at_75%_60%,rgba(168,85,247,0.14),transparent_50%)]" />
+        <div className="absolute inset-0 opacity-[0.12] [background-image:linear-gradient(to_right,rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:22px_22px]" />
+        <div className="absolute inset-0 px-2 py-1">
+          <Sparkline variant={variant} />
+        </div>
       </div>
 
-      <div className="mt-2 flex flex-wrap gap-2">
-        {metrics.slice(0, 3).map((m) => (
-          <span
-            key={m}
-            className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/65"
-          >
-            {m}
-          </span>
-        ))}
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <div className="text-[11px] text-white/70">{kpi1}</div>
+        <div className="text-[11px] text-white/70">{kpi2}</div>
       </div>
     </div>
   );
 }
 
-function SystemTile({
+function SystemCard({
   title,
-  oneLiner,
-  metrics,
+  oneLine,
+  previewLabel,
+  kpi1,
+  kpi2,
+  variant,
 }: {
   title: string;
-  oneLiner: string;
-  metrics: string[];
+  oneLine: string;
+  previewLabel: string;
+  kpi1: string;
+  kpi2: string;
+  variant: "power" | "water" | "security" | "access";
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 px-5 py-4 backdrop-blur-xl">
+    <div className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl">
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <div className="text-sm font-semibold text-white">{title}</div>
-          <div className="mt-1 text-sm text-white/70 leading-6">{oneLiner}</div>
-        </div>
-        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/65">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" />
+        <div className="text-sm font-semibold">{title}</div>
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-white/60">
+          <LiveDot />
           Live
         </span>
       </div>
 
-      <CompactPreview metrics={metrics} />
+      <div className="mt-2 text-sm text-white/70 leading-6">{oneLine}</div>
+
+      <CompactPreview
+        label={previewLabel}
+        kpi1={kpi1}
+        kpi2={kpi2}
+        variant={variant}
+      />
     </div>
   );
 }
@@ -176,6 +211,9 @@ export default function Page() {
     []
   );
 
+  const deployMailto =
+    "mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20deployment.%0A%0AName:%0AEstate/Company:%0ALocation:%0APhone:%0AScope%20(what%20to%20integrate):%0A%0AThanks";
+
   return (
     <div className="min-h-screen flex flex-col bg-[#070A12] text-white overflow-x-hidden">
       {/* Ambient background */}
@@ -189,7 +227,6 @@ export default function Page() {
       <header className="relative z-10">
         <div className="mx-auto w-full max-w-6xl px-5 py-5">
           <div className="flex items-center justify-between gap-4">
-            {/* Logo + Brand */}
             <div className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-xl overflow-hidden border border-white/10 bg-white/5">
                 <Image
@@ -217,23 +254,20 @@ export default function Page() {
               <a href="#systems" className="px-3 py-2 text-sm text-white/70 hover:text-white">
                 Systems
               </a>
-              <a href="#how" className="px-3 py-2 text-sm text-white/70 hover:text-white">
-                How it works
-              </a>
-              <a href="#walkthrough" className="px-3 py-2 text-sm text-white/70 hover:text-white">
-                Walkthrough
+              <a href="#deployments" className="px-3 py-2 text-sm text-white/70 hover:text-white">
+                Deployments
               </a>
             </nav>
 
             <div className="flex items-center gap-2">
               <a
-                href="#walkthrough"
+                href={deployMailto}
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 hover:text-white hover:bg-white/10 transition"
               >
-                Request Walkthrough
+                Request Deployment
               </a>
               <a
-                href="#walkthrough"
+                href={deployMailto}
                 className="rounded-xl bg-white text-black px-4 py-2 text-sm font-semibold hover:opacity-90 transition"
               >
                 Deploy
@@ -243,7 +277,6 @@ export default function Page() {
         </div>
       </header>
 
-      {/* Main */}
       <main className="relative z-10 flex-1">
         {/* HERO */}
         <section className="mx-auto w-full max-w-6xl px-5 pt-8 pb-12 md:pt-14">
@@ -257,16 +290,17 @@ export default function Page() {
                 </h1>
 
                 <p className="mt-5 text-white/70 leading-7">
-                  Oyi is a two-way operating layer for estates — residents control in-home devices and automations,
-                  while operators run facility infrastructure with live dashboards, alerts, and audited actions.
+                  Oyi is a two-way operating layer for estates —
+                  residents control in-home devices and automations, while operators run facility infrastructure
+                  with live dashboards, alerts, and audited actions.
                 </p>
 
                 <div className="mt-7 flex flex-wrap gap-3">
                   <a
-                    href="#walkthrough"
+                    href={deployMailto}
                     className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition"
                   >
-                    Request Walkthrough
+                    Request Deployment
                   </a>
                   <a
                     href="#platform"
@@ -290,7 +324,7 @@ export default function Page() {
               </Reveal>
             </div>
 
-            {/* HERO VISUAL */}
+            {/* Hero visual */}
             <div className="md:col-span-6">
               <Reveal className="md:pl-6">
                 <div className="relative rounded-3xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl overflow-hidden">
@@ -307,7 +341,10 @@ export default function Page() {
                       <div className="col-span-12 md:col-span-7 rounded-xl border border-white/10 bg-black/30 p-4">
                         <div className="flex items-center justify-between">
                           <div className="text-xs text-white/60">Map / Site View</div>
-                          <span className="text-[11px] text-white/60">realtime</span>
+                          <span className="inline-flex items-center gap-2 text-[11px] text-white/55">
+                            <LiveDot />
+                            Realtime
+                          </span>
                         </div>
                         <div className="mt-3 h-28 rounded-lg border border-white/10 bg-white/5" />
                         <div className="mt-3 flex gap-2 flex-wrap">
@@ -322,283 +359,4 @@ export default function Page() {
                         </div>
                       </div>
 
-                      <div className="col-span-12 md:col-span-5 rounded-xl border border-white/10 bg-black/30 p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs text-white/60">Systems</div>
-                          <span className="text-[11px] text-white/60">realtime</span>
-                        </div>
-                        <div className="mt-3 space-y-2">
-                          {[
-                            ["Power", "Stable"],
-                            ["Water", "Normal"],
-                            ["Security", "Active"],
-                            ["Lighting", "Auto"],
-                          ].map(([a, b]) => (
-                            <div
-                              key={a}
-                              className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 px-3 py-2"
-                            >
-                              <span className="text-xs text-white/80">{a}</span>
-                              <span className="text-[11px] text-white/60">{b}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 rounded-xl border border-white/10 bg-black/30 p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="text-xs text-white/60">Activity</div>
-                        <span className="text-[11px] text-white/60">Last 5 mins</span>
-                      </div>
-                      <div className="mt-3 grid md:grid-cols-3 gap-2">
-                        {[
-                          "Gate access granted — Admin",
-                          "Generator auto-switch — Ops",
-                          "Leak alert resolved — Facility",
-                        ].map((t) => (
-                          <div
-                            key={t}
-                            className="rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-[11px] text-white/70"
-                          >
-                            {t}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {["Map View", "3D Twin View", "Home Automations", "Alerts + Audit"].map((t) => (
-                      <Pill key={t}>{t}</Pill>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
-            </div>
-          </div>
-        </section>
-
-        {/* PLATFORM */}
-        <section id="platform" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
-          <Reveal>
-            <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
-              <div>
-                <div className="text-xs text-white/60">Platform</div>
-                <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                  One console for home + estate operations
-                </h2>
-                <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                  Clear views, controlled actions, fast response — and every activity recorded.
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Pill>Realtime</Pill>
-                <Pill>Secure</Pill>
-                <Pill>Scalable</Pill>
-              </div>
-            </div>
-          </Reveal>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <Reveal>
-              <GlowCard
-                title="Operations UX"
-                desc="Live status, alerts, actions, and reporting — legible at a glance."
-                icon={<span className="text-sm">⌘</span>}
-              />
-            </Reveal>
-            <Reveal>
-              <GlowCard
-                title="Digital Twin Ready"
-                desc="Map view now, 3D/4D later — designed to expand without redesign."
-                icon={<span className="text-sm">◻︎</span>}
-              />
-            </Reveal>
-            <Reveal>
-              <GlowCard
-                title="Controls + Audit"
-                desc="Permissions, approvals, logs — infrastructure-grade accountability."
-                icon={<span className="text-sm">✓</span>}
-              />
-            </Reveal>
-          </div>
-        </section>
-
-        {/* STACK */}
-        <section id="stack" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
-          <Reveal>
-            <div className="text-xs text-white/60">Stack</div>
-            <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-              Three layers. One operating system.
-            </h2>
-            <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-              Residents control devices and interact with services. Operators run infrastructure. The control plane ties
-              everything together with events, rules, and audit.
-            </p>
-          </Reveal>
-
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <Reveal>
-              <GlowCard
-                title="Resident App"
-                desc="Home control (lights, AC, TV), scenes/automations, visitor access, requests — traceable."
-                icon={<span className="text-sm">🏠</span>}
-              />
-            </Reveal>
-            <Reveal>
-              <GlowCard
-                title="Facility Console"
-                desc="Access control, street lighting, utilities, CCTV health, incidents, reporting."
-                icon={<span className="text-sm">🏢</span>}
-              />
-            </Reveal>
-            <Reveal>
-              <GlowCard
-                title="Control Plane"
-                desc="Rules, event processing, alert routing, audit trails, observability."
-                icon={<span className="text-sm">⚙️</span>}
-              />
-            </Reveal>
-          </div>
-        </section>
-
-        {/* SYSTEMS (compact) */}
-        <section id="systems" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
-          <div className="grid gap-6 md:grid-cols-12 items-start">
-            <div className="md:col-span-5">
-              <Reveal>
-                <div className="text-xs text-white/60">Systems</div>
-                <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                  One operating layer for estate infrastructure
-                </h2>
-                <p className="mt-3 text-white/70 leading-7">
-                  Live cards that show status, actions, and history — without clutter.
-                </p>
-              </Reveal>
-            </div>
-
-            <div className="md:col-span-7">
-              <div className="grid gap-4 md:grid-cols-2">
-                <Reveal>
-                  <SystemTile
-                    title="Power Operations"
-                    oneLiner="Supply health and backup readiness."
-                    metrics={["Voltage (V)", "Load (kW)", "Runtime (hrs)"]}
-                  />
-                </Reveal>
-
-                <Reveal>
-                  <SystemTile
-                    title="Water Systems"
-                    oneLiner="Levels, pressure, and flow visibility."
-                    metrics={["Tank (%)", "Flow (L/min)", "Pressure (bar)"]}
-                  />
-                </Reveal>
-
-                <Reveal>
-                  <SystemTile
-                    title="Security"
-                    oneLiner="Incidents and coverage health."
-                    metrics={["Incidents", "CCTV Uptime", "Zones Active"]}
-                  />
-                </Reveal>
-
-                <Reveal>
-                  <SystemTile
-                    title="Access Control"
-                    oneLiner="Entry flow and verification."
-                    metrics={["Entries", "Denied", "Visitor Passes"]}
-                  />
-                </Reveal>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* HOW IT WORKS */}
-        <section id="how" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
-          <Reveal>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-xl">
-              <div className="text-xs text-white/60">How it works</div>
-              <h2 className="mt-2 text-2xl md:text-3xl font-semibold tracking-tight">
-                Deploy, connect systems, operate in realtime
-              </h2>
-
-              <div className="mt-8 grid gap-4 md:grid-cols-3">
-                {[
-                  ["1) Model the estate", "Site plan / map, assets, roles, and operating rules."],
-                  ["2) Connect devices", "Controllers, sensors, cameras, meters, gateways, and home devices."],
-                  ["3) Run operations", "Dashboards, alerts, escalation, maintenance, reporting."],
-                ].map(([t, d]) => (
-                  <div key={t} className="rounded-2xl border border-white/10 bg-black/30 p-6">
-                    <div className="text-sm font-semibold">{t}</div>
-                    <div className="mt-2 text-sm text-white/70 leading-6">{d}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </section>
-
-        {/* WALKTHROUGH */}
-        <section id="walkthrough" className="mx-auto w-full max-w-6xl px-5 py-12 md:py-16">
-          <Reveal>
-            <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-10 backdrop-blur-xl">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5">
-                <div>
-                  <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">
-                    Request a walkthrough
-                  </h2>
-                  <p className="mt-3 text-white/70 leading-7 max-w-2xl">
-                    We’ll show the resident controls, the facility console, and the command center view — including alerts,
-                    logs, and automations.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <a
-                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Walkthrough%20Request&body=Hi%20Oyi,%0A%0AI%20want%20to%20request%20a%20walkthrough.%0A%0AName:%0AEstate/Company:%0ALocation:%0APhone:%0AUse-case:%0A%0AThanks"
-                    className="rounded-xl bg-white text-black px-5 py-3 text-sm font-semibold hover:opacity-90 transition text-center"
-                  >
-                    Request Walkthrough
-                  </a>
-
-                  <a
-                    href="mailto:contactochiga@gmail.com?subject=Oyi%20Deployment%20Request"
-                    className="rounded-xl border border-white/10 bg-white/5 px-5 py-3 text-sm text-white/85 hover:text-white hover:bg-white/10 transition text-center"
-                  >
-                    Deployment Request
-                  </a>
-                </div>
-              </div>
-
-              <div className="mt-6 grid gap-3 md:grid-cols-3">
-                {[
-                  ["Home + Estate", "Residents control devices; operators run infrastructure."],
-                  ["Hardware + Software", "Full integration contracts supported."],
-                  ["Operations-grade", "Logs, roles, escalation, reporting."],
-                ].map(([a, b]) => (
-                  <div key={a} className="rounded-2xl border border-white/10 bg-black/30 p-5">
-                    <div className="text-sm font-semibold">{a}</div>
-                    <div className="mt-2 text-sm text-white/70">{b}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </Reveal>
-        </section>
-      </main>
-
-      {/* Footer */}
-      <footer className="relative z-10 mt-auto">
-        <div className="mx-auto w-full max-w-6xl px-5 py-10">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-t border-white/10 pt-6">
-            <div className="text-sm text-white/70">© {new Date().getFullYear()} Oyi</div>
-            <div className="text-xs text-white/50">Estate Operations Console</div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+                      <div className="col-span-12 md:col-span-5 rounded-xl border border-white/10
