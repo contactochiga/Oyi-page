@@ -1151,18 +1151,55 @@ export default function Page() {
         </section>
       </main>
 
-      <footer className="relative z-10 mt-auto">
+            <footer className="relative z-10 mt-auto">
         <div className="mx-auto w-full max-w-6xl px-5 py-10">
-          <div className={cn("flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-t pt-6", isDark ? "border-white/10" : "border-black/10")}>
-            <div className={cn("text-sm", isDark ? "text-white/70" : "text-black/70")}>
-              © {new Date().getFullYear()} Oyi
+          <div
+            className={cn(
+              "flex flex-col gap-6 border-t pt-6",
+              isDark ? "border-white/10" : "border-black/10"
+            )}
+          >
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className={cn("text-sm", isDark ? "text-white/70" : "text-black/70")}>
+                © {new Date().getFullYear()} Oyi
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                <a
+                  href="/privacy"
+                  className={cn(
+                    "text-sm underline-offset-4 hover:underline transition",
+                    isDark ? "text-white/60 hover:text-white" : "text-black/60 hover:text-black"
+                  )}
+                >
+                  Privacy Policy
+                </a>
+                <span className={cn("text-sm", isDark ? "text-white/30" : "text-black/30")}>•</span>
+                <a
+                  href="/terms"
+                  className={cn(
+                    "text-sm underline-offset-4 hover:underline transition",
+                    isDark ? "text-white/60 hover:text-white" : "text-black/60 hover:text-black"
+                  )}
+                >
+                  Terms
+                </a>
+                <span className={cn("text-sm", isDark ? "text-white/30" : "text-black/30")}>•</span>
+                <a
+                  href="/support"
+                  className={cn(
+                    "text-sm underline-offset-4 hover:underline transition",
+                    isDark ? "text-white/60 hover:text-white" : "text-black/60 hover:text-black"
+                  )}
+                >
+                  Support
+                </a>
+              </div>
             </div>
+
             <div className={cn("text-xs", isDark ? "text-white/50" : "text-black/50")}>
-              Estate Operations Console
+              Estate Operations Console • Home control + estate services • Secure, audited operations
             </div>
           </div>
         </div>
       </footer>
-    </div>
-  );
-}
