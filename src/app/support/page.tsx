@@ -1,6 +1,6 @@
 export default function SupportPage() {
   const mailto =
-    "mailto:contactochiga@gmail.com?subject=Oyi%20Support%20Request&body=Hi%20Oyi%20Support,%0A%0AApp%20Version:%0ADevice:%0AEstate%20Name:%0AIssue%20Summary:%0ASteps%20to%20Reproduce:%0A%0AThanks.";
+    "mailto:support@oyi.com?subject=Oyi%20Support%20Request&body=Hi%20Oyi%20Support,%0A%0AApp%20Version:%0ADevice:%0AEstate%20Name:%0AIssue%20Summary:%0ASteps%20to%20Reproduce:%0A%0AThanks.";
 
   return (
     <main className="min-h-screen bg-[#070A12] text-white">
@@ -26,7 +26,7 @@ export default function SupportPage() {
               <div className="text-sm font-semibold">Email support</div>
               <p className="mt-2 text-sm text-white/70">
                 <a className="underline hover:text-white" href="mailto:contactochiga@gmail.com">
-                  contactochiga@gmail.com
+                  support@oyi.com
                 </a>
               </p>
               <a
