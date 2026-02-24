@@ -631,6 +631,76 @@ function PriceCard({
   );
 }
 
+/** NEW: Systems visual card (uses /public/Energy-page.png) */
+function SystemsVisual({ mode }: { mode: Mode }) {
+  const isDark = mode === "dark";
+  return (
+    <div
+      className={cn(
+        "mt-6 rounded-3xl border p-3 md:p-4 backdrop-blur-xl overflow-hidden",
+        isDark ? "border-white/10 bg-white/5" : "border-black/10 bg-black/[0.02]"
+      )}
+    >
+      <div
+        className={cn(
+          "relative w-full overflow-hidden rounded-2xl border",
+          isDark ? "border-white/10 bg-black/30" : "border-black/10 bg-white/60"
+        )}
+      >
+        {/* Glow */}
+        <div
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute -top-24 -right-24 h-72 w-72 rounded-full blur-3xl",
+            isDark ? "bg-emerald-400/10" : "bg-emerald-500/10"
+          )}
+        />
+        <div
+          aria-hidden
+          className={cn(
+            "pointer-events-none absolute -bottom-24 -left-24 h-72 w-72 rounded-full blur-3xl",
+            isDark ? "bg-blue-400/10" : "bg-blue-500/10"
+          )}
+        />
+
+        {/* Image */}
+        <div className="relative aspect-[16/10] w-full">
+          <Image
+            src="/Energy-page.png"
+            alt="Oyi energy operations view"
+            fill
+            priority={false}
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 520px"
+          />
+        </div>
+
+        {/* Caption row */}
+        <div
+          className={cn(
+            "relative flex flex-wrap items-center justify-between gap-2 px-4 py-3 border-t",
+            isDark ? "border-white/10" : "border-black/10"
+          )}
+        >
+          <div className={cn("text-sm font-semibold", isDark ? "text-white" : "text-black")}>Energy & Utilities View</div>
+          <div className={cn("text-[11px]", isDark ? "text-white/60" : "text-black/55")}>
+            Live signals • alerts • audit trails
+          </div>
+        </div>
+      </div>
+
+      {/* Micro badges */}
+      <div className="mt-3 flex flex-wrap gap-2">
+        {["Generator ops", "Diesel tracking", "Voltage signals", "Alert routing"].map((t) => (
+          <Pill key={t} mode={mode}>
+            {t}
+          </Pill>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Page() {
   const [mode, setMode] = useState<Mode>("dark");
   const isDark = mode === "dark";
@@ -954,6 +1024,9 @@ export default function Page() {
                 <p className={cn("mt-3 leading-7", isDark ? "text-white/70" : "text-black/70")}>
                   Access, security, utilities, maintenance, reporting — with AI support for commands, insights, and routing.
                 </p>
+
+                {/* NEW IMAGE */}
+                <SystemsVisual mode={mode} />
               </Reveal>
             </div>
 
