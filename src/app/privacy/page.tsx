@@ -1,83 +1,30 @@
+import Link from "next/link";
+import { SiteFooter, SiteHeader } from "@/components/OyiSite";
+
 export default function PrivacyPage() {
   return (
-    <main className="min-h-screen bg-[#070A12] text-white">
-      <div className="pointer-events-none fixed inset-0">
-        <div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_20%_10%,rgba(59,130,246,0.12),transparent_50%),radial-gradient(900px_circle_at_80%_20%,rgba(168,85,247,0.10),transparent_55%),radial-gradient(900px_circle_at_50%_90%,rgba(16,185,129,0.08),transparent_55%)]" />
-        <div className="absolute inset-0 opacity-[0.20] [background-image:linear-gradient(to_right,rgba(255,255,255,0.06)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.06)_1px,transparent_1px)]" style={{ backgroundSize: "64px 64px" }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60" />
-      </div>
-
-      <div className="relative mx-auto w-full max-w-3xl px-5 py-10">
-        <a href="/" className="text-sm text-white/70 hover:text-white underline-offset-4 hover:underline">
-          ← Back to getoyi.com
-        </a>
-
-        <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8 backdrop-blur-xl">
-          <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Privacy Policy</h1>
-          <p className="mt-2 text-sm text-white/60">Last updated: {new Date().toLocaleDateString()}</p>
-
-          <p className="mt-6 text-white/75 leading-7">
-            Oyi is an estate operations and resident services platform. Residents can manage household actions and requests,
-            while estate operators manage infrastructure workflows (access, utilities, security, billing, and maintenance).
-            This Privacy Policy explains what we collect, why we collect it, and how we protect it.
-          </p>
-
-          <h2 className="mt-8 text-lg font-semibold">Information we collect</h2>
-          <ul className="mt-3 space-y-2 text-white/75 leading-7 list-disc pl-5">
-            <li>
-              <b>Account information:</b> name, phone number/email (if provided), and role (resident, staff, admin).
-            </li>
-            <li>
-              <b>Estate activity:</b> requests, approvals, payments, access events, and operational logs (audit trail).
-            </li>
-            <li>
-              <b>Device & app data:</b> device identifiers, app version, and basic diagnostics for reliability and security.
-            </li>
-            <li>
-              <b>Camera access (QR scanning):</b> if enabled by you, the camera may be used to scan QR codes for access or verification.
-              We do not record video by default for QR scanning.
-            </li>
+    <>
+      <SiteHeader />
+      <main className="min-h-screen bg-[#050b14] px-5 py-16 text-white">
+        <article className="mx-auto max-w-3xl rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 md:p-10">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Privacy</p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em]">Privacy Policy</h1>
+          <p className="mt-4 text-sm text-slate-400">Last updated: June 4, 2026</p>
+          <p className="mt-8 leading-7 text-slate-300">Oyi is a residential operations platform. Residents and estate operators use Oyi for invite-based access, home context, requests, visitors, devices, community notices, services, and operational workflows.</p>
+          <h2 className="mt-8 text-xl font-semibold">Information we collect</h2>
+          <ul className="mt-3 list-disc space-y-2 pl-5 leading-7 text-slate-300">
+            <li>Account and role information needed to connect a resident or operator to an estate.</li>
+            <li>Operational records such as requests, visitor activity, device assignments, service events, and audit logs.</li>
+            <li>Device and app diagnostics needed for reliability, security, and support.</li>
           </ul>
-
-          <h2 className="mt-8 text-lg font-semibold">How we use information</h2>
-          <ul className="mt-3 space-y-2 text-white/75 leading-7 list-disc pl-5">
-            <li>To provide core app features (requests, access, payments, alerts, and estate operations).</li>
-            <li>To secure the platform (fraud prevention, access control, permissions, audit logs).</li>
-            <li>To support deployments and integrations when enabled by an estate (e.g., access systems, utilities, security workflows).</li>
-            <li>To troubleshoot issues and improve reliability.</li>
-          </ul>
-
-          <h2 className="mt-8 text-lg font-semibold">Sharing</h2>
-          <p className="mt-3 text-white/75 leading-7">
-            We do not sell personal data. We may share information with:
-            (1) your estate administrators and authorized staff for operations,
-            and (2) service providers that help us run the platform (hosting, analytics, security) under appropriate safeguards.
-          </p>
-
-          <h2 className="mt-8 text-lg font-semibold">Data retention</h2>
-          <p className="mt-3 text-white/75 leading-7">
-            We retain operational records and audit logs for security, compliance, and estate operations. Retention periods may vary by estate policy.
-          </p>
-
-          <h2 className="mt-8 text-lg font-semibold">Your choices</h2>
-          <ul className="mt-3 space-y-2 text-white/75 leading-7 list-disc pl-5">
-            <li>You can deny permissions like camera access in device settings (some features may not work without it).</li>
-            <li>You may request access or deletion of certain data, subject to estate operational requirements and legal obligations.</li>
-          </ul>
-
-          <h2 className="mt-8 text-lg font-semibold">Contact</h2>
-          <p className="mt-3 text-white/75 leading-7">
-            For privacy questions, contact:{" "}
-            <a className="underline hover:text-white" href="mailto:contactochiga@gmail.com">
-              contactochiga@gmail.com
-            </a>
-          </p>
-        </div>
-
-        <div className="mt-6 text-xs text-white/50">
-          © {new Date().getFullYear()} Oyi • getoyi.com/privacy
-        </div>
-      </div>
-    </main>
+          <h2 className="mt-8 text-xl font-semibold">How information is used</h2>
+          <p className="mt-3 leading-7 text-slate-300">Information is used to provide estate operations, protect access, support resident services, troubleshoot issues, and maintain auditability. Oyi does not sell personal data.</p>
+          <h2 className="mt-8 text-xl font-semibold">Contact</h2>
+          <p className="mt-3 leading-7 text-slate-300">For privacy or support requests, use the contact page so the request can be routed without exposing private information in a public page.</p>
+          <Link href="/contact" className="mt-5 inline-flex rounded-full bg-sky-400 px-5 py-3 font-semibold text-slate-950">Contact Oyi</Link>
+        </article>
+      </main>
+      <SiteFooter />
+    </>
   );
 }
