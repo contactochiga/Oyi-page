@@ -1,10 +1,8 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
+import { OyiAssistant } from "@/components/oyi-widget/OyiAssistant";
 import { siteConfig } from "@/lib/site";
-
-const widgetUrl = process.env.NEXT_PUBLIC_OYI_WIDGET_URL || (process.env.NODE_ENV === "development" ? "https://ochiga-lead-agents.onrender.com/widget.js" : "");
-const widgetApiBase = process.env.NEXT_PUBLIC_OYI_WIDGET_API_BASE || (process.env.NODE_ENV === "development" ? "https://ochiga-lead-agents.onrender.com" : "");
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -38,8 +36,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body>
         {children}
+        <OyiAssistant />
         <Script id="oyi-structured-data" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-        {widgetUrl ? <Script id="oma-widget" src={widgetUrl} data-oma-widget="true" data-api-base={widgetApiBase || undefined} data-title="Chat with Oma" data-subtitle="Learn how Oyi fits your property or operations workflow" data-greeting="Hi, I'm Oma. Tell me what kind of property or operation you manage, and I'll help you find the right next step." strategy="afterInteractive" /> : null}
       </body>
     </html>
   );

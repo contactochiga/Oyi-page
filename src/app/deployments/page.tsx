@@ -29,8 +29,8 @@ const initialState: FormState = {
   website: "",
 };
 
-const projectTypes = ["Residential estate", "Apartment building", "Mixed-use property", "Developer portfolio", "Facility operations"];
-const interests = ["Invite-first resident onboarding", "Smart devices and rooms", "Visitors and security", "Maintenance and community", "Full estate deployment"];
+const projectTypes = ["Residential estate", "Hospitality property", "Commercial / office building", "Mixed-use development", "Healthcare facility", "Developer portfolio"];
+const interests = ["Invite-first onboarding", "Rooms, devices, and controls", "Visitors and security", "Maintenance and community", "Full building deployment"];
 
 export default function DeploymentsPage() {
   const [form, setForm] = useState<FormState>(initialState);
@@ -60,7 +60,7 @@ export default function DeploymentsPage() {
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit the request right now.");
       setStatus("success");
       setRequestId(data.requestId || "");
-      setMessage("Your deployment request has been received. Our product team will review the estate context and respond if there is a deployment fit.");
+      setMessage("Your deployment request has been received. Our product team will review the building context and respond if there is a deployment fit.");
       setForm(initialState);
     } catch (error) {
       setStatus("error");
@@ -74,14 +74,14 @@ export default function DeploymentsPage() {
       <main className="min-h-screen bg-[#050b14] px-5 py-16 text-white">
         <section className="mx-auto max-w-6xl">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Deployment intake</p>
-          <h1 className="mt-4 max-w-4xl text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Plan a connected residential rollout.</h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">Tell us about your estate, property, or operations environment. Oyi deployments are reviewed for fit before setup begins.</p>
+          <h1 className="mt-4 max-w-4xl text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bring Oyi to your building.</h1>
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">Tell us about your building, property, or operations environment. Oyi deployments are reviewed for fit before setup begins.</p>
         </section>
         <section className="mx-auto mt-10 grid max-w-6xl gap-8 lg:grid-cols-[0.75fr_1.25fr]">
           <aside className="rounded-[2rem] border border-white/10 bg-white/[0.06] p-6">
             <h2 className="text-xl font-semibold">What happens next</h2>
             <div className="mt-6 grid gap-4 text-sm text-slate-300">
-              {[["1", "Review estate context"], ["2", "Confirm deployment fit"], ["3", "Plan homes, residents, devices, and operations"], ["4", "Launch controlled onboarding"]].map(([step, text]) => (
+              {[["1", "Review building context"], ["2", "Confirm deployment fit"], ["3", "Plan spaces, occupants, devices, and operations"], ["4", "Launch controlled onboarding"]].map(([step, text]) => (
                 <div key={step} className="flex gap-3">
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sky-400 text-sm font-semibold text-slate-950">{step}</span>
                   <span className="pt-1">{text}</span>
@@ -99,12 +99,12 @@ export default function DeploymentsPage() {
               <Input label="Full name" required value={form.name} onChange={(value) => update("name", value)} />
               <Input label="Email" type="email" required value={form.email} onChange={(value) => update("email", value)} />
               <Input label="Phone" value={form.phone} onChange={(value) => update("phone", value)} />
-              <Input label="Organization / estate" required value={form.organization} onChange={(value) => update("organization", value)} />
+              <Input label="Organization / building" required value={form.organization} onChange={(value) => update("organization", value)} />
             </Fieldset>
             <Fieldset title="Project environment">
-              <Select label="Your role" value={form.role} onChange={(value) => update("role", value)} options={["Property owner", "Developer", "Estate manager", "Facility operator", "Technology partner"]} />
+              <Select label="Your role" value={form.role} onChange={(value) => update("role", value)} options={["Property owner", "Developer", "Facility manager", "Facility operator", "Technology partner"]} />
               <Select label="Project type" required value={form.projectType} onChange={(value) => update("projectType", value)} options={projectTypes} />
-              <Input label="Number of homes / units" value={form.homes} onChange={(value) => update("homes", value)} />
+              <Input label="Number of units / spaces" value={form.homes} onChange={(value) => update("homes", value)} />
             </Fieldset>
             <Fieldset title="Deployment goals">
               <Select label="Deployment interest" required value={form.deploymentInterest} onChange={(value) => update("deploymentInterest", value)} options={interests} />
@@ -112,7 +112,7 @@ export default function DeploymentsPage() {
             </Fieldset>
             <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.04] p-5">
               <h2 className="text-lg font-semibold">Review & submit</h2>
-              <p className="mt-2 text-sm text-slate-400">Submit only sanitized project information. Do not include access codes, private resident data, passwords, or confidential documents.</p>
+              <p className="mt-2 text-sm text-slate-400">Submit only sanitized project information. Do not include access codes, private occupant data, passwords, or confidential documents.</p>
               {message && <p className={`mt-4 rounded-2xl p-4 text-sm ${status === "success" ? "bg-emerald-400/10 text-emerald-100" : "bg-rose-400/10 text-rose-100"}`}>{message}{requestId ? ` Reference: ${requestId}` : ""}</p>}
               <button type="submit" disabled={status === "submitting"} className="mt-5 w-full rounded-full bg-sky-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-sky-300 disabled:cursor-not-allowed disabled:opacity-60">
                 {status === "submitting" ? "Submitting request..." : status === "error" ? "Retry request" : "Submit deployment request"}

@@ -1,0 +1,42 @@
+export const solutionContent = [
+  {
+    slug: "residential",
+    label: "Residential",
+    summary: "Homes, residents, visitors, and community operations on one system.",
+    title: "Residential communities, run as one system.",
+    body: "For residential estates and apartment communities, Facility manages shared infrastructure and security while Experience gives every home its own calm, invite-first space — rooms, devices, visitors, maintenance requests, and community updates.",
+    points: ["Estate-wide infrastructure and security operations", "Home-level Experience for every resident", "Visitor, maintenance, and community workflows"],
+  },
+  {
+    slug: "hospitality",
+    label: "Hospitality",
+    summary: "Guest rooms, back-of-house operations, and property-wide infrastructure.",
+    title: "Hospitality operations without the disconnected systems.",
+    body: "For hotels and short-stay properties, Facility keeps building infrastructure, security, and maintenance connected across the property, while Experience becomes the guest experience — room controls, requests, and services for the length of a stay.",
+    points: ["Property-wide infrastructure and maintenance", "Guest-facing Experience per room or suite", "Stay-based access instead of long-term tenancy"],
+  },
+  {
+    slug: "commercial",
+    label: "Commercial",
+    summary: "Offices and workplaces, operated and experienced as one environment.",
+    title: "Workplaces that operate as one environment.",
+    body: "For offices and commercial buildings, Facility handles power, HVAC, lifts, and security operations across floors and tenants, while Experience gives occupants a workspace experience — access, environment controls, and service requests.",
+    points: ["Multi-floor, multi-tenant infrastructure operations", "Workspace Experience for occupants and staff", "Access and service requests without separate systems"],
+  },
+  {
+    slug: "mixed-use",
+    label: "Mixed-Use",
+    summary: "Residential, retail, and commercial zones on shared infrastructure.",
+    title: "Mixed-use developments, coordinated as one building.",
+    body: "For developments that combine residential, retail, and commercial space, Facility coordinates shared infrastructure across zones, while Experience is configured differently for each zone — home, workplace, or guest — without fragmenting operations.",
+    points: ["Shared infrastructure across residential, retail, and commercial zones", "Zone-specific Experience configurations", "Unified operational visibility across the development"],
+  },
+  {
+    slug: "healthcare",
+    label: "Healthcare",
+    summary: "Facilities where infrastructure reliability and access control matter most.",
+    title: "Healthcare facilities where infrastructure cannot fail quietly.",
+    body: "For healthcare facilities, Facility gives operations teams close visibility over power, HVAC, and critical infrastructure, with Core surfacing context that helps operators respond before small issues become disruptions.",
+    points: ["Close visibility over critical infrastructure", "Access control suited to clinical environments", "Contextual operator insight from Core"],
+  },
+];

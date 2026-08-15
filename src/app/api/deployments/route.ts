@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
+import { sendOyiLeadEmail } from "@/lib/email";
+import { checkRateLimit, getRequestIp, makeRequestId } from "@/lib/rate-limit";
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 5;
 const MAX_BODY_BYTES = 16_384;
-const buckets = new Map<string, { count: number; resetAt: number }>();
 
 type DeploymentPayload = {
   name?: string;
@@ -17,22 +18,6 @@ type DeploymentPayload = {
   notes?: string;
   website?: string;
 };
-
-function getIp(request: Request) {
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
-}
-
-function checkRateLimit(key: string) {
-  const now = Date.now();
-  const current = buckets.get(key);
-  if (!current || current.resetAt < now) {
-    buckets.set(key, { count: 1, resetAt: now + WINDOW_MS });
-    return true;
-  }
-  if (current.count >= MAX_REQUESTS) return false;
-  current.count += 1;
-  return true;
-}
 
 function isEmail(value: string) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
@@ -59,56 +44,9 @@ function validate(payload: DeploymentPayload) {
   return { ok: true, reason: "" };
 }
 
-async function forwardLead(payload: Record<string, string>, requestId: string) {
-  const explicitEndpoint = process.env.OYI_DEPLOYMENT_LEAD_ENDPOINT;
-  const base = process.env.OYI_DEPLOYMENT_AGENT_BASE || process.env.NEXT_PUBLIC_OYI_WIDGET_API_BASE;
-  const endpoint = explicitEndpoint || (base ? `${base.replace(/\/$/, "")}/api/lead-agents/public/chat` : "");
-  const token = process.env.OYI_DEPLOYMENT_LEAD_TOKEN;
-
-  if (!endpoint) return { status: "not_configured" as const };
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "X-Oyi-Request-Id": requestId,
-  };
-  if (token) headers.Authorization = `Bearer ${token}`;
-
-  const message = [
-    "New Oyi deployment request",
-    `Name: ${payload.name}`,
-    `Email: ${payload.email}`,
-    `Phone: ${payload.phone || "Not provided"}`,
-    `Organization/Estate: ${payload.organization}`,
-    `Role: ${payload.role || "Not provided"}`,
-    `Project type: ${payload.projectType}`,
-    `Homes/units: ${payload.homes || "Not provided"}`,
-    `Interest: ${payload.deploymentInterest}`,
-    `Notes: ${payload.notes || "Not provided"}`,
-    `Reference: ${requestId}`,
-  ].join("\n");
-
-  const response = await fetch(endpoint, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      source: "getoyi.com",
-      channel: "oyi_deployment_request",
-      requestId,
-      name: payload.name,
-      email: payload.email,
-      message,
-      metadata: payload,
-    }),
-    cache: "no-store",
-  });
-
-  if (!response.ok) return { status: "failed" as const };
-  return { status: "sent" as const };
-}
-
 export async function POST(request: Request) {
-  const ip = getIp(request);
-  if (!checkRateLimit(ip)) {
+  const ip = getRequestIp(request);
+  if (!checkRateLimit(`deployments:${ip}`, WINDOW_MS, MAX_REQUESTS)) {
     return NextResponse.json({ ok: false, error: "Too many requests. Please try again shortly." }, { status: 429 });
   }
 
@@ -129,22 +67,37 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false, error: validation.reason }, { status: 400 });
   }
 
-  const requestId = `OYI-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-  const payload = {
-    name: normalizeString(body.name, 120),
-    email: normalizeString(body.email, 160).toLowerCase(),
-    phone: normalizeString(body.phone, 60),
-    organization: normalizeString(body.organization, 160),
-    role: normalizeString(body.role, 120),
-    projectType: normalizeString(body.projectType, 120),
-    homes: normalizeString(body.homes, 80),
-    deploymentInterest: normalizeString(body.deploymentInterest, 180),
-    notes: normalizeString(body.notes, 1200),
-  };
+  const requestId = makeRequestId();
+  const name = normalizeString(body.name, 120);
+  const email = normalizeString(body.email, 160).toLowerCase();
+  const organization = normalizeString(body.organization, 160);
+  const role = normalizeString(body.role, 120);
+  const projectType = normalizeString(body.projectType, 120);
+  const homes = normalizeString(body.homes, 80);
+  const deploymentInterest = normalizeString(body.deploymentInterest, 180);
+  const notes = normalizeString(body.notes, 1200);
+
+  const message = [
+    `Role: ${role || "Not provided"}`,
+    `Deployment interest: ${deploymentInterest}`,
+    `Project context: ${notes || "Not provided"}`,
+  ].join("\n");
 
   try {
-    const delivery = await forwardLead(payload, requestId);
-    return NextResponse.json({ ok: true, requestId, delivery: delivery.status });
+    await sendOyiLeadEmail({
+      leadType: "deployment",
+      name,
+      email,
+      phone: normalizeString(body.phone, 60) || undefined,
+      organization,
+      message,
+      requestId,
+      metadata: {
+        "Project type": projectType,
+        "Homes / units": homes || "Not provided",
+      },
+    });
+    return NextResponse.json({ ok: true, requestId });
   } catch {
     return NextResponse.json({ ok: false, error: "We could not submit the request right now. Please try again." }, { status: 502 });
   }

@@ -9,11 +9,11 @@ export default function SupportPage() {
         <section className="mx-auto max-w-4xl rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 md:p-10">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Support</p>
           <h1 className="mt-4 text-5xl font-semibold tracking-[-0.05em]">Get help with Oyi.</h1>
-          <p className="mt-5 max-w-2xl leading-7 text-slate-300">For deployment support, include the estate name, role, device, app surface, and what you were trying to do. Do not send passwords, access codes, QR tokens, or private resident information.</p>
+          <p className="mt-5 max-w-2xl leading-7 text-slate-300">For deployment support, include the building name, role, device, app surface, and what you were trying to do. Do not send passwords, access codes, QR tokens, or private occupant information.</p>
           <div className="mt-8 grid gap-4 md:grid-cols-3">
             {[
-              ["Deployment help", "Use the deployment form for new estate rollouts."],
-              ["Resident issues", "Contact your estate operator first for access and home assignment issues."],
+              ["Deployment help", "Use the deployment form for new building rollouts."],
+              ["Occupant issues", "Contact your facility operator first for access and space assignment issues."],
               ["Technical support", "Share sanitized context and request a support review."],
             ].map(([title, body]) => (
               <div key={title} className="rounded-3xl border border-white/10 bg-slate-950/60 p-5">

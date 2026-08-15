@@ -179,3 +179,14 @@ html.dark .oyi-panel {
   background: rgba(var(--accent), 0.92);
 }
 
+@keyframes oyi-fragment-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
