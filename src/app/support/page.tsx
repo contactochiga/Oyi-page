@@ -1,5 +1,10 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter, SiteHeader } from "@/components/OyiSite";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/support" },
+};
 
 export default function SupportPage() {
   return (

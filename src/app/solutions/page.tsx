@@ -5,6 +5,7 @@ import { solutionContent } from "./content";
 export const metadata: Metadata = {
   title: "Solutions",
   description: "One operating system, adapted for residential, hospitality, commercial, mixed-use, and healthcare buildings.",
+  alternates: { canonical: "/solutions" },
 };
 
 const items = solutionContent.map((solution) => ({

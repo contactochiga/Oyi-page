@@ -18,7 +18,6 @@ export const metadata: Metadata = {
     images: [{ url: siteConfig.ogImage, width: 1200, height: 630, alt: "Oyi" }],
   },
   twitter: { card: "summary_large_image", title: siteConfig.title, description: siteConfig.description, images: [siteConfig.ogImage] },
-  icons: { icon: [{ url: "/oyi-logo-transparent.png" }], apple: [{ url: "/oyi-logo-transparent.png" }] },
 };
 
 const structuredData = {

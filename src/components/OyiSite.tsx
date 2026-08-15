@@ -7,7 +7,7 @@ const sections = [
   {
     eyebrow: "Oyi Facility",
     title: "Operate the environment.",
-    body: "Facility teams manage infrastructure, operations, homes, residents, invitations, devices, visitors, maintenance, community, security posture, and administration from one operational control surface.",
+    body: "Facility teams manage infrastructure, operations, spaces, occupants, devices, visitors, maintenance, community, security posture, and administration from one operational control surface.",
     href: "/facility",
     points: ["Infrastructure and MEP operations", "Security and access operations", "Maintenance and operational workflows"],
   },
@@ -56,7 +56,7 @@ const capabilitySections = [
   {
     eyebrow: "Core",
     title: "Ask Oyi.",
-    body: "Oyi Core is built to answer real operational questions — which units haven't confirmed maintenance access this week, whether backup power is ready, who's expected at the gate this afternoon — with context, not just data.",
+    body: "Oyi Core is built to answer real operational questions — which units haven't confirmed maintenance access this week, what this week's utility usage looks like, which visitors are expected today — with context, not just data.",
     stat: "Contextual guidance · Operator insight",
     href: "/core",
   },
@@ -172,6 +172,27 @@ export function ProductVisual({ compact = false }: { compact?: boolean }) {
   );
 }
 
+// Abstract capability panel for pages that have no honest product
+// screenshot yet — shows the page's own real point labels, not a
+// fabricated dashboard mockup or invented building/unit name.
+export function CapabilityVisual({ eyebrow, points }: { eyebrow: string; points: string[] }) {
+  return (
+    <div className="relative overflow-hidden rounded-[2rem] border border-sky-300/20 bg-slate-950/70 p-6 shadow-[0_30px_120px_rgba(14,165,233,0.2)]">
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(125,211,252,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.08)_1px,transparent_1px)] bg-[size:34px_34px]" />
+      <div className="relative grid gap-3">
+        <p className="text-xs uppercase tracking-[0.24em] text-sky-200">{eyebrow}</p>
+        <div className="grid gap-2">
+          {points.map((point) => (
+            <div key={point} className="rounded-2xl border border-white/10 bg-slate-900/70 p-4 text-sm text-white">
+              {point}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function Hero() {
   return <CinematicOpening />;
 }
@@ -249,17 +270,19 @@ export function ProductPage({
   body,
   points,
   cta,
+  visual,
 }: {
   eyebrow: string;
   title: string;
   body: string;
   points: string[];
   cta?: { label: string; href: string };
+  visual?: React.ReactNode;
 }) {
   return (
     <main className="bg-[#050b14] text-white">
       <section className="px-5 py-20 md:py-28">
-        <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[0.9fr_1fr]">
+        <div className={`mx-auto grid max-w-7xl items-center gap-12 ${visual ? "lg:grid-cols-[0.9fr_1fr]" : "max-w-4xl"}`}>
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">{eyebrow}</p>
             <h1 className="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">{title}</h1>
@@ -270,7 +293,7 @@ export function ProductPage({
               </Link>
             )}
           </div>
-          <ProductVisual compact />
+          {visual}
         </div>
       </section>
       <section className="px-5 pb-20">

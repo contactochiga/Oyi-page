@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const solution = solutionContent.find((item) => item.slug === slug);
   if (!solution) return {};
-  return { title: `${solution.label} Solutions`, description: solution.summary };
+  return { title: `${solution.label} Solutions`, description: solution.summary, alternates: { canonical: `/solutions/${solution.slug}` } };
 }
 
 export default async function SolutionPage({ params }: { params: Promise<{ slug: string }> }) {

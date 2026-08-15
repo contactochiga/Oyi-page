@@ -4,6 +4,7 @@ import { HubPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
 export const metadata: Metadata = {
   title: "Technology",
   description: "Facility, Experience, and Core are the operating system. Digital Twin, Edge, and Watch carry it into the building and onto the wrist.",
+  alternates: { canonical: "/technology" },
 };
 
 const items = [

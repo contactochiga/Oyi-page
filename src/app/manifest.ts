@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Oyi",
     short_name: "Oyi",
-    description: "The operating platform for modern residential communities.",
+    description: "Oyi is the operating system for buildings — connecting infrastructure, operators, and occupants in one system.",
     start_url: "/",
     display: "standalone",
     background_color: "#050b14",

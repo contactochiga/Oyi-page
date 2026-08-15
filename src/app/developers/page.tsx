@@ -4,6 +4,7 @@ import { ProductPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
 export const metadata: Metadata = {
   title: "Developers",
   description: "Documentation, APIs, and integration tools for building with Oyi.",
+  alternates: { canonical: "/developers" },
 };
 
 export default function DevelopersPage() {

@@ -4,6 +4,7 @@ import { ProductPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
 export const metadata: Metadata = {
   title: "Partners",
   description: "Build, deploy, integrate, or become an Oyi Partner — for developers, integrators, contractors, and service companies.",
+  alternates: { canonical: "/partners" },
 };
 
 export default function PartnersPage() {

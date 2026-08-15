@@ -4,6 +4,7 @@ import { ProductPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
 export const metadata: Metadata = {
   title: "Hardware",
   description: "Purpose-built hardware for buildings running Oyi — a compute unit and an in-space display, in development.",
+  alternates: { canonical: "/hardware" },
 };
 
 export default function HardwarePage() {

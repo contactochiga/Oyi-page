@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendOyiLeadEmail } from "@/lib/email";
+import { postOfficeIntakeEnvelope } from "@/lib/officeIntake";
 import { checkRateLimit, getRequestIp, makeRequestId } from "@/lib/rate-limit";
 
 const WINDOW_MS = 60_000;
@@ -83,12 +84,16 @@ export async function POST(request: Request) {
     `Project context: ${notes || "Not provided"}`,
   ].join("\n");
 
-  try {
-    await sendOyiLeadEmail({
+  const phone = normalizeString(body.phone, 60);
+
+  // Email and Office CRM intake are independent channels — one failing
+  // must not suppress or be masked by the other's result.
+  const [emailResult, officeResult] = await Promise.allSettled([
+    sendOyiLeadEmail({
       leadType: "deployment",
       name,
       email,
-      phone: normalizeString(body.phone, 60) || undefined,
+      phone: phone || undefined,
       organization,
       message,
       requestId,
@@ -96,9 +101,37 @@ export async function POST(request: Request) {
         "Project type": projectType,
         "Homes / units": homes || "Not provided",
       },
-    });
-    return NextResponse.json({ ok: true, requestId });
-  } catch {
+    }),
+    postOfficeIntakeEnvelope({
+      request_id: requestId,
+      idempotency_key: requestId,
+      source_channel: "website",
+      source_site: "oyi_website",
+      source_page: "/deployments",
+      source_form: "oyi_deployment_request",
+      business_unit: "technology",
+      inquiry_type: "oyi_deployment_request",
+      contact: { name, email, phone },
+      organization: { name: organization, location: "" },
+      payload: {
+        message: [`Role: ${role || "Not provided"}`, `Project type: ${projectType}`, `Homes/units: ${homes || "Not provided"}`, `Interest: ${deploymentInterest}`, notes].filter(Boolean).join(" "),
+      },
+    }),
+  ]);
+
+  const emailOk = emailResult.status === "fulfilled";
+  const office = officeResult.status === "fulfilled" ? officeResult.value : { ok: false, skipped: false, reason: "office_intake_threw" };
+
+  if (!emailOk && !office.ok) {
     return NextResponse.json({ ok: false, error: "We could not submit the request right now. Please try again." }, { status: 502 });
   }
+
+  return NextResponse.json({
+    ok: true,
+    requestId,
+    delivery: {
+      email: emailOk ? "sent" : "failed",
+      office: office.ok ? (office.duplicate ? "duplicate" : "synced") : office.skipped ? "not_configured" : "failed",
+    },
+  });
 }
