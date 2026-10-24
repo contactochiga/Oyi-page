@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendOyiLeadEmail, type OyiLeadType } from "@/lib/email";
 import { postOfficeIntakeEnvelope } from "@/lib/officeIntake";
 import { checkRateLimit, getRequestIp, makeRequestId } from "@/lib/rate-limit";
+import { submissionKey } from "@/lib/submission";
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 5;
@@ -32,6 +33,7 @@ type LeadRequestPayload = {
   message?: string;
   pageUrl?: string;
   website?: string; // honeypot
+  idempotencyKey?: string; // one per submission attempt, kept by the browser across retries
 };
 
 function isEmail(value: string) {
@@ -82,37 +84,42 @@ export async function POST(request: Request) {
   const organization = normalizeString(body.organization, 160);
   const pageUrl = normalizeString(body.pageUrl, 200);
 
-  // Email and Office CRM intake are independent channels — one failing
-  // must not suppress or be masked by the other's result.
-  const [emailResult, officeResult] = await Promise.allSettled([
-    sendOyiLeadEmail({
-      leadType,
-      name,
-      email,
-      phone: phone || undefined,
-      organization: organization || undefined,
-      message,
-      requestId,
-      pageUrl: pageUrl || undefined,
-    }),
-    postOfficeIntakeEnvelope({
-      request_id: requestId,
-      idempotency_key: requestId,
-      source_channel: "website",
-      source_site: "oyi_website",
-      source_page: pageUrl || "/contact",
-      source_form: `oyi_${leadType}_enquiry`,
-      business_unit: "technology",
-      inquiry_type: INQUIRY_TYPES[leadType],
-      contact: { name, email, phone },
-      organization: { name: organization, location: "" },
-      payload: { message },
-    }),
-  ]);
+  const key = submissionKey(body.idempotencyKey, `oyi_${leadType}_enquiry`, requestId);
 
-  const emailOk = emailResult.status === "fulfilled";
-  const office = officeResult.status === "fulfilled" ? officeResult.value : { ok: false, skipped: false, reason: "office_intake_threw" };
+  // Office first (idempotent on `key`), so the staff email can say whether the enquiry is in the CRM. Both channels are still
+  // attempted whatever the other does: an Office outage must not lose the enquiry, and the email flags it for manual filing.
+  const office = await postOfficeIntakeEnvelope({
+    request_id: requestId,
+    idempotency_key: key,
+    source_channel: "website",
+    source_site: "oyi_website",
+    source_page: pageUrl || "/contact",
+    source_form: `oyi_${leadType}_enquiry`,
+    business_unit: "technology",
+    inquiry_type: INQUIRY_TYPES[leadType],
+    contact: { name, email, phone },
+    organization: { name: organization, location: "" },
+    payload: { message },
+  }).catch(() => ({ ok: false, skipped: false, duplicate: false, reason: "office_intake_threw" }));
+  const officeStatus = office.ok ? (office.duplicate ? "duplicate" : "synced") : office.skipped ? "not_configured" : "failed";
 
+  const emailResult = await sendOyiLeadEmail({
+    leadType,
+    name,
+    email,
+    phone: phone || undefined,
+    organization: organization || undefined,
+    message,
+    requestId,
+    pageUrl: pageUrl || undefined,
+    submissionKey: key,
+    officeStatus,
+  }).then(() => true, (error) => {
+    console.error(`[api/leads] email failed (${requestId}):`, error instanceof Error ? error.message : error);
+    return false;
+  });
+
+  const emailOk = emailResult;
   if (!emailOk && !office.ok) {
     return NextResponse.json({ ok: false, error: "We could not submit your message right now. Please try again." }, { status: 502 });
   }
@@ -122,7 +129,7 @@ export async function POST(request: Request) {
     requestId,
     delivery: {
       email: emailOk ? "sent" : "failed",
-      office: office.ok ? (office.duplicate ? "duplicate" : "synced") : office.skipped ? "not_configured" : "failed",
+      office: officeStatus,
     },
   });
 }

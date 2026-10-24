@@ -26,6 +26,10 @@ export type OyiLeadPayload = {
   metadata?: Record<string, string>;
   requestId: string;
   pageUrl?: string;
+  // stable per-submission key: makes both emails idempotent at the provider (a retried submission sends nothing twice)
+  submissionKey?: string;
+  // whether the same submission reached the Office CRM; anything else flags the staff email so the enquiry is filed by hand
+  officeStatus?: "synced" | "duplicate" | "failed" | "not_configured";
 };
 
 // Single source of truth for the internal notification destination.
@@ -98,6 +102,8 @@ function detailRows(payload: OyiLeadPayload): Array<[string, string]> {
     }
   }
   rows.push(["Message", payload.message], ["Page", payload.pageUrl || "—"], ["Reference", payload.requestId]);
+  if (payload.submissionKey) rows.push(["Submission key", payload.submissionKey]);
+  if (payload.officeStatus) rows.push(["Office CRM", payload.officeStatus]);
   return rows;
 }
 
@@ -132,20 +138,31 @@ export async function sendOyiLeadEmail(payload: OyiLeadPayload): Promise<{ sent:
   const from = process.env.OYI_EMAIL_FROM || "Oyi <notifications@getoyi.com>";
   const copy = acknowledgementCopy[payload.leadType];
 
-  await client.emails.send({
-    from,
-    to: inbox,
-    replyTo: payload.email,
-    subject: `[Oyi] ${leadTypeLabels[payload.leadType]} — ${payload.name}`,
-    html: internalNotificationHtml(payload),
-  });
+  const notInCrm = payload.officeStatus === "failed" || payload.officeStatus === "not_configured";
+  // Resend reports a rejected email in the returned `error` (it does not throw), so both results are checked explicitly.
+  const staff = await client.emails.send(
+    {
+      from,
+      to: inbox,
+      replyTo: payload.email,
+      subject: `${notInCrm ? "[NOT IN OFFICE CRM] " : ""}[Oyi] ${leadTypeLabels[payload.leadType]} — ${payload.name}`,
+      html: internalNotificationHtml(payload),
+    },
+    payload.submissionKey ? { idempotencyKey: `${payload.submissionKey}:staff` } : undefined,
+  );
+  if (staff.error) throw new Error(`staff_notification_rejected:${staff.error.name}`);
 
-  await client.emails.send({
-    from,
-    to: payload.email,
-    subject: copy.subject,
-    html: acknowledgementHtml(payload),
-  });
+  const ack = await client.emails.send(
+    {
+      from,
+      to: payload.email,
+      subject: copy.subject,
+      html: acknowledgementHtml(payload),
+    },
+    payload.submissionKey ? { idempotencyKey: `${payload.submissionKey}:ack` } : undefined,
+  );
+  // the staff copy is what matters for follow-up; a rejected acknowledgement is reported, not fatal
+  if (ack.error) return { sent: true, reason: `acknowledgement_rejected:${ack.error.name}` };
 
   return { sent: true };
 }

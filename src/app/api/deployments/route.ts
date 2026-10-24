@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { sendOyiLeadEmail } from "@/lib/email";
 import { postOfficeIntakeEnvelope } from "@/lib/officeIntake";
 import { checkRateLimit, getRequestIp, makeRequestId } from "@/lib/rate-limit";
+import { submissionKey } from "@/lib/submission";
 
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 5;
@@ -18,6 +19,7 @@ type DeploymentPayload = {
   deploymentInterest?: string;
   notes?: string;
   website?: string;
+  idempotencyKey?: string; // one per submission attempt, kept by the browser across retries
 };
 
 function isEmail(value: string) {
@@ -86,41 +88,44 @@ export async function POST(request: Request) {
 
   const phone = normalizeString(body.phone, 60);
 
-  // Email and Office CRM intake are independent channels — one failing
-  // must not suppress or be masked by the other's result.
-  const [emailResult, officeResult] = await Promise.allSettled([
-    sendOyiLeadEmail({
-      leadType: "deployment",
-      name,
-      email,
-      phone: phone || undefined,
-      organization,
-      message,
-      requestId,
-      metadata: {
-        "Project type": projectType,
-        "Homes / units": homes || "Not provided",
-      },
-    }),
-    postOfficeIntakeEnvelope({
-      request_id: requestId,
-      idempotency_key: requestId,
-      source_channel: "website",
-      source_site: "oyi_website",
-      source_page: "/deployments",
-      source_form: "oyi_deployment_request",
-      business_unit: "technology",
-      inquiry_type: "oyi_deployment_request",
-      contact: { name, email, phone },
-      organization: { name: organization, location: "" },
-      payload: {
-        message: [`Role: ${role || "Not provided"}`, `Project type: ${projectType}`, `Homes/units: ${homes || "Not provided"}`, `Interest: ${deploymentInterest}`, notes].filter(Boolean).join(" "),
-      },
-    }),
-  ]);
+  const key = submissionKey(body.idempotencyKey, "oyi_deployment_request", requestId);
 
-  const emailOk = emailResult.status === "fulfilled";
-  const office = officeResult.status === "fulfilled" ? officeResult.value : { ok: false, skipped: false, reason: "office_intake_threw" };
+  // Office first (idempotent on `key`) so the staff email can say whether the request is in the CRM; both channels are always attempted.
+  const office = await postOfficeIntakeEnvelope({
+    request_id: requestId,
+    idempotency_key: key,
+    source_channel: "website",
+    source_site: "oyi_website",
+    source_page: "/deployments",
+    source_form: "oyi_deployment_request",
+    business_unit: "technology",
+    inquiry_type: "oyi_deployment_request",
+    contact: { name, email, phone },
+    organization: { name: organization, location: "" },
+    payload: {
+      message: [`Role: ${role || "Not provided"}`, `Project type: ${projectType}`, `Homes/units: ${homes || "Not provided"}`, `Interest: ${deploymentInterest}`, notes].filter(Boolean).join(" "),
+    },
+  }).catch(() => ({ ok: false, skipped: false, duplicate: false, reason: "office_intake_threw" }));
+  const officeStatus = office.ok ? (office.duplicate ? "duplicate" : "synced") : office.skipped ? "not_configured" : "failed";
+
+  const emailOk = await sendOyiLeadEmail({
+    leadType: "deployment",
+    name,
+    email,
+    phone: phone || undefined,
+    organization,
+    message,
+    requestId,
+    metadata: {
+      "Project type": projectType,
+      "Homes / units": homes || "Not provided",
+    },
+    submissionKey: key,
+    officeStatus,
+  }).then(() => true, (error) => {
+    console.error(`[api/deployments] email failed (${requestId}):`, error instanceof Error ? error.message : error);
+    return false;
+  });
 
   if (!emailOk && !office.ok) {
     return NextResponse.json({ ok: false, error: "We could not submit the request right now. Please try again." }, { status: 502 });
@@ -131,7 +136,7 @@ export async function POST(request: Request) {
     requestId,
     delivery: {
       email: emailOk ? "sent" : "failed",
-      office: office.ok ? (office.duplicate ? "duplicate" : "synced") : office.skipped ? "not_configured" : "failed",
+      office: officeStatus,
     },
   });
 }

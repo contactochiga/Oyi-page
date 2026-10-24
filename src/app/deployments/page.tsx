@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useRef, FormEvent, useMemo, useState } from "react";
 import { SiteFooter, SiteHeader } from "@/components/OyiSite";
+import { newSubmissionKey } from "@/lib/submission";
 
 type FormState = {
   name: string;
@@ -44,6 +45,9 @@ export default function DeploymentsPage() {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  // one key per submission attempt: reused on every retry of the same request, replaced only after it is accepted
+  const submissionKeyRef = useRef<string | null>(null);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("submitting");
@@ -54,10 +58,11 @@ export default function DeploymentsPage() {
       const response = await fetch("/api/deployments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, idempotencyKey: (submissionKeyRef.current ||= newSubmissionKey()) }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit the request right now.");
+      submissionKeyRef.current = null;
       setStatus("success");
       setRequestId(data.requestId || "");
       setMessage("Your deployment request has been received. Our product team will review the building context and respond if there is a deployment fit.");
