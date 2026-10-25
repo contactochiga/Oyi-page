@@ -12,6 +12,13 @@
 // Fails clearly in production if RESEND_API_KEY is missing; in development,
 // sending is skipped with a console warning so local work doesn't need real
 // credentials.
+//
+// Idempotency: each email carries a provider Idempotency-Key derived from the submission key, and its content depends ONLY on the
+// submission (key + form content) and the kind of email -- never on the per-request id or a transient Office answer -- so an identical
+// retry sends a byte-identical request and Resend returns the original email instead of sending a second one. The staff email has one
+// key per kind: a confirmed notice (`:staff`) and one warning per unconfirmed Office state (`:staff:<status>`), so a submission whose CRM
+// state changed between attempts gets a new, different notice under a new key instead of a conflicting one under the old key.
+import { createHash } from "node:crypto";
 import { Resend } from "resend";
 
 export type OyiLeadType = "deployment" | "developer" | "integrator" | "tech_oem" | "partner" | "general" | "certification";
@@ -24,7 +31,10 @@ export type OyiLeadPayload = {
   organization?: string;
   message: string;
   metadata?: Record<string, string>;
+  // per-request id: logs only, never in the email content (it changes on every retry)
   requestId: string;
+  // stable per-submission reference shown in both emails and to the visitor (see submissionReference)
+  reference: string;
   pageUrl?: string;
   // stable per-submission key: makes both emails idempotent at the provider (a retried submission sends nothing twice)
   submissionKey?: string;
@@ -33,6 +43,25 @@ export type OyiLeadPayload = {
   // signed link that lets a signed-in Office staff member file exactly this submission (only when Office did not confirm it)
   recoveryUrl?: string | null;
 };
+
+// Outcome of one email at the provider. "unconfirmed": Resend refused the request because the same Idempotency-Key was used before
+// (invalid_idempotent_request: a different payload; concurrent_idempotent_requests: still in flight) -- an earlier email for this key
+// may have been sent, but that is not evidence it was, so it is never reported as sent.
+export type EmailOutcome = "sent" | "unconfirmed" | "failed" | "skipped";
+
+export type OyiLeadEmailResult = { staff: EmailOutcome; acknowledgement: EmailOutcome; reason?: string };
+
+const IDEMPOTENCY_CONFLICTS = new Set(["invalid_idempotent_request", "concurrent_idempotent_requests"]);
+
+function outcomeOf(result: { error?: { name?: string } | null }): EmailOutcome {
+  if (!result.error) return "sent";
+  return IDEMPOTENCY_CONFLICTS.has(String(result.error.name || "")) ? "unconfirmed" : "failed";
+}
+
+/** Stable, human-readable reference for one submission (same for every retry of it). */
+export function submissionReference(submissionKey: string): string {
+  return `OYI-${createHash("sha256").update(submissionKey).digest("hex").slice(0, 10).toUpperCase()}`;
+}
 
 // Single source of truth for the internal notification destination.
 function officeInbox(): string | undefined {
@@ -103,9 +132,8 @@ function detailRows(payload: OyiLeadPayload): Array<[string, string]> {
       if (value) rows.push([key, value]);
     }
   }
-  rows.push(["Message", payload.message], ["Page", payload.pageUrl || "—"], ["Reference", payload.requestId]);
+  rows.push(["Message", payload.message], ["Page", payload.pageUrl || "—"], ["Reference", payload.reference]);
   if (payload.submissionKey) rows.push(["Submission key", payload.submissionKey]);
-  if (payload.officeStatus) rows.push(["Office CRM", payload.officeStatus]);
   return rows;
 }
 
@@ -131,23 +159,27 @@ function internalNotificationHtml(payload: OyiLeadPayload): string {
 
 function acknowledgementHtml(payload: OyiLeadPayload): string {
   const copy = acknowledgementCopy[payload.leadType];
-  return `<div style="font-family:sans-serif;max-width:520px;"><p>Hi ${escapeHtml(payload.name)},</p><p>${escapeHtml(copy.body)}</p><p style="color:#64748b;font-size:13px;">Reference: ${escapeHtml(payload.requestId)}</p></div>`;
+  return `<div style="font-family:sans-serif;max-width:520px;"><p>Hi ${escapeHtml(payload.name)},</p><p>${escapeHtml(copy.body)}</p><p style="color:#64748b;font-size:13px;">Reference: ${escapeHtml(payload.reference)}</p></div>`;
 }
 
-export async function sendOyiLeadEmail(payload: OyiLeadPayload): Promise<{ sent: boolean; reason?: string }> {
+const confirmedInCrm = (status: OyiLeadPayload["officeStatus"]) => status === "synced" || status === "duplicate" || !status;
+
+/** Sends the staff notification and the acknowledgement; reports each at the provider separately. Throws only on missing production
+ *  configuration. */
+export async function sendOyiLeadEmail(payload: OyiLeadPayload): Promise<OyiLeadEmailResult> {
   const inbox = officeInbox();
   const client = getClient();
 
   if (!inbox) {
     if (process.env.NODE_ENV === "production") throw new Error("OCHIGA_EMAIL_OFFICE is not configured.");
     console.warn(`[lib/email] OCHIGA_EMAIL_OFFICE not set — skipping email for ${payload.leadType} (${payload.requestId}).`);
-    return { sent: false, reason: "office_inbox_not_configured" };
+    return { staff: "skipped", acknowledgement: "skipped", reason: "office_inbox_not_configured" };
   }
 
   if (!client) {
     if (process.env.NODE_ENV === "production") throw new Error("RESEND_API_KEY is not configured.");
     console.warn(`[lib/email] RESEND_API_KEY not set — skipping email for ${payload.leadType} (${payload.requestId}).`);
-    return { sent: false, reason: "resend_not_configured" };
+    return { staff: "skipped", acknowledgement: "skipped", reason: "resend_not_configured" };
   }
 
   const from = process.env.OYI_EMAIL_FROM || "Oyi <notifications@getoyi.com>";
@@ -155,8 +187,11 @@ export async function sendOyiLeadEmail(payload: OyiLeadPayload): Promise<{ sent:
 
   const notInCrm = payload.officeStatus === "failed" || payload.officeStatus === "not_configured";
   const crmIncomplete = payload.officeStatus === "pending";
+  // a confirmed notice and each kind of warning are different emails, each with its own stable key
+  const staffKind = confirmedInCrm(payload.officeStatus) ? "staff" : `staff:${payload.officeStatus}`;
+  const reasons: string[] = [];
   // Resend reports a rejected email in the returned `error` (it does not throw), so both results are checked explicitly.
-  const staff = await client.emails.send(
+  const staffResult = await client.emails.send(
     {
       from,
       to: inbox,
@@ -164,11 +199,12 @@ export async function sendOyiLeadEmail(payload: OyiLeadPayload): Promise<{ sent:
       subject: `${notInCrm ? "[NOT IN OFFICE CRM] " : crmIncomplete ? "[OFFICE CRM INCOMPLETE] " : ""}[Oyi] ${leadTypeLabels[payload.leadType]} — ${payload.name}`,
       html: internalNotificationHtml(payload),
     },
-    payload.submissionKey ? { idempotencyKey: `${payload.submissionKey}:staff` } : undefined,
+    payload.submissionKey ? { idempotencyKey: `${payload.submissionKey}:${staffKind}` } : undefined,
   );
-  if (staff.error) throw new Error(`staff_notification_rejected:${staff.error.name}`);
+  const staff = outcomeOf(staffResult);
+  if (staffResult.error) reasons.push(`staff:${staffResult.error.name}`);
 
-  const ack = await client.emails.send(
+  const ackResult = await client.emails.send(
     {
       from,
       to: payload.email,
@@ -177,8 +213,8 @@ export async function sendOyiLeadEmail(payload: OyiLeadPayload): Promise<{ sent:
     },
     payload.submissionKey ? { idempotencyKey: `${payload.submissionKey}:ack` } : undefined,
   );
-  // the staff copy is what matters for follow-up; a rejected acknowledgement is reported, not fatal
-  if (ack.error) return { sent: true, reason: `acknowledgement_rejected:${ack.error.name}` };
+  const acknowledgement = outcomeOf(ackResult);
+  if (ackResult.error) reasons.push(`acknowledgement:${ackResult.error.name}`);
 
-  return { sent: true };
+  return { staff, acknowledgement, ...(reasons.length ? { reason: reasons.join(",") } : {}) };
 }

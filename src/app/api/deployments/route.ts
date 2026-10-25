@@ -1,5 +1,6 @@
 import { NextResponse, after } from "next/server";
-import { sendOyiLeadEmail } from "@/lib/email";
+import { sendOyiLeadEmail, submissionReference, type OyiLeadEmailResult } from "@/lib/email";
+import { leadResponse } from "@/lib/leadResponse";
 import { continueOfficeDelivery, deliverToOffice, recoveryUrl, type OfficeIntakeEnvelope } from "@/lib/officeIntake";
 import { checkRateLimit, getRequestIp, makeRequestId } from "@/lib/rate-limit";
 import { submissionKey } from "@/lib/submission";
@@ -117,7 +118,8 @@ export async function POST(request: Request) {
   const recovery = office.ok || office.skipped ? null : recoveryUrl(envelope);
   if (!office.ok && !office.skipped && office.retryable) after(() => continueOfficeDelivery(envelope, startedAt));
 
-  const emailOk = await sendOyiLeadEmail({
+  const reference = submissionReference(key);
+  const emailResult = await sendOyiLeadEmail({
     leadType: "deployment",
     name,
     email,
@@ -125,6 +127,7 @@ export async function POST(request: Request) {
     organization,
     message,
     requestId,
+    reference,
     metadata: {
       "Project type": projectType,
       "Homes / units": homes || "Not provided",
@@ -132,21 +135,12 @@ export async function POST(request: Request) {
     submissionKey: key,
     officeStatus,
     recoveryUrl: recovery,
-  }).then(() => true, (error) => {
-    console.error(`[api/deployments] email failed (${requestId}):`, error instanceof Error ? error.message : error);
-    return false;
+  }).catch((error): OyiLeadEmailResult => {
+    console.error(`[api/deployments] email not attempted (${requestId}):`, error instanceof Error ? error.message : error);
+    return { staff: "failed", acknowledgement: "failed", reason: "email_not_configured" };
   });
-
-  if (!emailOk && !office.ok) {
-    return NextResponse.json({ ok: false, error: "We could not submit the request right now. Please try again." }, { status: 502 });
+  if (emailResult.staff !== "sent" || emailResult.acknowledgement !== "sent") {
+    console.warn(`[api/deployments] email (${requestId}): staff=${emailResult.staff} acknowledgement=${emailResult.acknowledgement}${emailResult.reason ? ` ${emailResult.reason}` : ""}`);
   }
-
-  return NextResponse.json({
-    ok: true,
-    requestId,
-    delivery: {
-      email: emailOk ? "sent" : "failed",
-      office: officeStatus,
-    },
-  });
+  return leadResponse({ office, officeStatus, email: emailResult, requestId, reference, failure: "We could not submit the request right now. Please try again." });
 }

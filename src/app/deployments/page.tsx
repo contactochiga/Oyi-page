@@ -60,11 +60,11 @@ export default function DeploymentsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...form, idempotencyKey: keyForAttempt(submissionKeyRef, form) }),
       });
-      const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string };
+      const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string; reference?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit the request right now.");
       submissionKeyRef.current = null;
       setStatus("success");
-      setRequestId(data.requestId || "");
+      setRequestId(data.reference || data.requestId || "");
       setMessage("Your deployment request has been received. Our product team will review the building context and respond if there is a deployment fit.");
       setForm(initialState);
     } catch (error) {

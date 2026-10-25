@@ -41,11 +41,12 @@ function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ leadType, name, email, organization, message, website, pageUrl: "/contact", idempotencyKey: keyForAttempt(submissionKeyRef, { leadType, name, email, organization, message }) }),
       });
-      const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string };
+      const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string; reference?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit your message right now.");
       submissionKeyRef.current = null;
       setStatus("success");
-      setFeedback(`Message received. We'll be in touch.${data.requestId ? ` Reference: ${data.requestId}` : ""}`);
+      const reference = data.reference || data.requestId;
+      setFeedback(`Message received. We'll be in touch.${reference ? ` Reference: ${reference}` : ""}`);
       setName("");
       setEmail("");
       setOrganization("");

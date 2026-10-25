@@ -193,10 +193,16 @@ export async function continueOfficeDelivery(envelope: OfficeIntakeEnvelope, sta
 // A recovery code lets a signed-in Office staff member file this exact submission later (Office: GET/POST /api/lead-agents/admin/intake/recover).
 // "v1.<base64url {envelope, issued_at}>.<base64url HMAC-SHA256>", keyed by the hex SHA-256 digest of this site's scoped Office key — the value
 // Office already holds — so no extra secret is needed and a code cannot be forged without the key. Returns null when no key is configured.
+// The code is a function of the SUBMISSION only, so the staff email that carries it is byte-identical on an identical retry (the email
+// is idempotent at the provider): the per-request id is replaced by one derived from the idempotency key (Office's content digest ignores
+// request ids), and issued_at is the start of the UTC day (Office accepts codes up to 30 days old). A retry on a later day yields a
+// different code, which the email layer then reports as "unconfirmed" instead of sending a second warning.
 export function recoveryCode(envelope: OfficeIntakeEnvelope, issuedAt = new Date()): string | null {
   const apiKey = officeApiKey();
   if (!apiKey) return null;
-  const body = Buffer.from(JSON.stringify({ envelope, issued_at: issuedAt.toISOString() })).toString("base64url");
+  const day = new Date(Date.UTC(issuedAt.getUTCFullYear(), issuedAt.getUTCMonth(), issuedAt.getUTCDate()));
+  const stable = { ...envelope, request_id: `recovery-${createHash("sha256").update(envelope.idempotency_key).digest("hex").slice(0, 16)}` };
+  const body = Buffer.from(JSON.stringify({ envelope: stable, issued_at: day.toISOString() })).toString("base64url");
   const keyDigest = createHash("sha256").update(apiKey).digest("hex");
   const signature = createHmac("sha256", keyDigest).update(`v1.${body}`).digest("base64url");
   return `v1.${body}.${signature}`;
