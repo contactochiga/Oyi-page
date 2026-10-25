@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ProductPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
 import { HardwareCatalogue, HardwareLoading } from "@/components/hardware/HardwareCatalogue";
-import { catalogueEnabled, listCategories, listProducts, validSlug } from "@/lib/catalogue";
+import { catalogueEnabled, listCategories, listProducts, getMerchandising, validSlug } from "@/lib/catalogue";
 
 // With the catalogue on, the page reads searchParams and renders per request from the tagged data cache; with it off it is the static page.
 
@@ -44,6 +44,6 @@ export default async function HardwarePage({ searchParams }: { searchParams: Pro
 async function CatalogueSection({ searchParams }: { searchParams: Promise<{ category?: string | string[] }> }) {
   const raw = (await searchParams).category;
   const category = typeof raw === "string" && validSlug(raw) ? raw : "";
-  const [products, categories] = await Promise.all([listProducts(category || undefined), listCategories()]);
-  return <HardwareCatalogue products={products} categories={categories} activeCategory={category} />;
+  const [products, categories, merchandising] = await Promise.all([listProducts(), listCategories(), getMerchandising()]);
+  return <HardwareCatalogue products={products} categories={categories} activeCategory={category} merchandising={merchandising} />;
 }

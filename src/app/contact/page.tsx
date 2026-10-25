@@ -23,7 +23,9 @@ function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
-  const [message, setMessage] = useState("");
+  const productSlug = searchParams.get("product") || "";
+  const productContext = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(productSlug) && productSlug.length <= 80 ? productSlug : "";
+  const [message, setMessage] = useState(productContext ? `Please send me a quotation for ${productContext}.` : "");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [feedback, setFeedback] = useState("");
@@ -39,7 +41,7 @@ function ContactForm() {
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadType, name, email, organization, message, website, pageUrl: "/contact", idempotencyKey: keyForAttempt(submissionKeyRef, { leadType, name, email, organization, message }) }),
+        body: JSON.stringify({ leadType, name, email, organization, message, website, pageUrl: productContext ? `/contact?product=${encodeURIComponent(productContext)}` : "/contact", idempotencyKey: keyForAttempt(submissionKeyRef, { leadType, name, email, organization, message }) }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string; reference?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit your message right now.");

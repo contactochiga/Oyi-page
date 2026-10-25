@@ -158,3 +158,6 @@ export function naira(kobo: number | null | undefined): string {
 }
 
 export const AVAILABILITY_LABEL: Record<Availability, string> = { in_stock: "In stock", available_to_order: "Available to order", unavailable: "Currently unavailable" };
+
+export type Merchandising = { slides: { key: string; eyebrow: string; title: string; description: string; ctaLabel: string; ctaHref: string; durationMs: number; image: {src:string;alt:string} | null }[]; featured: string[]; new_arrivals: string[]; collections: {key:string;title:string;description:string;products:string[]}[] };
+export function getMerchandising(){ return officeJson<Merchandising>("/merchandising", {cache:"none"}); }

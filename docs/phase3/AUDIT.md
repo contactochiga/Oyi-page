@@ -6,7 +6,7 @@
 
 The owner confirmed a white/light storefront, navy Oyi branding, unchanged GetOyi navigation, full-width cinematic hero, left-aligned heading/description/CTA, centered lower progress controls with small leading play/pause, edge arrows, categories, featured products, arrivals and enquiries. The Office Products reference is explicitly excluded.
 
-The accessible conversation is titled “Oyi Business Website Plan” in the Ochiga development platform project. Historical user messages confirm carousel reuse and positioning. Its generated-image responses are returned as content references rather than image pixels. The approved mockup has not yet been visually inspected; visual implementation and side-by-side sign-off require the original image. Do not substitute a newly generated design.
+The accessible conversation is titled “Oyi Business Website Plan” in the Ochiga development platform project. Historical user messages confirm carousel reuse and positioning. Its generated-image responses are returned as content references rather than image pixels. The owner subsequently supplied the original approved image at `/Users/ochigaidoko/Downloads/getoyi_smart_home_hardware_store.png`; it is now the locked visual target. See IMPLEMENTATION.md for implementation and evidence. Do not substitute a newly generated design.
 
 ## Exact carousel source
 
@@ -43,7 +43,7 @@ Corporate content publishing is Sanity-oriented and its mutable content records/
 
 ## Release gates
 
-Phase 3 is not implemented or tested yet. Release review: NO-GO. Public activation: NO-GO. Mandatory independent product publication/withdrawal test is still deferred from Phase 2 and cannot be bypassed. Any new campaign schema must pass reviewed database/security gates before separately authorized migration. No changes to checkout, Paystack, S7, corporate site, unrelated GetOyi pages or Office shell.
+This audit preceded implementation. See IMPLEMENTATION.md for the completed local changes and tests. Production release: NO-GO. Public activation: NO-GO. Mandatory independent product publication/withdrawal test is still deferred from Phase 2 and cannot be bypassed. Any new campaign schema must pass reviewed database/security gates before separately authorized migration. No changes to checkout, Paystack, S7, corporate site, unrelated GetOyi pages or Office shell.
 
 ## Local isolation
 
