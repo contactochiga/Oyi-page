@@ -5,13 +5,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/OyiSite";
 import { ProductDetail } from "@/components/hardware/ProductDetail";
-import { catalogueEnabled, getPreview } from "@/lib/catalogue";
+import { getPreview, previewEnabled } from "@/lib/catalogue";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Preview", robots: { index: false, follow: false, nocache: true }, referrer: "no-referrer" };
 
 export default async function HardwarePreviewPage({ params }: { params: Promise<{ token: string }> }) {
-  if (!catalogueEnabled()) notFound();
+  if (!previewEnabled()) notFound();
   const { token } = await params;
   const result = await getPreview(token);
   if (result.state !== "ok") {

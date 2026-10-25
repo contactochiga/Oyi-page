@@ -59,6 +59,12 @@ export function catalogueEnabled(): boolean {
   return process.env.HARDWARE_CATALOGUE_ENABLED === "true";
 }
 
+// Staff previews only (HARDWARE_PREVIEW_ENABLED=true): /hardware/preview/<signed token> works while the public catalogue stays off, so
+// visitors keep the existing static Hardware page and no product is listed, linked or indexed. Implied by the full catalogue switch.
+export function previewEnabled(): boolean {
+  return catalogueEnabled() || process.env.HARDWARE_PREVIEW_ENABLED === "true";
+}
+
 function baseUrl(): string {
   return (process.env.OCHIGA_OFFICE_BASE_URL || DEFAULT_OFFICE_BASE_URL).replace(/\/$/, "");
 }
