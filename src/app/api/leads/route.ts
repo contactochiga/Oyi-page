@@ -48,6 +48,8 @@ function normalizeString(value: unknown, limit = 240) {
 }
 
 export async function POST(request: Request) {
+  // deadlines of the Office delivery (foreground and background) are measured from here, the start of this invocation
+  const startedAt = Date.now();
   const ip = getRequestIp(request);
   if (!checkRateLimit(`leads:${ip}`, WINDOW_MS, MAX_REQUESTS)) {
     return NextResponse.json({ ok: false, error: "Too many requests. Please try again shortly." }, { status: 429 });
@@ -104,11 +106,11 @@ export async function POST(request: Request) {
     organization: { name: organization, location: "" },
     payload: { message },
   };
-  const office = await deliverToOffice(envelope);
+  const office = await deliverToOffice(envelope, startedAt);
   const officeStatus = office.delivery;
   // not confirmed yet: keep trying after the visitor has their answer, and give staff a signed way to file it themselves
   const recovery = office.ok || office.skipped ? null : recoveryUrl(envelope);
-  if (!office.ok && !office.skipped && office.retryable) after(() => continueOfficeDelivery(envelope));
+  if (!office.ok && !office.skipped && office.retryable) after(() => continueOfficeDelivery(envelope, startedAt));
 
   const emailResult = await sendOyiLeadEmail({
     leadType,
