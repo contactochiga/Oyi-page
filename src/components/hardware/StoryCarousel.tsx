@@ -36,6 +36,9 @@ export default function StoryCarousel({
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(slides.length > 1);
   const [reducedMotion, setReducedMotion] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [hoverOverride, setHoverOverride] = useState(false);
+  const running = isPlaying && (!hovered || hoverOverride);
   const pausedByRef = useRef<"user" | "system" | null>(null);
   const touchStartYRef = useRef<number | null>(null);
   const touchStartXRef = useRef<number | null>(null);
@@ -82,7 +85,7 @@ export default function StoryCarousel({
   // which — via animation-play-state below — resumes from the same point
   // for the same reason).
   useEffect(() => {
-    if (!multiSlide || !isPlaying) {
+    if (!multiSlide || !running) {
       if (startedAtRef.current !== null) {
         elapsedRef.current += Date.now() - startedAtRef.current;
         startedAtRef.current = null;
@@ -99,7 +102,7 @@ export default function StoryCarousel({
         startedAtRef.current = null;
       }
     };
-  }, [multiSlide, isPlaying, activeIndex, goNext, autoplayMs]);
+  }, [multiSlide, running, activeIndex, goNext, autoplayMs]);
 
   useEffect(() => {
     if (!multiSlide) return;
@@ -120,12 +123,13 @@ export default function StoryCarousel({
   }, [multiSlide, isPlaying]);
 
   const togglePlay = () => {
-    if (isPlaying) {
+    if (running) {
       pausedByRef.current = "user";
       setIsPlaying(false);
     } else {
       pausedByRef.current = null;
       setIsPlaying(true);
+      setHoverOverride(true);
     }
   };
 
@@ -161,6 +165,20 @@ export default function StoryCarousel({
       className={sectionClassName}
       onTouchStart={onTouchStart}
       onTouchEnd={onTouchEnd}
+      onMouseEnter={() => {
+        setHovered(true);
+        setHoverOverride(false);
+      }}
+      onMouseLeave={() => {
+        setHovered(false);
+        setHoverOverride(false);
+      }}
+      onFocusCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+          pausedByRef.current = "user";
+          setIsPlaying(false);
+        }
+      }}
     >
       <div className="hw-story-background" aria-hidden="true">
         {slides.map((slide, i) => (
@@ -182,6 +200,8 @@ export default function StoryCarousel({
         className="hw-story-content"
         id={panelId}
         role="group"
+        aria-live={running ? "off" : "polite"}
+        aria-atomic="true"
         aria-label={`Story ${activeIndex + 1} of ${slides.length}`}
       >
         <p className="hw-eyebrow">{active.eyebrow}</p>
@@ -219,9 +239,9 @@ export default function StoryCarousel({
               type="button"
               className="hw-play"
               onClick={togglePlay}
-              aria-label={isPlaying ? "Pause autoplay" : "Play autoplay"}
+              aria-label={running ? "Pause autoplay" : "Play autoplay"}
             >
-              {isPlaying ? (
+              {running ? (
                 <svg viewBox="0 0 16 16" aria-hidden="true">
                   <path
                     d="M5 3v10M11 3v10"
@@ -252,9 +272,9 @@ export default function StoryCarousel({
                       className="hw-progress"
                       style={{
                         animationDuration: `${autoplayMs}ms`,
-                        animationPlayState: isPlaying ? "running" : "paused",
+                        animationPlayState: running ? "running" : "paused",
                         ...(reducedMotion
-                          ? { animation: "none", width: "100%" }
+                          ? { animationName: "none", width: "100%" }
                           : {}),
                       }}
                     />

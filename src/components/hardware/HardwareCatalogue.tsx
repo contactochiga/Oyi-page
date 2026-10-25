@@ -16,6 +16,14 @@ import {
   type StoreCard,
 } from "./HardwareBrowser";
 import "./hardware.css";
+import { FeaturedProducts } from "./FeaturedProducts";
+const categoryCaption: Record<string, string> = {
+  "smart-locks": "Secure and convenient access",
+  "security-cameras": "Indoor and outdoor cameras",
+  "smart-lighting": "Control your space",
+  "home-automation": "Smarter connected living",
+  "sensors-accessories": "Complete your setup",
+};
 const fallback: StorySlide[] = [
   {
     key: "hardware",
@@ -124,7 +132,13 @@ export function HardwareCatalogue({
                     {/* eslint-disable-next-line @next/next/no-img-element -- published Office imagery only */}
                     {cover && <img src={cover.image} alt="" loading="lazy" />}
                     <span>
-                      <strong>{c.name}</strong>
+                      <span>
+                        <strong>{c.name}</strong>
+                        <small>
+                          {categoryCaption[c.slug] ||
+                            `Explore ${c.name.toLowerCase()}`}
+                        </small>
+                      </span>
                       <span aria-hidden="true">→</span>
                     </span>
                   </Link>
@@ -137,19 +151,7 @@ export function HardwareCatalogue({
             </p>
           )}
         </section>
-        {featured.length > 0 && (
-          <section className="hw-section">
-            <div className="hw-section-head">
-              <h2>Featured Products</h2>
-              <Link href="#browse">View all products →</Link>
-            </div>
-            <div className="hw-products">
-              {featured.map((p) => (
-                <ProductCard key={p.slug} product={p} />
-              ))}
-            </div>
-          </section>
-        )}
+        <FeaturedProducts featured={featured} arrivals={arrivals} />
         {merch?.collections.map((c) => {
           const items = c.products
             .map((slug) => bySlug.get(slug))
@@ -170,19 +172,6 @@ export function HardwareCatalogue({
             </section>
           ) : null;
         })}
-        {arrivals.length > 0 && (
-          <section className="hw-section">
-            <div className="hw-section-head">
-              <h2>New Arrivals</h2>
-              <Link href="#browse">Explore hardware →</Link>
-            </div>
-            <div className="hw-products">
-              {arrivals.map((p) => (
-                <ProductCard key={p.slug} product={p} />
-              ))}
-            </div>
-          </section>
-        )}
         {products.state === "unavailable" ? (
           <section className="hw-empty" data-state="unavailable">
             <h2>The hardware catalogue is temporarily unavailable.</h2>

@@ -198,7 +198,7 @@ try {
   );
   check("reduced-motion indicator is static", () =>
     assert.equal(
-      document.querySelector(".hw-progress").style.animation,
+      document.querySelector(".hw-progress").style.animationName,
       "none",
     ),
   );
@@ -208,6 +208,18 @@ try {
       "hw-play",
     ),
   );
+  act(() => { reduced=false; mediaListeners.forEach(f=>f()); });
+  click("Play autoplay");
+  const beforeHover=heading();
+  act(()=>document.querySelector('section').dispatchEvent(new window.MouseEvent('mouseover',{bubbles:true,relatedTarget:document.body})));
+  tick(20000);
+  check("hover pauses rotation",()=>assert.equal(heading(),beforeHover));
+  act(()=>document.querySelector('section').dispatchEvent(new window.MouseEvent('mouseout',{bubbles:true,relatedTarget:document.body})));
+  check("leaving hover resumes playback",()=>assert.ok(document.querySelector('[aria-label="Pause autoplay"]')));
+  act(()=>document.querySelector('.hw-primary').dispatchEvent(new window.FocusEvent('focusin',{bubbles:true,relatedTarget:null})));
+  const beforeFocus=heading();tick(20000);
+  check("keyboard focus pauses rotation",()=>assert.equal(heading(),beforeFocus));
+  check("focus pause announces manual content",()=>assert.equal(document.querySelector('#story-stage-panel').getAttribute('aria-live'),'polite'));
   console.log(`${checks} carousel checks passed`);
 } finally {
   act(() => root.unmount());

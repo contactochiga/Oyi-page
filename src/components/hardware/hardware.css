@@ -26,13 +26,13 @@
   outline-offset: 4px;
 }
 .hw-container {
-  max-width: 1536px;
+  max-width: 1800px;
   margin: auto;
   padding: 0 4.2%;
 }
 .hw-story {
   position: relative;
-  min-height: 410px;
+  min-height: 400px;
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -56,7 +56,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 65% center;
+  object-position: center;
 }
 .hw-story-background:after {
   content: "";
@@ -72,9 +72,9 @@
 .hw-story-content {
   position: relative;
   width: 100%;
-  max-width: 1250px;
+  max-width: 100%;
   margin: auto;
-  padding: 66px 36px 90px;
+  padding: 60px 13% 34px;
   text-align: left;
 }
 .hw-eyebrow {
@@ -95,7 +95,7 @@
   font-size: 18px;
   line-height: 1.45;
   max-width: 465px;
-  margin: 16px 0 22px;
+  margin: 10px 0 18px;
 }
 .hw-primary {
   display: inline-flex;
@@ -186,7 +186,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   background: #eff6ff;
-  padding: 25px 5%;
+  padding: 23px 5%;
   gap: 24px;
 }
 .hw-service-strip > div {
@@ -211,7 +211,7 @@
   margin: 6px 0 0;
 }
 .hw-section {
-  padding: 24px 0 12px;
+  padding: 14px 0 12px;
   scroll-margin-top: 100px;
 }
 .hw-section-head {
@@ -219,7 +219,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 .hw-section h2 {
   font-size: 26px;
@@ -243,14 +243,14 @@
 }
 .hw-category {
   position: relative;
-  min-height: 165px;
+  height: 170px;
   border-radius: 9px;
   overflow: hidden;
   background: #e6edf4;
 }
 .hw-category img {
   width: 100%;
-  height: 180px;
+  height: 170px;
   object-fit: cover;
 }
 .hw-category > span {
@@ -261,8 +261,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px;
-  background: linear-gradient(transparent, #031727 25%);
+  padding: 11px 18px;
+  background: linear-gradient(#031727c0, #031727);
   color: white;
   font-size: 14px;
   min-height: 65px;
@@ -584,5 +584,125 @@
   .hw-progress {
     animation: none !important;
     width: 100%;
+  }
+}
+
+/* Reference-aligned spacing, without changing the application header. */
+.hw-story-image {
+  left: 38%;
+}
+.hw-story-image img {
+  object-fit: cover;
+}
+.hw-story-background:after {
+  background: linear-gradient(
+    90deg,
+    #061726 30%,
+    #061726ed 38%,
+    #06172640 60%,
+    transparent 80%
+  );
+}
+.hw-category small {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+.hw-feature-tabs {
+  display: flex;
+  gap: 32px;
+  align-self: stretch;
+  margin-right: auto;
+  margin-left: 36px;
+}
+.hw-feature-tabs button {
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: #6075a3;
+  padding: 8px 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.hw-feature-tabs button[aria-selected="true"] {
+  color: #07154b;
+  border-bottom-color: #0067ff;
+  font-weight: 600;
+}
+.hw-featured {
+  padding-top: 18px;
+}
+@media (min-width: 1001px) {
+  .hw-story {
+    height: 400px;
+  }
+  .hw-story-content {
+    padding-top: 45px;
+    padding-bottom: 35px;
+  }
+  .hw-story h1 {
+    font-size: 60px;
+  }
+}
+@media (min-width: 641px) and (max-width: 1000px) {
+  .hw-story-image {
+    left: 25%;
+  }
+  .hw-story {
+    min-height: 420px;
+  }
+  .hw-story-content {
+    padding-top: 40px;
+    padding-bottom: 65px;
+  }
+  .hw-feature-tabs {
+    margin-left: 0;
+    gap: 20px;
+  }
+  .hw-featured .hw-section-head {
+    flex-wrap: wrap;
+  }
+}
+@media (max-width: 640px) {
+  .hw-story-image {
+    left: 0;
+  }
+  .hw-story-background:after {
+    background: linear-gradient(90deg, #031323eb, #03132370);
+  }
+  .hw-featured .hw-section-head {
+    flex-wrap: wrap;
+  }
+  .hw-feature-tabs {
+    order: 3;
+    flex-basis: 100%;
+    margin: 0;
+    gap: 28px;
+  }
+  .hw-featured .hw-section-head > a {
+    margin-left: auto;
+  }
+  .hw-story-content {
+    padding: 55px 42px 85px;
+  }
+}
+@media (min-width: 1001px) {
+  .hw-story-content {
+    padding-top: 65px;
+    padding-bottom: 15px;
+  }
+  .hw-story-description {
+    margin-top: 3px;
+    margin-bottom: 13px;
+  }
+  #categories {
+    padding-top: 5px;
+  }
+  #categories .hw-section-head {
+    margin-bottom: 7px;
+  }
+  .hw-featured {
+    padding-top: 10px;
   }
 }

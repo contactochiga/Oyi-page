@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/OyiSite";
 import { keyForAttempt, type SubmissionAttempt } from "@/lib/submission";
 
+import { hardwareEnquiryContext, hardwareEnquiryQuery } from "@/lib/hardwareEnquiry";
+
 const enquiryTypes = [
   { value: "general", label: "General enquiry" },
   { value: "developer", label: "Developer / building enquiry" },
@@ -23,9 +25,8 @@ function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
-  const productSlug = searchParams.get("product") || "";
-  const productContext = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(productSlug) && productSlug.length <= 80 ? productSlug : "";
-  const [message, setMessage] = useState(productContext ? `Please send me a quotation for ${productContext}.` : "");
+  const hardware = hardwareEnquiryContext(searchParams.get("product"), searchParams.get("sku"));
+  const [message, setMessage] = useState(hardware.product ? `Please send me a quotation for ${hardware.product}${hardware.sku ? ` (SKU ${hardware.sku})` : ""}.` : "");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [feedback, setFeedback] = useState("");
@@ -41,7 +42,7 @@ function ContactForm() {
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadType, name, email, organization, message, website, pageUrl: productContext ? `/contact?product=${encodeURIComponent(productContext)}` : "/contact", idempotencyKey: keyForAttempt(submissionKeyRef, { leadType, name, email, organization, message }) }),
+        body: JSON.stringify({ leadType, name, email, organization, message, website, hardware: hardware.product ? hardware : undefined, pageUrl: hardware.product ? `/contact?${hardwareEnquiryQuery(hardware.product, hardware.sku)}` : "/contact", idempotencyKey: keyForAttempt(submissionKeyRef, { leadType, name, email, organization, message, hardware }) }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string; reference?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit your message right now.");

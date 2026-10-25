@@ -3,6 +3,8 @@ import { sendOyiLeadEmail, submissionReference, type OyiLeadEmailResult, type Oy
 import { leadResponse } from "@/lib/leadResponse";
 import { continueOfficeDelivery, deliverToOffice, recoveryUrl, type OfficeIntakeEnvelope } from "@/lib/officeIntake";
 import { checkRateLimit, getRequestIp, makeRequestId } from "@/lib/rate-limit";
+import { catalogueEnabled, getProductForEnquiry, AVAILABILITY_LABEL } from "@/lib/catalogue";
+import { hardwareEnquiryContext, hardwareEnquiryQuery } from "@/lib/hardwareEnquiry";
 import { submissionKey } from "@/lib/submission";
 
 
@@ -29,6 +31,7 @@ const INQUIRY_TYPES: Record<OyiLeadType, string> = {
 };
 
 type LeadRequestPayload = {
+  hardware?: { product?: unknown; sku?: unknown };
   leadType?: string;
   name?: string;
   email?: string;
@@ -79,7 +82,7 @@ export async function POST(request: Request) {
 
   const name = normalizeString(body.name, 120);
   const email = normalizeString(body.email, 160).toLowerCase();
-  const message = normalizeString(body.message, 2000);
+  let message = normalizeString(body.message, 2000);
 
   if (!name) return NextResponse.json({ ok: false, error: "Name is required." }, { status: 400 });
   if (!email || !isEmail(email)) return NextResponse.json({ ok: false, error: "A valid email is required." }, { status: 400 });
@@ -88,7 +91,20 @@ export async function POST(request: Request) {
   const requestId = makeRequestId();
   const phone = normalizeString(body.phone, 60);
   const organization = normalizeString(body.organization, 160);
-  const pageUrl = normalizeString(body.pageUrl, 200);
+  let pageUrl = normalizeString(body.pageUrl, 200);
+  // Treat submitted identifiers as untrusted; never accept client prices, names or availability.
+  if (body.hardware !== undefined) {
+    const context = hardwareEnquiryContext(body.hardware?.product, body.hardware?.sku);
+    if (!catalogueEnabled() || !context.product || (body.hardware?.sku != null && body.hardware.sku !== "" && !context.sku))
+      return NextResponse.json({ ok: false, error: "Invalid hardware enquiry context." }, { status: 400 });
+    const result = await getProductForEnquiry(context.product);
+    if (result.state !== "ok") return NextResponse.json({ ok: false, error: "This product cannot be verified right now. Please contact sales without a product selection." }, { status: result.state === "unavailable" ? 503 : 400 });
+    const product = result.data.product;
+    const variant = context.sku ? product.variants.find(v => v.sku === context.sku) : undefined;
+    if (context.sku && !variant) return NextResponse.json({ ok: false, error: "This product option is no longer available. Please choose it again." }, { status: 400 });
+    message += `\n\nHardware enquiry: ${product.name} (${product.slug})${variant ? `; ${variant.name}; SKU ${variant.sku}` : ""}. Published availability: ${AVAILABILITY_LABEL[variant?.availability || product.availability]}. Quotation only; availability must be confirmed.`;
+    pageUrl = `/contact?${hardwareEnquiryQuery(product.slug, variant?.sku)}`;
+  }
 
   const key = submissionKey(body.idempotencyKey, `oyi_${leadType}_enquiry`, requestId);
 

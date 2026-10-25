@@ -161,3 +161,7 @@ export const AVAILABILITY_LABEL: Record<Availability, string> = { in_stock: "In 
 
 export type Merchandising = { slides: { key: string; eyebrow: string; title: string; description: string; ctaLabel: string; ctaHref: string; durationMs: number; image: {src:string;alt:string} | null }[]; featured: string[]; new_arrivals: string[]; collections: {key:string;title:string;description:string;products:string[]}[] };
 export function getMerchandising(){ return officeJson<Merchandising>("/merchandising", {cache:"none"}); }
+
+export function getProductForEnquiry(slug: string) {
+  return officeJson<{product: PublicProduct}>(`/products/${slug}`, {cache:"none"});
+}
