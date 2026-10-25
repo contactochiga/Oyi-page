@@ -2,7 +2,7 @@
 
 import { useRef, FormEvent, useMemo, useState } from "react";
 import { SiteFooter, SiteHeader } from "@/components/OyiSite";
-import { newSubmissionKey } from "@/lib/submission";
+import { keyForAttempt, type SubmissionAttempt } from "@/lib/submission";
 
 type FormState = {
   name: string;
@@ -45,8 +45,8 @@ export default function DeploymentsPage() {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  // one key per submission attempt: reused on every retry of the same request, replaced only after it is accepted
-  const submissionKeyRef = useRef<string | null>(null);
+  // one key per submission attempt: reused on every retry of the same request, replaced after it is accepted or when the request changes
+  const submissionKeyRef = useRef<SubmissionAttempt>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -58,7 +58,7 @@ export default function DeploymentsPage() {
       const response = await fetch("/api/deployments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, idempotencyKey: (submissionKeyRef.current ||= newSubmissionKey()) }),
+        body: JSON.stringify({ ...form, idempotencyKey: keyForAttempt(submissionKeyRef, form) }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit the request right now.");

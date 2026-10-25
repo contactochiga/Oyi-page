@@ -1,9 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { sendOyiLeadEmail, type OyiLeadType } from "@/lib/email";
-import { postOfficeIntakeEnvelope } from "@/lib/officeIntake";
+import { continueOfficeDelivery, deliverToOffice, recoveryUrl, type OfficeIntakeEnvelope } from "@/lib/officeIntake";
 import { checkRateLimit, getRequestIp, makeRequestId } from "@/lib/rate-limit";
 import { submissionKey } from "@/lib/submission";
 
+
+// bounded foreground retries plus a short background continuation (next/server `after`) fit well inside this budget
+export const maxDuration = 60;
 const WINDOW_MS = 60_000;
 const MAX_REQUESTS = 5;
 const MAX_BODY_BYTES = 8_192;
@@ -88,7 +91,7 @@ export async function POST(request: Request) {
 
   // Office first (idempotent on `key`), so the staff email can say whether the enquiry is in the CRM. Both channels are still
   // attempted whatever the other does: an Office outage must not lose the enquiry, and the email flags it for manual filing.
-  const office = await postOfficeIntakeEnvelope({
+  const envelope: OfficeIntakeEnvelope = {
     request_id: requestId,
     idempotency_key: key,
     source_channel: "website",
@@ -100,8 +103,12 @@ export async function POST(request: Request) {
     contact: { name, email, phone },
     organization: { name: organization, location: "" },
     payload: { message },
-  }).catch(() => ({ ok: false, skipped: false, duplicate: false, reason: "office_intake_threw" }));
-  const officeStatus = office.ok ? (office.duplicate ? "duplicate" : "synced") : office.skipped ? "not_configured" : "failed";
+  };
+  const office = await deliverToOffice(envelope);
+  const officeStatus = office.delivery;
+  // not confirmed yet: keep trying after the visitor has their answer, and give staff a signed way to file it themselves
+  const recovery = office.ok || office.skipped ? null : recoveryUrl(envelope);
+  if (!office.ok && !office.skipped && office.retryable) after(() => continueOfficeDelivery(envelope));
 
   const emailResult = await sendOyiLeadEmail({
     leadType,
@@ -114,6 +121,7 @@ export async function POST(request: Request) {
     pageUrl: pageUrl || undefined,
     submissionKey: key,
     officeStatus,
+    recoveryUrl: recovery,
   }).then(() => true, (error) => {
     console.error(`[api/leads] email failed (${requestId}):`, error instanceof Error ? error.message : error);
     return false;

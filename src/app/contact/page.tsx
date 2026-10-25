@@ -3,7 +3,7 @@
 import { Suspense, useRef, useState, type FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/components/OyiSite";
-import { newSubmissionKey } from "@/lib/submission";
+import { keyForAttempt, type SubmissionAttempt } from "@/lib/submission";
 
 const enquiryTypes = [
   { value: "general", label: "General enquiry" },
@@ -27,8 +27,8 @@ function ContactForm() {
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [feedback, setFeedback] = useState("");
-  // one key per submission attempt: reused on every retry of the same message, replaced only after it is accepted
-  const submissionKeyRef = useRef<string | null>(null);
+  // one key per submission attempt: reused on every retry of the same message, replaced after it is accepted or when the message changes
+  const submissionKeyRef = useRef<SubmissionAttempt>(null);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -39,7 +39,7 @@ function ContactForm() {
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leadType, name, email, organization, message, website, pageUrl: "/contact", idempotencyKey: (submissionKeyRef.current ||= newSubmissionKey()) }),
+        body: JSON.stringify({ leadType, name, email, organization, message, website, pageUrl: "/contact", idempotencyKey: keyForAttempt(submissionKeyRef, { leadType, name, email, organization, message }) }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit your message right now.");

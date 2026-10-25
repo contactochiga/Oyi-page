@@ -28,8 +28,10 @@ export type OyiLeadPayload = {
   pageUrl?: string;
   // stable per-submission key: makes both emails idempotent at the provider (a retried submission sends nothing twice)
   submissionKey?: string;
-  // whether the same submission reached the Office CRM; anything else flags the staff email so the enquiry is filed by hand
-  officeStatus?: "synced" | "duplicate" | "failed" | "not_configured";
+  // whether the same submission reached the Office CRM; anything else flags the staff email
+  officeStatus?: "synced" | "duplicate" | "pending" | "failed" | "not_configured";
+  // signed link that lets a signed-in Office staff member file exactly this submission (only when Office did not confirm it)
+  recoveryUrl?: string | null;
 };
 
 // Single source of truth for the internal notification destination.
@@ -107,11 +109,24 @@ function detailRows(payload: OyiLeadPayload): Array<[string, string]> {
   return rows;
 }
 
+function recoveryBlock(payload: OyiLeadPayload): string {
+  if (payload.officeStatus === "synced" || payload.officeStatus === "duplicate" || !payload.officeStatus) return "";
+  const why = payload.officeStatus === "pending"
+    ? "Office received this enquiry but could not finish its CRM records yet. It keeps retrying automatically."
+    : payload.officeStatus === "not_configured"
+      ? "This website is not connected to Office, so the enquiry was NOT filed in the CRM."
+      : "Office could not be reached, so the enquiry was NOT filed in the CRM yet. The website keeps retrying for a short while.";
+  const action = payload.recoveryUrl
+    ? `<p style="margin:12px 0;"><a href="${escapeHtml(payload.recoveryUrl)}" style="display:inline-block;padding:10px 16px;background:#0ea5e9;color:#020617;border-radius:8px;text-decoration:none;font-weight:600;">File this enquiry in Office</a></p><p style="color:#64748b;font-size:12px;">Sign in to Office first. The link is safe to use more than once and does nothing if the enquiry already reached Office. Valid for 30 days.</p>`
+    : `<p style="color:#64748b;font-size:12px;">File it manually in Office from the details above.</p>`;
+  return `<div style="margin-top:20px;padding:12px 16px;border:1px solid #f59e0b;border-radius:10px;background:#fffbeb;"><p style="margin:0;font-weight:600;">${escapeHtml(why)}</p>${action}</div>`;
+}
+
 function internalNotificationHtml(payload: OyiLeadPayload): string {
   const rows = detailRows(payload)
     .map(([label, value]) => `<tr><td style="padding:6px 12px;color:#64748b;font-size:13px;white-space:nowrap;">${escapeHtml(label)}</td><td style="padding:6px 12px;font-size:14px;">${escapeHtml(value).replace(/\n/g, "<br/>")}</td></tr>`)
     .join("");
-  return `<div style="font-family:sans-serif;max-width:640px;"><h2 style="margin:0 0 16px;">New Oyi enquiry — ${escapeHtml(leadTypeLabels[payload.leadType])}</h2><table style="border-collapse:collapse;width:100%;">${rows}</table></div>`;
+  return `<div style="font-family:sans-serif;max-width:640px;"><h2 style="margin:0 0 16px;">New Oyi enquiry — ${escapeHtml(leadTypeLabels[payload.leadType])}</h2><table style="border-collapse:collapse;width:100%;">${rows}</table>${recoveryBlock(payload)}</div>`;
 }
 
 function acknowledgementHtml(payload: OyiLeadPayload): string {
@@ -139,13 +154,14 @@ export async function sendOyiLeadEmail(payload: OyiLeadPayload): Promise<{ sent:
   const copy = acknowledgementCopy[payload.leadType];
 
   const notInCrm = payload.officeStatus === "failed" || payload.officeStatus === "not_configured";
+  const crmIncomplete = payload.officeStatus === "pending";
   // Resend reports a rejected email in the returned `error` (it does not throw), so both results are checked explicitly.
   const staff = await client.emails.send(
     {
       from,
       to: inbox,
       replyTo: payload.email,
-      subject: `${notInCrm ? "[NOT IN OFFICE CRM] " : ""}[Oyi] ${leadTypeLabels[payload.leadType]} — ${payload.name}`,
+      subject: `${notInCrm ? "[NOT IN OFFICE CRM] " : crmIncomplete ? "[OFFICE CRM INCOMPLETE] " : ""}[Oyi] ${leadTypeLabels[payload.leadType]} — ${payload.name}`,
       html: internalNotificationHtml(payload),
     },
     payload.submissionKey ? { idempotencyKey: `${payload.submissionKey}:staff` } : undefined,

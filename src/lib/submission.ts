@@ -19,3 +19,13 @@ export function newSubmissionKey(): string {
   const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
+
+export type SubmissionAttempt = { key: string; content: string } | null;
+
+// The key is reused only while the form content is unchanged: a plain retry is the same submission, an edited form is a new one (Office
+// refuses a key re-used for different content rather than silently merging the two).
+export function keyForAttempt(ref: { current: SubmissionAttempt }, content: unknown): string {
+  const fingerprint = JSON.stringify(content);
+  if (!ref.current || ref.current.content !== fingerprint) ref.current = { key: newSubmissionKey(), content: fingerprint };
+  return ref.current.key;
+}
