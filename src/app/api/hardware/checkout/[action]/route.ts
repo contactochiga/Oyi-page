@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   COOKIE,
   enabled,
+  isolatedStatusOnly,
   sign,
   verify,
   newGuest,
@@ -41,7 +42,7 @@ export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ action: string }> },
 ) {
-  if (!enabled()) return reply(404, { error: "not_found" });
+  if (!enabled() && !isolatedStatusOnly()) return reply(404, { error: "not_found" });
   if ((await params).action !== "session")
     return reply(405, { error: "method_not_allowed" });
   try {
@@ -68,7 +69,7 @@ export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ action: string }> },
 ) {
-  if (!enabled()) return reply(404, { error: "not_found" });
+  if (!enabled() && !(isolatedStatusOnly() && (await params).action === "status")) return reply(404, { error: "not_found" });
   if (!checkRateLimit("checkout:" + getRequestIp(req), 60000, 60))
     return reply(429, { error: "too_many_requests" });
   const origin = process.env.GETOYI_CHECKOUT_ORIGIN;

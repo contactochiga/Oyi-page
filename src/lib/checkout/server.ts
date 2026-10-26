@@ -8,6 +8,12 @@ export const COOKIE = "getoyi_checkout_guest";
 export const enabled = () =>
   process.env.HARDWARE_CATALOGUE_ENABLED === "true" &&
   process.env.HARDWARE_CHECKOUT_ENABLED === "true";
+export const isolatedStatusOnly = () =>
+  process.env.ISOLATED_SERVICE === "getoyi" &&
+  process.env.HARDWARE_TEST_STATUS_ONLY === "true" &&
+  process.env.GETOYI_CHECKOUT_ORIGIN === "https://localhost:18443" &&
+  process.env.OCHIGA_OFFICE_CHECKOUT_URL === "https://office.hardware.test" &&
+  process.env.HARDWARE_PAYMENTS_ENABLED === "false";
 function secret() {
   const s = process.env.HARDWARE_CHECKOUT_SESSION_SECRET;
   if (!s || s.length < 32) throw Error("checkout_unavailable");
