@@ -90,6 +90,26 @@ export async function POST(
     const action = (await params).action,
       b = await body(req),
       guestHash = hash(String(guest.id));
+    if (["payment-quote", "payment-start"].includes(action)) {
+      if (process.env.HARDWARE_PAYMENTS_ENABLED !== "true")
+        return reply(404, { error: "not_found" });
+      if (
+        Object.keys(b).some(
+          (k) => !["id", "accepted_total_kobo"].includes(k),
+        ) ||
+        typeof b.id !== "string" ||
+        !/^[0-9a-f-]{36}$/.test(b.id)
+      )
+        return reply(400, { error: "invalid_checkout" });
+      const r = await office(action, {
+        id: b.id,
+        guest_hash: guestHash,
+        ...(action === "payment-start"
+          ? { accepted_total_kobo: b.accepted_total_kobo }
+          : {}),
+      });
+      return reply(r.status, r.data);
+    }
     if (action === "status") {
       if (Object.keys(b).some((k) => !["id", "idempotency_key"].includes(k)))
         return reply(400, { error: "invalid_checkout" });

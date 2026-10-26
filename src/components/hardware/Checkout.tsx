@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import Link from "next/link";
 import {
   readCart,
@@ -11,6 +11,7 @@ import {
   type Reservation,
 } from "@/lib/checkout/cart";
 import "./checkout.css";
+import { PaymentStatus } from "./PaymentStatus";
 const errors: Record<string, string> = {
   price_changed:
     "Product details or availability have changed. Refresh the summary and review it before submitting again.",
@@ -34,9 +35,11 @@ const ATTEMPT = "getoyi-checkout-attempt-v1";
 export function Checkout({
   cartOnly = false,
   testLabel = false,
+  paymentsEnabled = false,
 }: {
   cartOnly?: boolean;
   testLabel?: boolean;
+  paymentsEnabled?: boolean;
 }) {
   const [lines, setLines] = useState<CartLine[] | null>(null),
     [quote, setQuote] = useState<Quote | null>(null),
@@ -48,63 +51,92 @@ export function Checkout({
     [reservation, setReservation] = useState<Reservation | null>(null);
   const sequence = useRef(0),
     submitting = useRef(false);
-  async function load(current: CartLine[]) {
-    const seq = ++sequence.current;
-    setQuote(null);
-    setMessage("");
-    if (!current.length) return;
-    try {
-      const sr = await fetch("/api/hardware/checkout/session", {
-        cache: "no-store",
-      });
-      const session = await sr.json();
-      if (!sr.ok) throw Error(session.error);
-      if (seq !== sequence.current) return;
-      setCsrf(session.csrf);
-      const pending = sessionStorage.getItem(ATTEMPT);
-      if (pending) {
-        const recovery = await fetch("/api/hardware/checkout/status", {
+  const load = useCallback(
+    async (current: CartLine[]) => {
+      const seq = ++sequence.current;
+      setQuote(null);
+      setMessage("");
+      if (
+        !current.length &&
+        !(paymentsEnabled && sessionStorage.getItem("getoyi-last-order"))
+      )
+        return;
+      try {
+        const sr = await fetch("/api/hardware/checkout/session", {
+          cache: "no-store",
+        });
+        const session = await sr.json();
+        if (!sr.ok) throw Error(session.error);
+        if (seq !== sequence.current) return;
+        setCsrf(session.csrf);
+        const last =
+          paymentsEnabled && sessionStorage.getItem("getoyi-last-order");
+        if (last && !current.length) {
+          const r = await fetch("/api/hardware/checkout/status", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "x-checkout-csrf": session.csrf,
+            },
+            body: JSON.stringify({ id: last }),
+          });
+          if (r.ok) {
+            const b = await r.json();
+            setReceipt(b.order.id);
+            setReservation(b.order.reservation || null);
+            return;
+          }
+          sessionStorage.removeItem("getoyi-last-order");
+          return;
+        }
+        const pending = sessionStorage.getItem(ATTEMPT);
+        if (pending) {
+          const recovery = await fetch("/api/hardware/checkout/status", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              "x-checkout-csrf": session.csrf,
+            },
+            body: JSON.stringify({ idempotency_key: pending }),
+          });
+          if (recovery.ok) {
+            const found = await recovery.json();
+            if (seq === sequence.current) {
+              setReceipt(found.order.id);
+              if (paymentsEnabled)
+                sessionStorage.setItem("getoyi-last-order", found.order.id);
+              setReservation(found.order.reservation || null);
+              saveCart([]);
+              sessionStorage.removeItem(ATTEMPT);
+            }
+            return;
+          }
+          if (recovery.status !== 404) throw Error("checkout_unavailable");
+        }
+        const r = await fetch("/api/hardware/checkout/quote", {
           method: "POST",
           headers: {
             "content-type": "application/json",
             "x-checkout-csrf": session.csrf,
           },
-          body: JSON.stringify({ idempotency_key: pending }),
+          body: JSON.stringify({ lines: current }),
         });
-        if (recovery.ok) {
-          const found = await recovery.json();
-          if (seq === sequence.current) {
-            setReceipt(found.order.id);
-            setReservation(found.order.reservation || null);
-            saveCart([]);
-            sessionStorage.removeItem(ATTEMPT);
-          }
-          return;
+        const b = await r.json();
+        if (!r.ok) throw Error(b.error);
+        if (seq === sequence.current) {
+          setQuote(b.quote);
+          setQuoteToken(b.quote_token);
         }
-        if (recovery.status !== 404) throw Error("checkout_unavailable");
+      } catch (e) {
+        if (seq === sequence.current)
+          setMessage(
+            errors[(e as Error).message] ||
+              "Unable to verify this cart. Review the items or contact Sales.",
+          );
       }
-      const r = await fetch("/api/hardware/checkout/quote", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          "x-checkout-csrf": session.csrf,
-        },
-        body: JSON.stringify({ lines: current }),
-      });
-      const b = await r.json();
-      if (!r.ok) throw Error(b.error);
-      if (seq === sequence.current) {
-        setQuote(b.quote);
-        setQuoteToken(b.quote_token);
-      }
-    } catch (e) {
-      if (seq === sequence.current)
-        setMessage(
-          errors[(e as Error).message] ||
-            "Unable to verify this cart. Review the items or contact Sales.",
-        );
-    }
-  }
+    },
+    [paymentsEnabled],
+  );
   useEffect(() => {
     // Read the browser-only external store after hydration; subscribe to cross-tab cart changes.
     const sync = () => {
@@ -115,7 +147,7 @@ export function Checkout({
     queueMicrotask(sync);
     window.addEventListener("storage", sync);
     return () => window.removeEventListener("storage", sync);
-  }, []);
+  }, [load]);
   function update(next: CartLine[]) {
     try {
       saveCart(next);
@@ -169,6 +201,8 @@ export function Checkout({
       const b = await r.json();
       if (!r.ok) throw Error(b.error);
       setReceipt(b.order.id);
+      if (paymentsEnabled)
+        sessionStorage.setItem("getoyi-last-order", b.order.id);
       setReservation(b.order.reservation || null);
       saveCart([]);
       sessionStorage.removeItem(ATTEMPT);
@@ -192,9 +226,9 @@ export function Checkout({
             Reference: <strong>{receipt}</strong>
           </p>
           <p>
-            No payment has been taken. Stock, delivery serviceability and
-            charges still require confirmation. Installation is an assessment
-            request only.
+            {paymentsEnabled
+              ? "Check the verified payment status below. Installation remains a separate assessment request."
+              : "No payment has been taken. Stock, delivery serviceability and charges still require confirmation. Installation is an assessment request only."}
           </p>
           {reservation ? (
             <p role="status">
@@ -203,6 +237,13 @@ export function Checkout({
                 : `Your stock hold is ${reservation.state}. Contact Sales before making further arrangements.`}
             </p>
           ) : null}
+          {paymentsEnabled && (
+            <PaymentStatus
+              orderId={receipt}
+              csrf={csrf}
+              onConfirmed={() => setReservation(null)}
+            />
+          )}
           <Link href="/hardware">Continue browsing Hardware</Link>
         </div>
       </main>

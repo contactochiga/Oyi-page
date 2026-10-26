@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test:hardware:carousel": "node tests/phase3/carousel.cjs",
-    "test:hardware:checkout": "node tests/phase4/unit.cjs && node tests/phase4/cart-ui.cjs"
+    "test:hardware:checkout": "node tests/phase4/unit.cjs && node tests/phase4/cart-ui.cjs",
+    "test:hardware:payments": "node tests/phase4/payment-ui.cjs"
   },
   "dependencies": {
     "next": "16.4.1",

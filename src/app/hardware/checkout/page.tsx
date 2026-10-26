@@ -13,6 +13,7 @@ export default function Page() {
     <>
       <SiteHeader />
       <Checkout
+        paymentsEnabled={process.env.HARDWARE_PAYMENTS_ENABLED === "true"}
         testLabel={
           process.env.NODE_ENV !== "production" &&
           process.env.CHECKOUT_LOCAL_REHEARSAL === "true"
