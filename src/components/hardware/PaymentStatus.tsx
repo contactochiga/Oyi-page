@@ -8,6 +8,7 @@ type Payment = {
   goods_tax_kobo: number;
   delivery_tax_kobo: number;
   payment_state: string;
+  refund_state?: string | null;
 };
 export function PaymentStatus({
   orderId,
@@ -91,6 +92,15 @@ export function PaymentStatus({
                 ? "Payment received; Sales must arrange reconciliation or a refund."
                 : "Payment has not been confirmed."}
           </p>
+          {payment.refund_state && (
+            <p role="status">
+              {payment.refund_state === "refund_processed"
+                ? "Paystack has processed the refund. Bank arrival is not yet confirmed."
+                : payment.refund_state === "refund_pending"
+                  ? "Your refund is processing with Paystack."
+                  : "Your refund needs review by Sales. Funds have not been confirmed returned."}
+            </p>
+          )}
           {payment.eligible && (
             <>
               <p>

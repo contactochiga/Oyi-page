@@ -95,8 +95,14 @@ function load(file) {
   assert(
     calls.every((c) => c.body.id === "local-order" && !("reference" in c.body)),
   );
+  response = { eligible: false, payment_state: "paid", refund_state: "refund_processed" };
+  await click();
+  assert(document.body.textContent.includes("Bank arrival is not yet confirmed"));
+  response.refund_state = "refund_escalated";
+  await click();
+  assert(document.body.textContent.includes("Funds have not been confirmed returned"));
   await React.act(async () => root.unmount());
-  console.log("9 payment-state/consent/redirect-boundary DOM assertions PASS");
+  console.log("11 payment-state/consent/redirect-boundary DOM assertions PASS");
 })().catch((e) => {
   console.error(e);
   process.exitCode = 1;
