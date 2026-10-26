@@ -90,6 +90,7 @@ export function ProductDetail({
             images={images}
             variants={variants}
             productSlug={product.slug}
+            checkoutEnabled={!previewToken && process.env.HARDWARE_CATALOGUE_ENABLED === "true" && process.env.HARDWARE_CHECKOUT_ENABLED === "true"}
           >
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
               {[product.brand?.name, product.model]
