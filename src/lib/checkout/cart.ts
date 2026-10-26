@@ -51,7 +51,13 @@ export const money = (kobo: number) =>
   new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN" }).format(
     kobo / 100,
   );
+export type Reservation = {
+  id: string;
+  state: "held" | "released" | "expired" | "allocated";
+  expires_at: string;
+};
 export type Quote = {
+  reservation_ttl_seconds?: number | null;
   lines: {
     sku: string;
     name: string;

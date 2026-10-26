@@ -8,11 +8,12 @@ import {
   money,
   type CartLine,
   type Quote,
+  type Reservation,
 } from "@/lib/checkout/cart";
 import "./checkout.css";
 const errors: Record<string, string> = {
   price_changed:
-    "Prices have changed. Refresh the summary and review it before submitting again.",
+    "Product details or availability have changed. Refresh the summary and review it before submitting again.",
   stock_unavailable:
     "A selected quantity is no longer available. Update your cart or request a quotation.",
   product_unavailable:
@@ -43,7 +44,8 @@ export function Checkout({
     [csrf, setCsrf] = useState(""),
     [message, setMessage] = useState(""),
     [busy, setBusy] = useState(false),
-    [receipt, setReceipt] = useState("");
+    [receipt, setReceipt] = useState(""),
+    [reservation, setReservation] = useState<Reservation | null>(null);
   const sequence = useRef(0),
     submitting = useRef(false);
   async function load(current: CartLine[]) {
@@ -73,6 +75,7 @@ export function Checkout({
           const found = await recovery.json();
           if (seq === sequence.current) {
             setReceipt(found.order.id);
+            setReservation(found.order.reservation || null);
             saveCart([]);
             sessionStorage.removeItem(ATTEMPT);
           }
@@ -166,6 +169,7 @@ export function Checkout({
       const b = await r.json();
       if (!r.ok) throw Error(b.error);
       setReceipt(b.order.id);
+      setReservation(b.order.reservation || null);
       saveCart([]);
       sessionStorage.removeItem(ATTEMPT);
     } catch (e) {
@@ -192,6 +196,13 @@ export function Checkout({
             charges still require confirmation. Installation is an assessment
             request only.
           </p>
+          {reservation ? (
+            <p role="status">
+              {reservation.state === "held"
+                ? `A temporary stock hold expires at ${new Date(reservation.expires_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}. It is not a payment or delivery confirmation.`
+                : `Your stock hold is ${reservation.state}. Contact Sales before making further arrangements.`}
+            </p>
+          ) : null}
           <Link href="/hardware">Continue browsing Hardware</Link>
         </div>
       </main>
@@ -448,9 +459,9 @@ export function Checkout({
                 <p>Prices must be verified before you continue.</p>
               )}
               <p className="co-note">
-                Submitting does not reserve stock or take payment. We’ll confirm
-                the full amount, including delivery, before payment becomes
-                available.
+                {quote?.reservation_ttl_seconds
+                  ? `An accepted request holds available stock for ${quote.reservation_ttl_seconds / 60} minutes. No payment is taken. Delivery and the full payable amount still require confirmation.`
+                  : "Submitting does not reserve stock or take payment. We’ll confirm the full amount, including delivery, before payment becomes available."}
               </p>
               {cartOnly ? (
                 <Link
