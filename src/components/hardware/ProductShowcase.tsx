@@ -3,6 +3,7 @@
 // like the published page. Images are this site's own image routes (resolved on the server); no ordering or payment happens here.
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { AddToCart } from "./AddToCart";
 import { hardwareEnquiryQuery } from "@/lib/hardwareEnquiry";
 
 export type ShowcaseImage = {
@@ -37,9 +38,11 @@ export function ProductShowcase({
   variants,
   children,
   productSlug,
+  checkoutEnabled = false,
 }: {
   name: string;
   productSlug: string;
+  checkoutEnabled?: boolean;
   images: ShowcaseImage[];
   variants: ShowcaseVariant[];
   children?: React.ReactNode;
@@ -200,6 +203,7 @@ export function ProductShowcase({
           </div>
         )}
         <div className="mt-6 grid gap-3">
+          {checkoutEnabled && variant?.availabilityTone === "ok" && variant.price ? <AddToCart product={productSlug} sku={variant.sku} /> : null}
           <Link
             href={`/contact?${hardwareEnquiryQuery(productSlug, variant?.sku)}`}
             className="inline-flex justify-center rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
