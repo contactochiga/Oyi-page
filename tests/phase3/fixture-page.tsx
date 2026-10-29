@@ -4,6 +4,7 @@ import {
   HardwareBrowser,
   type StoreCard,
 } from "@/components/hardware/HardwareBrowser";
+import { parseQuery } from "@/lib/catalogueQuery";
 import "@/components/hardware/hardware.css";
 const cards: StoreCard[] = Array.from({ length: 14 }, (_, i) => ({
   slug: `test-fixture-${i + 1}`,
@@ -57,7 +58,15 @@ export default function FixturePage() {
         ]}
       />
       <div className="hw-container">
-        <HardwareBrowser products={cards} initialCategory="" />
+        <HardwareBrowser
+          items={cards.slice(0, 12)}
+          total={cards.length}
+          page={1}
+          pages={2}
+          query={parseQuery({})}
+          facets={{ categories: [{ slug: "test-a", name: "Test category A" }, { slug: "test-b", name: "Test category B" }], brands: [] }}
+          catalogueEmpty={false}
+        />
       </div>
     </main>
   );

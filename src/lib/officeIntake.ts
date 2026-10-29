@@ -9,7 +9,7 @@
 // visitor has their answer, and finally can be recovered by staff from the e-mail with a signed recovery code (see recoveryCode()).
 import { createHash, createHmac } from "node:crypto";
 
-const DEFAULT_OFFICE_BASE_URL = "https://ochiga-lead-agents.onrender.com";
+import { officeBaseUrlOrEmpty } from "./officeTarget";
 const DEFAULT_OFFICE_APP_URL = "https://office.ochiga.com.ng";
 // Delivery budget (both routes: maxDuration = 60 s, and the `after()` continuation runs inside that same invocation).
 // Office files a website enquiry in about 4 s in production (measured 4.14 s on 2026-10-25: several sequential CRM writes), more for
@@ -34,7 +34,8 @@ const BACKGROUND_DEADLINE_MS = 55_000;
 const MIN_ATTEMPT_MS = 2_000;
 
 function officeBaseUrl(): string {
-  return (process.env.OCHIGA_OFFICE_BASE_URL || DEFAULT_OFFICE_BASE_URL).replace(/\/$/, "");
+  // Release A: production Office only for the production deployment; previews must name an Office or skip delivery.
+  return officeBaseUrlOrEmpty();
 }
 
 function officeAppUrl(): string {
@@ -95,7 +96,7 @@ function outcomeOf(status: number, errorText: string): OfficeOutcome {
 // One attempt. Never throws — callers decide how a failed/skipped Office sync affects the overall request outcome.
 export async function postOfficeIntakeEnvelope(envelope: OfficeIntakeEnvelope, timeoutMs = ATTEMPT_TIMEOUT_MS): Promise<OfficeIntakeResult> {
   const apiKey = officeApiKey();
-  if (!apiKey) {
+  if (!apiKey || !officeBaseUrl()) {
     return { ok: false, skipped: true, delivery: "not_configured", reason: "office_not_configured" };
   }
 

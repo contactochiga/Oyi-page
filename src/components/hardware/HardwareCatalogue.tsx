@@ -15,6 +15,7 @@ import {
   ProductCard,
   type StoreCard,
 } from "./HardwareBrowser";
+import { applyQuery, isComplete, priceLabel, type CatalogueQuery } from "@/lib/catalogueQuery";
 import "./hardware.css";
 import { FeaturedProducts } from "./FeaturedProducts";
 const categoryCaption: Record<string, string> = {
@@ -45,30 +46,31 @@ function card(p: PublicCard): StoreCard {
   return {
     ...p,
     image: p.cover ? imageUrl(p.cover.src) : "",
-    priceLabel:
-      p.price_from_kobo == null
-        ? ""
-        : `${p.price_to_kobo !== p.price_from_kobo ? "From " : ""}${naira(p.price_from_kobo)}`,
+    priceLabel: priceLabel(p, naira),
     availabilityLabel: AVAILABILITY_LABEL[p.availability],
   };
 }
 export function HardwareCatalogue({
   products,
   categories,
-  activeCategory,
+  query,
   merchandising,
 }: {
   products: CatalogueResult<{ products: PublicCard[]; total: number }>;
   categories: CatalogueResult<{ categories: PublicCategory[] }>;
-  activeCategory: string;
+  query: CatalogueQuery;
   merchandising?: CatalogueResult<Merchandising>;
 }) {
-  const list = products.state === "ok" ? products.data.products.map(card) : [];
+  // Only complete products are shown anywhere on the page (defence in depth over Office's publication rules).
+  const raw = products.state === "ok" ? products.data.products : [];
+  const list = raw.filter(isComplete).map(card);
   const cats =
     categories.state === "ok"
       ? categories.data.categories.filter((c) => c.product_count > 0)
       : [];
   const merch = merchandising?.state === "ok" ? merchandising.data : null;
+  const result = applyQuery(raw, query, merch?.featured || []);
+  const shown = result.items.map(card);
   const slides: StorySlide[] =
     merch?.slides.map((s) => ({
       ...s,
@@ -180,9 +182,13 @@ export function HardwareCatalogue({
           </section>
         ) : (
           <HardwareBrowser
-            key={activeCategory}
-            products={list}
-            initialCategory={activeCategory}
+            items={shown}
+            total={result.total}
+            page={result.page}
+            pages={result.pages}
+            query={query}
+            facets={result.facets}
+            catalogueEmpty={list.length === 0}
           />
         )}
         <section className="hw-advice">
@@ -204,7 +210,8 @@ export function HardwareCatalogue({
         </section>
         <p className="hw-footnote">
           Prices include VAT where applicable. Availability is confirmed with
-          your quotation. Online checkout is not available.
+          your quotation.{" "}
+          Online ordering is not available.
         </p>
       </div>
     </main>
