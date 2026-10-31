@@ -7,12 +7,12 @@ import { siteConfig } from "@/lib/site";
 type QuickLink = { label: string; href: string; description: string };
 
 const quickLinks: QuickLink[] = [
-  { label: "Oyi Facility", href: "/facility", description: "Operating the physical building" },
-  { label: "Oyi Experience", href: "/experience", description: "How people interact with it" },
-  { label: "Oyi Core", href: "/core", description: "The intelligence layer" },
+  { label: "What is Oyi", href: "/oyi", description: "One intelligent operating system" },
+  { label: "Facility Experience", href: "/facility", description: "For the teams who run the building" },
+  { label: "Resident Experience", href: "/experience", description: "For the people who live and work in it" },
   { label: "Solutions", href: "/solutions", description: "Residential, hospitality, commercial…" },
-  { label: "Integrations", href: "/technology", description: "What Oyi works with" },
-  { label: "Deploy Oyi", href: "/deployments", description: "Start a deployment request" },
+  { label: "Store", href: "/hardware", description: "Hardware approved for Oyi buildings" },
+  { label: "Request a consultation", href: "/deployments", description: "Start a deployment conversation" },
   { label: "Partners", href: "/partners", description: "Build, deploy, or integrate with Oyi" },
   { label: "Support", href: "/support", description: "Get help" },
 ];

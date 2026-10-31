@@ -9,6 +9,8 @@ const nextConfig: NextConfig = {
       // Repositioning: "Oyi Intelligence" -> "Oyi Core" (versioned Core
       // language replaces the old "Intelligence" product name).
       { source: "/intelligence", destination: "/core", permanent: true },
+      // Six-part navigation: "Store" is the label; /hardware stays the route the Office catalogue integration publishes to.
+      { source: "/store", destination: "/hardware", permanent: false },
     ];
   },
 };

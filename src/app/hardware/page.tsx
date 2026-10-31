@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { ProductPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
+import { ConsultationSteps, ProductPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
 import { HardwareCatalogue, HardwareLoading } from "@/components/hardware/HardwareCatalogue";
 import { catalogueEnabled, listCategories, listProducts, getMerchandising } from "@/lib/catalogue";
 import { parseQuery } from "@/lib/catalogueQuery";
@@ -16,8 +16,8 @@ type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
 export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
   const base: Metadata = {
-    title: "Hardware",
-    description: "Hardware for buildings running Oyi — devices selected and supported by the Oyi team.",
+    title: "Store",
+    description: "The Oyi Store: hardware reviewed and approved for buildings running Oyi, with integrated Ochiga packages to follow. Custom solutions and Oyi deployments are consultation-led.",
     alternates: { canonical: "/hardware" },
   };
   if (!catalogueEnabled()) return base;
@@ -37,11 +37,13 @@ export default async function HardwarePage({ searchParams }: { searchParams: Sea
       <>
         <SiteHeader />
         <ProductPage
-          eyebrow="Oyi Hardware"
-          title="Purpose-built hardware for buildings running Oyi."
-          body="Oyi is designed to work with the infrastructure a building already has. A small hardware family — a compute unit and an in-space display — is in development to give Oyi a physical presence where it's needed. Specifications and availability will be shared as they're finalised."
-          points={["Compute unit for local bridging and edge readiness", "In-space display for Experience and status", "Designed around existing infrastructure, not a replacement for it"]}
-          cta={{ label: "Talk to Oyi about hardware", href: "/contact?type=tech_oem" }}
+          eyebrow="Oyi Store"
+          title="Hardware approved to work with Oyi."
+          body="Oyi works with the infrastructure a building already has. Where new hardware is needed, the Store offers only devices our team has reviewed and approved for buildings running Oyi, with integrated Ochiga packages to follow. Approved products may be offered at a fixed price; custom solutions, installation and Oyi deployments are planned with you through a consultation. Online ordering is not open yet."
+          points={["Approved hardware only, reviewed by the Oyi team", "Integrated Ochiga packages, coming later", "Custom solutions and deployments planned through a consultation"]}
+          cta={{ label: "Ask about hardware", href: "/contact?type=tech_oem" }}
+          secondaryCta={{ label: "Request a consultation", href: "/deployments" }}
+          after={<ConsultationSteps heading="Custom solutions are planned with you." />}
         />
         <SiteFooter />
       </>

@@ -21,7 +21,7 @@ export default function SolutionsPage() {
       <HubPage
         eyebrow="Solutions"
         title="One operating system, adapted to how a building is used."
-        body="Facility, Experience, and Core stay the same. What changes is how they're configured for the kind of building they run."
+        body="Oyi stays one system with the same Facility and Resident experiences. What changes is how they are configured for the kind of building they run."
         items={items}
       />
       <SiteFooter />

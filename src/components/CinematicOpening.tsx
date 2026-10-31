@@ -82,9 +82,9 @@ export function CinematicOpening() {
             <span className="grid h-16 w-16 place-items-center rounded-3xl border border-sky-300/30 bg-sky-400/10 shadow-[0_0_40px_rgba(56,189,248,0.3)]">
               <Image src={siteConfig.logo} width={34} height={34} alt="Oyi" priority />
             </span>
-            <h1 className="text-4xl font-semibold tracking-[-0.04em] md:text-6xl">The operating system for buildings.</h1>
+            <h1 className="text-4xl font-semibold tracking-[-0.04em] md:text-6xl">One intelligent operating system for buildings.</h1>
             <div className="mt-2 flex flex-col gap-3 sm:flex-row">
-              <Link href="/facility" className="rounded-full bg-sky-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-sky-300">
+              <Link href="/oyi" className="rounded-full bg-sky-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-sky-300">
                 Explore Oyi
               </Link>
               <Link href={primaryCta.href} className="rounded-full border border-white/15 px-6 py-3 text-center font-semibold text-white transition hover:border-sky-300/60 hover:bg-white/10">

@@ -64,7 +64,7 @@ const FORBIDDEN_ROUTES = ["/hardware/cart", "/hardware/checkout", "/hardware/ord
     try {
       await ready(p);
       const pg = await get("/hardware");
-      check(pg.status === 200 && !pg.text.includes("data-product-card") && pg.text.includes("Purpose-built hardware"), "catalogue off: the existing static Hardware page");
+      check(pg.status === 200 && !pg.text.includes("data-product-card") && pg.text.includes("Hardware approved to work with Oyi"), "catalogue off: the existing static Hardware page");
       check((await get("/hardware/synthetic-1")).status === 404, "catalogue off: product pages not found");
       check(log.length === 0, "catalogue off: Office never contacted");
     } finally { await stop(p); }
