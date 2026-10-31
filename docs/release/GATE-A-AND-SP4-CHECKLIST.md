@@ -9,7 +9,7 @@ PR #4 is preserved at 34f0859802e8a0e5d02cd0ab386c95339dc6ccd0. This SP4 PR is s
 - [ ] G5: final visual approval for that Store/Terms/Privacy revision. SP visual acceptance does not sign the legal release record.
 - [ ] Hosting: evidence commercial-use-compliant Vercel plan; separately authorize an Office always-on upgrade or acknowledge the documented enquiry-only cold-start limitation. No billing changes here.
 - [ ] Office follow-redirects patch and separate inherited zod finding resolved or explicitly reviewed; package-only Office integration and schema gate approved.
-- [ ] Capture kind-aware Office rollback c9d67cb (never roll back to b256550 after packages exist).
+- [ ] Capture kind-aware Office rollback ba0e0d6 (never roll back to b256550 after packages exist).
 - [ ] After Office is ready, PR #4 is approved and separately released, retarget this PR to the updated main and verify its diff contains SP4 only.
 - [ ] Separate production migration/deployment authorization, followed by authenticated smoke checks.
 - [ ] Real package content, image rights, device compatibility, installation scope and independent price approval.
