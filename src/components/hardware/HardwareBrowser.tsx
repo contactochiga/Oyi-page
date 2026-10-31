@@ -28,7 +28,7 @@ export function ProductCard({ product }: { product: StoreCard }) {
         <p className="hw-price" data-price>{product.priceLabel || "Price on request"}</p>
         <p className={`hw-availability hw-${product.availability}`}>{product.availabilityLabel}</p>
         <Link className="hw-quote" href={`/contact?type=tech_oem&product=${encodeURIComponent(product.slug)}`}>
-          {product.availability === "unavailable" ? "Ask about availability" : "Request quote"}
+          {product.availability === "unavailable" ? "Ask about availability" : product.price_from_kobo != null ? "Enquire" : "Request a price"}
           <span className="sr-only"> for {product.name}</span>
           <span aria-hidden="true">↗</span>
         </Link>
@@ -59,15 +59,15 @@ export function HardwareBrowser({
   return (
     <section id="browse" className="hw-section" aria-labelledby="browse-heading">
       <div className="hw-section-head">
-        <h2 id="browse-heading">Browse hardware</h2>
+        <h2 id="browse-heading">Browse the Store</h2>
         <span role="status" data-result-count>
           {total} {total === 1 ? "product" : "products"}
         </span>
       </div>
-      <form className="hw-filters" method="get" action="/hardware#browse" role="search" aria-label="Filter hardware">
+      <form className="hw-filters" method="get" action="/hardware#browse" role="search" aria-label="Filter products">
         <label className="hw-search">
-          Search hardware
-          <input type="search" name="q" defaultValue={query.q} maxLength={80} placeholder="Search products, brands or solutions" />
+          Search the Store
+          <input type="search" name="q" defaultValue={query.q} maxLength={80} placeholder="Search products or brands" />
         </label>
         <label>
           Category
@@ -117,13 +117,13 @@ export function HardwareBrowser({
         </div>
       ) : (
         <div className="hw-empty" data-state="empty">
-          <h3>{catalogueEmpty ? "Our hardware catalogue is on its way." : "No matching products"}</h3>
+          <h3>{catalogueEmpty ? "Approved products are on their way." : "No matching products"}</h3>
           <p>
             {catalogueEmpty
-              ? "Approved products will appear here when released by the Oyi team. Tell us what you need in the meantime."
+              ? "Products appear here as the Oyi team reviews and releases them. Tell us what you need in the meantime."
               : "Try another search or clear the filters."}
           </p>
-          <Link href="/contact?type=tech_oem">Contact sales →</Link>
+          <Link href="/contact?type=tech_oem">Ask about hardware →</Link>
         </div>
       )}
       {pages > 1 && (

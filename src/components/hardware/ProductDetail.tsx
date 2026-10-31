@@ -1,5 +1,5 @@
 // One product, as GetOyi shows it. Used by /hardware/[slug] (published version) and /hardware/preview/[token] (a staff preview of any
-// version), so the preview is the real page. Ordering is by conversation only: there is no cart, checkout or payment.
+// version), so the preview is the real page. There is no cart, checkout or payment: online ordering is not open.
 import Link from "next/link";
 import "./hardware.css";
 import {
@@ -18,8 +18,8 @@ const COMPATIBILITY: [
   keyof Omit<PublicProduct["compatibility"], "notes">,
   string,
 ][] = [
-  ["facility", "Oyi Facility"],
-  ["experience", "Oyi Experience"],
+  ["facility", "Facility Experience"],
+  ["experience", "Resident Experience"],
   ["core", "Oyi Core"],
   ["edge", "Oyi Edge"],
 ];
@@ -69,16 +69,16 @@ export function ProductDetail({
     <main className="hw-store">
       <section className="px-5 pb-16 pt-10 md:pt-14">
         <div className="mx-auto max-w-7xl">
-          <nav className="mb-8 text-sm text-slate-600" aria-label="Breadcrumb">
-            <Link href="/hardware" className="hover:text-[#07154b]">
-              Hardware
+          <nav className="mb-8 text-sm text-slate-300" aria-label="Breadcrumb">
+            <Link href="/hardware" className="hover:text-white">
+              Store
             </Link>
             {product.category ? (
               <>
                 <span className="mx-2">/</span>
                 <Link
                   href={`/hardware?category=${product.category.slug}`}
-                  className="hover:text-[#07154b]"
+                  className="hover:text-white"
                 >
                   {product.category.name}
                 </Link>
@@ -91,16 +91,16 @@ export function ProductDetail({
             variants={variants}
             productSlug={product.slug}
           >
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-blue-700">
+            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">
               {[product.brand?.name, product.model]
                 .filter(Boolean)
-                .join(" · ") || "Oyi Hardware"}
+                .join(" · ") || "Oyi Store"}
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">
               {product.name}
             </h1>
             {product.summary ? (
-              <p className="mt-4 text-lg leading-8 text-slate-600">
+              <p className="mt-4 text-lg leading-8 text-slate-300">
                 {product.summary}
               </p>
             ) : null}
@@ -111,28 +111,28 @@ export function ProductDetail({
 
       <section className="px-5 pb-24">
         <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 md:p-8">
             <h2 className="text-xl font-semibold">About this product</h2>
-            <div className="mt-4 whitespace-pre-line text-slate-600">
+            <div className="mt-4 whitespace-pre-line text-slate-300">
               {product.description || product.summary}
             </div>
             {compatible.length ? (
               <div className="mt-8">
-                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-blue-700">
+                <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-200">
                   Works with
                 </h3>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {compatible.map(([key, label]) => (
                     <span
                       key={key}
-                      className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1 text-sm text-blue-700"
+                      className="rounded-full border border-sky-300/30 bg-sky-400/10 px-3 py-1 text-sm text-sky-200"
                     >
                       {label}
                     </span>
                   ))}
                 </div>
                 {product.compatibility.notes ? (
-                  <p className="mt-3 text-sm text-slate-600">
+                  <p className="mt-3 text-sm text-slate-300">
                     {product.compatibility.notes}
                   </p>
                 ) : null}
@@ -140,7 +140,7 @@ export function ProductDetail({
             ) : null}
           </div>
           {product.specifications.length ? (
-            <div className="rounded-xl border border-slate-200 bg-white p-6 md:p-8">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 md:p-8">
               <h2 className="text-xl font-semibold">Specifications</h2>
               <dl className="mt-4 divide-y divide-white/10">
                 {product.specifications.map((spec) => (
@@ -148,8 +148,8 @@ export function ProductDetail({
                     key={spec.key}
                     className="grid grid-cols-[1fr_1.2fr] gap-4 py-3 text-sm"
                   >
-                    <dt className="text-slate-600">{spec.key}</dt>
-                    <dd className="text-[#07154b]">
+                    <dt className="text-slate-300">{spec.key}</dt>
+                    <dd className="text-white">
                       {spec.value}
                       {spec.unit ? ` ${spec.unit}` : ""}
                     </dd>

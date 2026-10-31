@@ -19,12 +19,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const result = await getProduct(slug);
   // an outage or missing product is never indexed
-  if (result.state !== "ok") return { title: "Hardware", robots: { index: false, follow: true } };
+  if (result.state !== "ok") return { title: "Store", robots: { index: false, follow: true } };
   const p = result.data.product;
   const cover = p.cover ? new URL(imageUrl(p.cover.srcset[p.cover.srcset.length - 1].src), siteConfig.url).toString() : undefined;
   return {
     title: p.name,
-    description: p.summary || `${p.name} — Oyi Hardware`,
+    description: p.summary || `${p.name} — Oyi Store`,
     alternates: { canonical: `/hardware/${p.slug}` },
     openGraph: { title: p.name, description: p.summary, url: `/hardware/${p.slug}`, images: cover ? [{ url: cover, alt: p.cover?.alt || p.name }] : undefined },
   };

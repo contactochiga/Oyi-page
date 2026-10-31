@@ -68,6 +68,17 @@ ok(doc.querySelector('[aria-current="page"]')?.textContent === "2" && doc.queryS
 ok([...doc.querySelectorAll("img")].every((i) => i.hasAttribute("alt")) && [...doc.querySelectorAll("a")].every((a) => a.textContent.trim().length > 0 || a.getAttribute("aria-hidden") === "true"), "images carry alt; links have names");
 ok(html.includes("Price on request") && !/add to cart|checkout|pay now/i.test(html), "Price on Request shown; no cart, checkout or payment control in catalogue browsing");
 
+// Gate A Store presentation: price-aware enquiry wording and a finished zero-product state (no listings, prices, filters or counts)
+const priced = renderToStaticMarkup(React.createElement(HardwareBrowser, { items: [cards[0], cards[4]].map((c) => ({ ...c, image: "", priceLabel: Q.priceLabel(c, CAT.naira), availabilityLabel: CAT.AVAILABILITY_LABEL[c.availability] })), total: 2, page: 1, pages: 1, query: Q.parseQuery({}), facets: all.facets, catalogueEmpty: false }));
+ok(priced.includes(">Enquire<") && priced.includes(">Request a price<") && !/quotation|Request quote/i.test(priced), "fixed-price products say Enquire, Price on Request products say Request a price; no blanket quotation wording");
+const { HardwareCatalogue } = load("src/components/hardware/HardwareCatalogue.tsx");
+const okEmpty = { state: "ok", data: { products: [], total: 0 } };
+const empty = renderToStaticMarkup(React.createElement(HardwareCatalogue, { products: okEmpty, categories: { state: "ok", data: { categories: [] } }, query: Q.parseQuery({}), merchandising: { state: "ok", data: { slides: [], featured: [], new_arrivals: [], collections: [] } } }));
+const ed = new JSDOM(empty).window.document;
+ok(ed.querySelector('[data-state="empty"]') && !ed.querySelector("[data-product-card]") && !ed.querySelector("form.hw-filters") && !/₦|0 products|Shop by category/.test(empty) && /Online ordering is not open yet/.test(empty) && !/quotation/i.test(empty), "zero products: finished empty state with no listings, prices, filters, counts or quotation wording");
+const down = renderToStaticMarkup(React.createElement(HardwareCatalogue, { products: { state: "unavailable", reason: "timeout" }, categories: { state: "unavailable", reason: "timeout" }, query: Q.parseQuery({}) }));
+ok(down.includes("temporarily unavailable") && !down.includes('data-state="empty"'), "an Office outage is never shown as an empty Store");
+
 // preview isolation: the production Office address only for the production deployment
 const T = load("src/lib/officeTarget.ts");
 const env = (o) => { for (const k of ["VERCEL_ENV", "OCHIGA_OFFICE_BASE_URL"]) delete process.env[k]; Object.assign(process.env, o); };

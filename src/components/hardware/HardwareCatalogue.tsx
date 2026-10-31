@@ -27,19 +27,19 @@ const categoryCaption: Record<string, string> = {
 };
 const fallback: StorySlide[] = [
   {
-    key: "hardware",
-    eyebrow: "OYI HARDWARE",
-    title: "Smarter Spaces, Safer Living",
+    key: "store",
+    eyebrow: "OYI STORE",
+    title: "Hardware approved to work with Oyi",
     description:
-      "Explore hardware for homes, offices and buildings across Nigeria. Speak to Oyi about the right products for your space.",
-    ctaLabel: "Explore hardware",
+      "Devices our team has reviewed and approved for buildings running Oyi, with integrated Ochiga packages to follow.",
+    ctaLabel: "Browse the Store",
     ctaHref: "#browse",
     durationMs: 8000,
   },
 ];
 export function HardwareHero() {
   return (
-    <StoryCarousel slides={fallback} ariaLabel="Oyi hardware highlights" />
+    <StoryCarousel slides={fallback} ariaLabel="Oyi Store highlights" />
   );
 }
 function card(p: PublicCard): StoreCard {
@@ -87,22 +87,14 @@ export function HardwareCatalogue({
     <main className="hw-store">
       <StoryCarousel
         slides={slides.length ? slides : fallback}
-        ariaLabel="Oyi hardware highlights"
+        ariaLabel="Oyi Store highlights"
       />
       <div className="hw-service-strip">
         {[
-          [
-            "◇",
-            "Office-managed catalogue",
-            "Product details from the Oyi team",
-          ],
-          [
-            "↗",
-            "Nationwide hardware supply",
-            "Discuss delivery to your location",
-          ],
-          ["◎", "Product guidance", "Find the right hardware for your space"],
-          ["⌘", "Installation options", "Available by separate quotation"],
+          ["◇", "Approved by the Oyi team", "Every product is reviewed before it appears"],
+          ["◈", "Clear pricing", "Fixed prices where approved, otherwise on request"],
+          ["◎", "Product guidance", "Help choosing hardware for your building"],
+          ["⌘", "Installation", "Planned with you through a consultation"],
         ].map(([icon, title, body]) => (
           <div key={title}>
             <span aria-hidden="true">{icon}</span>
@@ -114,9 +106,13 @@ export function HardwareCatalogue({
         ))}
       </div>
       <div className="hw-container">
+        {products.state === "ok" && list.length === 0 ? (
+          <StoreOpening />
+        ) : (
+        <>
         <section className="hw-section" id="categories">
           <div className="hw-section-head">
-            <h2>Shop by Category</h2>
+            <h2>Shop by category</h2>
             <Link href="#browse">View all products →</Link>
           </div>
           {cats.length ? (
@@ -176,9 +172,9 @@ export function HardwareCatalogue({
         })}
         {products.state === "unavailable" ? (
           <section className="hw-empty" data-state="unavailable">
-            <h2>The hardware catalogue is temporarily unavailable.</h2>
-            <p>Please try again shortly or speak to the Oyi team.</p>
-            <Link href="/contact?type=tech_oem">Contact sales →</Link>
+            <h2>The Store is temporarily unavailable.</h2>
+            <p>Please try again shortly, or ask the Oyi team about hardware directly.</p>
+            <Link href="/contact?type=tech_oem">Ask about hardware →</Link>
           </section>
         ) : (
           <HardwareBrowser
@@ -191,6 +187,8 @@ export function HardwareCatalogue({
             catalogueEmpty={list.length === 0}
           />
         )}
+        </>
+        )}
         <section className="hw-advice">
           <div>
             <p className="hw-eyebrow">LET’S FIND THE RIGHT FIT</p>
@@ -200,29 +198,61 @@ export function HardwareCatalogue({
               Guidance for your next step.
             </h2>
             <p>
-              Tell us what you need. We’ll help with product selection and a
-              quotation, with delivery and installation discussed separately.
+              Tell us what you need and we’ll help you choose. Approved products
+              show their price where it is fixed; custom solutions, delivery and
+              installation are planned with you through a consultation.
             </p>
           </div>
-          <Link href="/contact?type=tech_oem" className="hw-primary">
-            Contact sales <span aria-hidden="true">→</span>
-          </Link>
+          <div className="hw-advice-actions">
+            <Link href="/contact?type=tech_oem" className="hw-primary">
+              Ask about hardware <span aria-hidden="true">→</span>
+            </Link>
+            <Link href="/deployments" className="hw-secondary">
+              Request a consultation
+            </Link>
+          </div>
         </section>
         <p className="hw-footnote">
-          Prices include VAT where applicable. Availability is confirmed with
-          your quotation.{" "}
-          Online ordering is not available.
+          Prices include VAT where applicable. Delivery and installation are
+          arranged separately. Online ordering is not open yet.
         </p>
       </div>
     </main>
   );
 }
+// Zero released products: a finished page with no listings, prices, filters or counts -- only what the Store is and how to get help now.
+function StoreOpening() {
+  return (
+    <section className="hw-section hw-opening" data-state="empty" aria-labelledby="store-opening">
+      <p className="hw-eyebrow">THE OYI STORE</p>
+      <h2 id="store-opening">Approved products are on their way.</h2>
+      <p className="hw-muted">
+        Products appear here as the Oyi team reviews and releases them. Until
+        then, we can help you choose hardware for your building.
+      </p>
+      <div className="hw-opening-actions">
+        <Link href="/contact?type=tech_oem" className="hw-primary">
+          Ask about hardware <span aria-hidden="true">→</span>
+        </Link>
+        <Link href="/deployments" className="hw-secondary">
+          Request a consultation
+        </Link>
+      </div>
+      <ul className="hw-opening-points">
+        <li><strong>Approved hardware only</strong><span>Reviewed by the Oyi team for buildings running Oyi.</span></li>
+        <li><strong>Integrated Ochiga packages</strong><span>Coming later, for common building needs.</span></li>
+        <li><strong>Fixed price or consultation</strong><span>Clear prices for approved products; custom solutions planned with you.</span></li>
+      </ul>
+    </section>
+  );
+}
+
 export function HardwareLoading() {
   return (
     <main className="hw-store" aria-busy="true">
       <HardwareHero />
       <p className="hw-container hw-section" role="status">
-        Loading hardware…
+        Loading the Store…
       </p>
     </main>
   );
