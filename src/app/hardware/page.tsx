@@ -1,3 +1,4 @@
+import { PackageCollection } from "@/components/packages/PackageCollection";
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { ConsultationSteps, ProductPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
@@ -45,7 +46,8 @@ export default async function HardwarePage({ searchParams }: { searchParams: Sea
           secondaryCta={{ label: "Request a consultation", href: "/deployments" }}
           after={<ConsultationSteps heading="Custom solutions are planned with you." />}
         />
-        <SiteFooter />
+        <PackageCollection />
+      <SiteFooter />
       </>
     );
   }
@@ -56,6 +58,7 @@ export default async function HardwarePage({ searchParams }: { searchParams: Sea
       <Suspense fallback={<HardwareLoading />}>
         <CatalogueSection searchParams={searchParams} />
       </Suspense>
+      <PackageCollection />
       <SiteFooter />
     </>
   );

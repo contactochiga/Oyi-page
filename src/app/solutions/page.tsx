@@ -1,3 +1,4 @@
+import { PackageCollection } from "@/components/packages/PackageCollection";
 import type { Metadata } from "next";
 import { HubPage, SiteFooter, SiteHeader } from "@/components/OyiSite";
 import { solutionContent } from "./content";
@@ -14,6 +15,8 @@ const items = solutionContent.map((solution) => ({
   href: `/solutions/${solution.slug}`,
 }));
 
+export const dynamic = "force-dynamic";
+
 export default function SolutionsPage() {
   return (
     <>
@@ -24,6 +27,7 @@ export default function SolutionsPage() {
         body="Oyi stays one system with the same Facility and Resident experiences. What changes is how they are configured for the kind of building they run."
         items={items}
       />
+      <PackageCollection />
       <SiteFooter />
     </>
   );

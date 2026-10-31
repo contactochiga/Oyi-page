@@ -83,7 +83,7 @@ export const validPreviewToken = (value: string) => TOKEN.test(value);
 
 type FetchMode = { cache: "public"; tags: string[] } | { cache: "none" };
 
-async function officeJson<T>(path: string, mode: FetchMode): Promise<CatalogueResult<T>> {
+export async function officeJson<T>(path: string, mode: FetchMode): Promise<CatalogueResult<T>> {
   const key = catalogueKey();
   if (!key || !baseUrl()) return { state: "unavailable", reason: "not_configured" };
   const controller = new AbortController();
@@ -122,8 +122,8 @@ export function getProduct(slug: string) {
 }
 
 export function getPreview(token: string) {
-  if (!validPreviewToken(token)) return Promise.resolve<CatalogueResult<{ preview: { version: number; expires_at: string; status: string }; product: PublicProduct }>>({ state: "not_found" });
-  return officeJson<{ preview: { version: number; expires_at: string; status: string }; product: PublicProduct }>(`/preview/${token}`, { cache: "none" });
+  if (!validPreviewToken(token)) return Promise.resolve<CatalogueResult<{ preview: { version: number; expires_at: string; status: string }; product: PublicProduct; package?: import("./packages").PublicPackage }>>({ state: "not_found" });
+  return officeJson<{ preview: { version: number; expires_at: string; status: string }; product: PublicProduct; package?: import("./packages").PublicPackage }>(`/preview/${token}`, { cache: "none" });
 }
 
 // Raw image bytes from Office (validated path segments only). The caller sets the response caching.

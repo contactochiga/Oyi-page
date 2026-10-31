@@ -1,6 +1,8 @@
 "use client";
+import { useSearchParams } from "next/navigation";
+import { packageContext } from "@/lib/packageEnquiry";
 
-import { useRef, FormEvent, useMemo, useState } from "react";
+import { Suspense, useRef, FormEvent, useMemo, useState } from "react";
 import { SiteFooter, SiteHeader } from "@/components/OyiSite";
 import { keyForAttempt, type SubmissionAttempt } from "@/lib/submission";
 
@@ -33,7 +35,9 @@ const initialState: FormState = {
 const projectTypes = ["Residential estate", "Hospitality property", "Commercial / office building", "Mixed-use development", "Healthcare facility", "Developer portfolio"];
 const interests = ["Invite-first onboarding", "Rooms, devices, and controls", "Visitors and security", "Maintenance and community", "Full building deployment"];
 
-export default function DeploymentsPage() {
+function DeploymentForm() {
+  const params=useSearchParams();
+  const packageSelection=packageContext(params.get("package"),params.get("size"),params.get("version"));
   const [form, setForm] = useState<FormState>(initialState);
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -58,7 +62,7 @@ export default function DeploymentsPage() {
       const response = await fetch("/api/deployments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, idempotencyKey: keyForAttempt(submissionKeyRef, form) }),
+        body: JSON.stringify({ ...form, packageSelection:packageSelection.slug ? packageSelection : undefined, idempotencyKey: keyForAttempt(submissionKeyRef, {...form,packageSelection}) }),
       });
       const data = (await response.json()) as { ok?: boolean; error?: string; requestId?: string; reference?: string };
       if (!response.ok || !data.ok) throw new Error(data.error || "We could not submit the request right now.");
@@ -77,6 +81,7 @@ export default function DeploymentsPage() {
     <>
       <SiteHeader />
       <main className="min-h-screen bg-[#050b14] px-5 py-16 text-white">
+        {packageSelection.slug ? <p className="mx-auto mb-6 max-w-6xl text-sky-200">Package: {packageSelection.slug}{packageSelection.size ? ` · ${packageSelection.size}` : ""}. Scope will be confirmed during consultation.</p> : null}
         <section className="mx-auto max-w-6xl">
           <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Request a consultation</p>
           <h1 className="mt-4 max-w-4xl text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bring Oyi to your building.</h1>
@@ -146,3 +151,5 @@ function Select({ label, value, onChange, options, required }: { label: string; 
 function Textarea({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
   return <label className="grid gap-2 text-sm text-slate-300 md:col-span-2"><span>{label}</span><textarea value={value} onChange={(event) => onChange(event.target.value)} rows={5} className="rounded-2xl border border-white/10 bg-white/[0.06] px-4 py-3 text-white outline-none transition focus:border-sky-300/60 focus:bg-white/[0.09]" /></label>;
 }
+
+export default function DeploymentsPage(){return <Suspense fallback={<main>Loading consultation form…</main>}><DeploymentForm/></Suspense>;}
