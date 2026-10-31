@@ -17,7 +17,7 @@ export default function FacilityPage() {
         body="Facility teams use Oyi to manage infrastructure, security, visitors, maintenance, community, messages, administration, and operational intelligence — across residential estates, hotels, offices, mixed-use developments, and healthcare facilities."
         points={["Infrastructure and MEP operations", "Security, visitors, cameras, and incidents", "Maintenance, community, and administration"]}
         visual={<ProductVisual compact />}
-        cta={{ label: "Book a consultation", href: "/deployments" }}
+        cta={{ label: "Request a consultation", href: "/deployments" }}
         secondaryCta={{ label: "Resident Experience", href: "/experience" }}
       />
       <SiteFooter />

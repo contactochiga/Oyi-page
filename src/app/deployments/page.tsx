@@ -78,7 +78,7 @@ export default function DeploymentsPage() {
       <SiteHeader />
       <main className="min-h-screen bg-[#050b14] px-5 py-16 text-white">
         <section className="mx-auto max-w-6xl">
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Book a consultation</p>
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Request a consultation</p>
           <h1 className="mt-4 max-w-4xl text-5xl font-semibold tracking-[-0.05em] md:text-7xl">Bring Oyi to your building.</h1>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">Oyi software is deployed through a consultation, not bought off a shelf. Tell us about your building, property or operations environment, and our team will review the fit before any setup begins.</p>
         </section>

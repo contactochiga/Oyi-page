@@ -68,7 +68,7 @@ function ContactForm() {
         <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
           For a full deployment request, use{" "}
           <a href="/deployments" className="text-sky-300 underline underline-offset-4">
-            Book a consultation
+            Request a consultation
           </a>{" "}
           instead — it collects the building context our team needs. Everything else, a short message is enough.
         </p>

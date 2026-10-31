@@ -118,7 +118,7 @@ export function SiteFooter() {
   const columns: { title: string; links: { label: string; href: string }[] }[] = [
     { title: "Oyi", links: [{ label: "What is Oyi", href: "/oyi" }, { label: "Oyi Core", href: "/core" }, { label: "Technology", href: "/technology" }, { label: "Developers", href: "/developers" }] },
     { title: "Experiences", links: [...experiences, { label: "Solutions", href: "/solutions" }] },
-    { title: "Store and partners", links: [{ label: "Store", href: "/hardware" }, { label: "Partners", href: "/partners" }, { label: "Book a consultation", href: "/deployments" }] },
+    { title: "Store and partners", links: [{ label: "Store", href: "/hardware" }, { label: "Partners", href: "/partners" }, { label: "Request a consultation", href: "/deployments" }] },
     { title: "Company", links: [{ label: "Support", href: "/support" }, { label: "Contact", href: "/contact" }, { label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }] },
   ];
   return (
@@ -207,7 +207,7 @@ export function ConsultationSteps({ heading = "Software deployments start with a
   );
 }
 
-// Store introduction without products: the catalogue is switched off, so nothing here lists, prices or sells anything.
+// Store introduction without products: the catalogue and checkout are switched off, so nothing here lists, prices or sells anything.
 export function StoreIntro() {
   return (
     <section className="px-5 py-20">
@@ -215,14 +215,14 @@ export function StoreIntro() {
         <div>
           <Kicker>Oyi Store</Kicker>
           <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">Hardware that is approved to work with Oyi.</h2>
-          <p className="mt-5 max-w-xl text-slate-300">The Store offers only hardware our team has reviewed and approved for buildings running Oyi, with integrated Ochiga packages to follow. Every request starts as a quotation, and availability and installation are confirmed by our team.</p>
+          <p className="mt-5 max-w-xl text-slate-300">The Store offers only hardware our team has reviewed and approved for buildings running Oyi, with integrated Ochiga packages to follow. Approved products may be offered at a fixed price, while custom solutions and Oyi deployments are planned through a consultation. Online ordering is not open yet.</p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <Link href="/hardware" className="rounded-full bg-sky-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-sky-300">Visit the Store</Link>
             <Link href="/contact?type=tech_oem" className="rounded-full border border-white/15 px-6 py-3 text-center font-semibold text-white transition hover:border-sky-300/60 hover:bg-white/10">Ask about hardware</Link>
           </div>
         </div>
         <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
-          {[["Approved hardware", "Only devices reviewed and approved by the Oyi team."], ["Ochiga packages", "Integrated packages for common building needs, coming later."], ["Quotation-led", "Prices, availability and installation confirmed with you."]].map(([title, body]) => (
+          {[["Approved hardware", "Only devices reviewed and approved by the Oyi team."], ["Ochiga packages", "Integrated packages for common building needs, coming later."], ["Fixed price or consultation", "Approved products may carry fixed prices; custom solutions are planned with you."]].map(([title, body]) => (
             <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
               <h3 className="font-semibold text-white">{title}</h3>
               <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>

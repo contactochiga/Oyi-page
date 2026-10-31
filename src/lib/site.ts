@@ -39,7 +39,7 @@ export const primaryNav: NavItem[] = [
   { label: "Technology", href: "/technology" },
 ];
 
-export const primaryCta = { label: "Book a consultation", href: "/deployments" };
+export const primaryCta = { label: "Request a consultation", href: "/deployments" };
 
 export const experiences = [
   { label: "Facility Experience", href: "/facility" },

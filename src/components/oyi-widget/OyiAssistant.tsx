@@ -11,8 +11,8 @@ const quickLinks: QuickLink[] = [
   { label: "Facility Experience", href: "/facility", description: "For the teams who run the building" },
   { label: "Resident Experience", href: "/experience", description: "For the people who live and work in it" },
   { label: "Solutions", href: "/solutions", description: "Residential, hospitality, commercial…" },
-  { label: "Store", href: "/hardware", description: "Approved hardware, quotation-led" },
-  { label: "Book a consultation", href: "/deployments", description: "Start a deployment conversation" },
+  { label: "Store", href: "/hardware", description: "Hardware approved for Oyi buildings" },
+  { label: "Request a consultation", href: "/deployments", description: "Start a deployment conversation" },
   { label: "Partners", href: "/partners", description: "Build, deploy, or integrate with Oyi" },
   { label: "Support", href: "/support", description: "Get help" },
 ];

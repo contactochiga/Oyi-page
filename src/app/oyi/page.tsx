@@ -27,7 +27,7 @@ export default function OyiPage() {
               <p className="mt-6 text-lg leading-8 text-slate-300">Oyi brings a building&apos;s infrastructure, operations and people onto one system. Operators run it through the Facility Experience. Residents, guests and occupants use it through the Resident Experience. Oyi Core is the intelligence connecting both.</p>
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link href="/experiences" className="inline-flex justify-center rounded-full bg-sky-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-sky-300">Explore the experiences</Link>
-                <Link href="/deployments" className="inline-flex justify-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-sky-300/60 hover:bg-white/10">Book a consultation</Link>
+                <Link href="/deployments" className="inline-flex justify-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-sky-300/60 hover:bg-white/10">Request a consultation</Link>
               </div>
             </div>
             <SystemDiagram />

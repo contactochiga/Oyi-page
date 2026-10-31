@@ -20,12 +20,12 @@ Base: production `07876db` (Release A, catalogue OFF). Branch: `codex/commercial
 - **Store** → `/hardware`. The label changes; the route stays, because the Office catalogue integration publishes to `/hardware/<slug>`. `/store` redirects (307) to `/hardware`.
 - **Partners** → `/partners` (existing).
 - **Technology** → `/technology` (existing hub, now Oyi Core, Digital Twin, Edge, Watch, Developers).
-- **Primary CTA:** "Book a consultation" → `/deployments` (existing intake form, unchanged behaviour).
+- **Primary CTA:** "Request a consultation" → `/deployments` (existing intake form, unchanged behaviour; "Request", not "Book", because no booking function exists).
 
 **Positioning**
 - Oyi is one system. The Facility Experience is for the teams who run the building. The Resident Experience is for residents, guests and occupants. Oyi Core is the intelligence across both (assistance and supervised automation; no autonomy claims).
 - Software is consultation-led: a shared four-step "How deployment works" section (Consultation → Fit and design → Deployment → Operation) on Home, Oyi, Experiences and Store.
-- The Store sells only Office-approved hardware, with integrated Ochiga packages "coming later". Everything is quotation-led. No product, price or availability is shown while the catalogue is off.
+- The Store sells only Office-approved hardware, with integrated Ochiga packages "coming later". Approved products may later be sold at a fixed price (direct checkout stays disabled); custom solutions and Oyi deployments stay consultation-led. "Online ordering is not open yet." No product, price or availability is shown while the catalogue is off.
 
 **Components (reused design language: dark navy, sky accent, rounded panels)**
 - `SiteHeader`: desktop dropdowns (hover and keyboard focus, no JS). New `MobileMenu`: native `<details>`, which works without JS and closes after navigation.
