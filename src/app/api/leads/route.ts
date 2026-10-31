@@ -102,7 +102,7 @@ export async function POST(request: Request) {
     const product = result.data.product;
     const variant = context.sku ? product.variants.find(v => v.sku === context.sku) : undefined;
     if (context.sku && !variant) return NextResponse.json({ ok: false, error: "This product option is no longer available. Please choose it again." }, { status: 400 });
-    message += `\n\nHardware enquiry: ${product.name} (${product.slug})${variant ? `; ${variant.name}; SKU ${variant.sku}` : ""}. Published availability: ${AVAILABILITY_LABEL[variant?.availability || product.availability]}. Quotation only; availability must be confirmed.`;
+    message += `\n\nHardware enquiry: ${product.name} (${product.slug})${variant ? `; ${variant.name}; SKU ${variant.sku}` : ""}. Published availability: ${AVAILABILITY_LABEL[variant?.availability || product.availability]}. Enquiry only (online ordering is not open); price, availability and delivery to be confirmed by the Oyi team.`;
     pageUrl = `/contact?${hardwareEnquiryQuery(product.slug, variant?.sku)}`;
   }
 

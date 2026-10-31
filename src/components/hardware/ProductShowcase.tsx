@@ -26,9 +26,9 @@ export type ShowcaseVariant = {
 };
 
 const TONE = {
-  ok: "border-emerald-300/30 bg-emerald-400/10 text-emerald-800",
-  wait: "border-amber-300/30 bg-amber-400/10 text-amber-800",
-  off: "border-slate-200 bg-white/5 text-slate-600",
+  ok: "border-emerald-300/30 bg-emerald-400/10 text-emerald-200",
+  wait: "border-amber-300/30 bg-amber-400/10 text-amber-200",
+  off: "border-white/15 bg-white/5 text-slate-300",
 };
 
 export function ProductShowcase({
@@ -61,7 +61,7 @@ export function ProductShowcase({
   return (
     <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
       <div>
-        <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white">
           {current ? (
             // eslint-disable-next-line @next/next/no-img-element -- Office already serves sized WebP renditions with srcset
             <img
@@ -81,7 +81,7 @@ export function ProductShowcase({
           )}
         </div>
         {current?.caption ? (
-          <p className="mt-3 text-sm text-slate-600">{current.caption}</p>
+          <p className="mt-3 text-sm text-slate-300">{current.caption}</p>
         ) : null}
         {shown.length > 1 ? (
           <div
@@ -96,7 +96,7 @@ export function ProductShowcase({
                   onClick={() => setActive(index)}
                   aria-label={`Show image ${index + 1}: ${image.alt}`}
                   aria-current={index === active}
-                  className={`overflow-hidden rounded-2xl border bg-white transition ${index === active ? "border-sky-300 ring-2 ring-sky-300/50" : "border-slate-200 hover:border-sky-300/50"}`}
+                  className={`overflow-hidden rounded-2xl border bg-white transition ${index === active ? "border-sky-300 ring-2 ring-sky-300/50" : "border-white/10 hover:border-sky-300/50"}`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -115,14 +115,14 @@ export function ProductShowcase({
       <div>
         {children}
         {variant ? (
-          <div className="rounded-xl border border-slate-200 bg-white p-6">
-            <p className="text-3xl font-semibold text-[#07154b]" data-price>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6">
+            <p className="text-3xl font-semibold text-white" data-price>
               {variant.price || "Price on request"}
             </p>
             {variant.price ? (
-              <p className="mt-1 text-sm text-slate-600">
+              <p className="mt-1 text-sm text-slate-300">
                 Including 7.5% VAT where applicable. Delivery and installation
-                are quoted separately.
+                are arranged separately.
               </p>
             ) : null}
             <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -133,14 +133,14 @@ export function ProductShowcase({
                 {variant.availability}
               </span>
               {variant.leadTime ? (
-                <span className="text-xs text-slate-600">
+                <span className="text-xs text-slate-300">
                   {variant.leadTime}
                 </span>
               ) : null}
             </div>
             {variants.length > 1 ? (
               <div className="mt-6">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-700">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200">
                   Options
                 </p>
                 <div
@@ -184,7 +184,7 @@ export function ProductShowcase({
                         setSku(v.sku);
                         setActive(0);
                       }}
-                      className={`rounded-full border px-4 py-2 text-sm transition ${v.sku === sku ? "border-sky-300 bg-sky-400/15 text-[#07154b]" : "border-slate-200 text-slate-600 hover:border-sky-300/50"} ${v.availabilityTone === "off" ? "opacity-60" : ""}`}
+                      className={`rounded-full border px-4 py-2 text-sm transition ${v.sku === sku ? "border-sky-300 bg-sky-400/15 text-white" : "border-white/15 text-slate-300 hover:border-sky-300/50"} ${v.availabilityTone === "off" ? "opacity-60" : ""}`}
                     >
                       {v.name}
                     </button>
@@ -192,26 +192,28 @@ export function ProductShowcase({
                 </div>
               </div>
             ) : null}
-            <p className="mt-6 text-xs text-slate-500">SKU {variant.sku}</p>
+            <p className="mt-6 text-xs text-slate-400">SKU {variant.sku}</p>
           </div>
         ) : (
-          <div className="rounded-xl border border-slate-200 bg-white p-6 text-slate-600">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.06] p-6 text-slate-300">
             This product is currently unavailable.
           </div>
         )}
         <div className="mt-6 grid gap-3">
           <Link
             href={`/contact?${hardwareEnquiryQuery(productSlug, variant?.sku)}`}
-            className="inline-flex justify-center rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+            className="inline-flex justify-center rounded-full bg-sky-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-sky-300"
             data-enquiry
           >
             {!variant || variant.availabilityTone === "off"
               ? "Ask about availability"
-              : "Request a quotation"}
+              : variant.price
+                ? "Enquire about this product"
+                : "Request a price"}
           </Link>
-          <p className="text-xs text-slate-500">
-            The Oyi team confirms availability, delivery and installation with
-            you.
+          <p className="text-xs text-slate-400">
+            Online ordering is not open yet. The Oyi team confirms
+            availability, delivery and installation with you.
           </p>
         </div>
       </div>

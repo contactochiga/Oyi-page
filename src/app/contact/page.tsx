@@ -26,7 +26,7 @@ function ContactForm() {
   const [email, setEmail] = useState("");
   const [organization, setOrganization] = useState("");
   const hardware = hardwareEnquiryContext(searchParams.get("product"), searchParams.get("sku"));
-  const [message, setMessage] = useState(hardware.product ? `Please send me a quotation for ${hardware.product}${hardware.sku ? ` (SKU ${hardware.sku})` : ""}.` : "");
+  const [message, setMessage] = useState(hardware.product ? `I am interested in ${hardware.product}${hardware.sku ? ` (SKU ${hardware.sku})` : ""}. Please contact me about price, availability and delivery.` : "");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
   const [feedback, setFeedback] = useState("");
