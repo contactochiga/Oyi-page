@@ -189,6 +189,7 @@ export function HardwareCatalogue({
         )}
         </>
         )}
+        {list.length === 0 && products.state === "ok" ? null : (
         <section className="hw-advice">
           <div>
             <p className="hw-eyebrow">LET’S FIND THE RIGHT FIT</p>
@@ -212,6 +213,7 @@ export function HardwareCatalogue({
             </Link>
           </div>
         </section>
+        )}
         <p className="hw-footnote">
           Prices include VAT where applicable. Delivery and installation are
           arranged separately. Online ordering is not open yet.
@@ -223,7 +225,7 @@ export function HardwareCatalogue({
 // Zero released products: a finished page with no listings, prices, filters or counts -- only what the Store is and how to get help now.
 function StoreOpening() {
   return (
-    <section className="hw-section hw-opening" data-state="empty" aria-labelledby="store-opening">
+    <section id="browse" className="hw-section hw-opening" data-state="empty" aria-labelledby="store-opening">
       <p className="hw-eyebrow">THE OYI STORE</p>
       <h2 id="store-opening">Approved products are on their way.</h2>
       <p className="hw-muted">
