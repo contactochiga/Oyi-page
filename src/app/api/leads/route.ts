@@ -1,3 +1,4 @@
+import { resolvePackageEnquiry } from "@/lib/packageEnquiryServer";
 import { NextResponse, after } from "next/server";
 import { sendOyiLeadEmail, submissionReference, type OyiLeadEmailResult, type OyiLeadType } from "@/lib/email";
 import { leadResponse } from "@/lib/leadResponse";
@@ -31,6 +32,7 @@ const INQUIRY_TYPES: Record<OyiLeadType, string> = {
 };
 
 type LeadRequestPayload = {
+  packageSelection?: unknown;
   hardware?: { product?: unknown; sku?: unknown };
   leadType?: string;
   name?: string;
@@ -106,6 +108,10 @@ export async function POST(request: Request) {
     pageUrl = `/contact?${hardwareEnquiryQuery(product.slug, variant?.sku)}`;
   }
 
+  const packageResult = body.packageSelection === undefined ? null : await resolvePackageEnquiry(body.packageSelection);
+  if (packageResult && !packageResult.ok) return NextResponse.json({ok:false,error:packageResult.error},{status:packageResult.status});
+  if (packageResult?.ok) { message += `\n\n${packageResult.message}`; pageUrl = `/solutions/packages/${packageResult.context.slug}`; }
+
   const key = submissionKey(body.idempotencyKey, `oyi_${leadType}_enquiry`, requestId);
 
   // Office first (idempotent on `key`), so the staff email can say whether the enquiry is in the CRM. Both channels are still
@@ -122,6 +128,7 @@ export async function POST(request: Request) {
     contact: { name, email, phone },
     organization: { name: organization, location: "" },
     payload: { message },
+    ...(packageResult?.ok ? {metadata:{package:packageResult.context}} : {}),
   };
   const office = await deliverToOffice(envelope, startedAt);
   const officeStatus = office.delivery;

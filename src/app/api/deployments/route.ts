@@ -1,3 +1,4 @@
+import { resolvePackageEnquiry } from "@/lib/packageEnquiryServer";
 import { NextResponse, after } from "next/server";
 import { sendOyiLeadEmail, submissionReference, type OyiLeadEmailResult } from "@/lib/email";
 import { leadResponse } from "@/lib/leadResponse";
@@ -13,6 +14,7 @@ const MAX_REQUESTS = 5;
 const MAX_BODY_BYTES = 16_384;
 
 type DeploymentPayload = {
+  packageSelection?: unknown;
   name?: string;
   email?: string;
   phone?: string;
@@ -84,7 +86,10 @@ export async function POST(request: Request) {
   const projectType = normalizeString(body.projectType, 120);
   const homes = normalizeString(body.homes, 80);
   const deploymentInterest = normalizeString(body.deploymentInterest, 180);
-  const notes = normalizeString(body.notes, 1200);
+  let notes = normalizeString(body.notes, 1200);
+  const packageResult = body.packageSelection === undefined ? null : await resolvePackageEnquiry(body.packageSelection);
+  if (packageResult && !packageResult.ok) return NextResponse.json({ok:false,error:packageResult.error},{status:packageResult.status});
+  if (packageResult?.ok) notes += `\n\n${packageResult.message}`;
 
   const message = [
     `Role: ${role || "Not provided"}`,
@@ -102,7 +107,8 @@ export async function POST(request: Request) {
     idempotency_key: key,
     source_channel: "website",
     source_site: "oyi_website",
-    source_page: "/deployments",
+    source_page: packageResult?.ok ? `/deployments?package=${packageResult.context.slug}` : "/deployments",
+    ...(packageResult?.ok ? {metadata:{package:packageResult.context}} : {}),
     source_form: "oyi_deployment_request",
     business_unit: "technology",
     inquiry_type: "oyi_deployment_request",

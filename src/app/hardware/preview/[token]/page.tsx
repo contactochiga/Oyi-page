@@ -1,3 +1,4 @@
+import { PackageDetail } from "@/components/packages/PackageDetail";
 // Staff preview of a product version, rendered with the same components as the public page. The signed link comes from Office (Preview
 // button), lasts 10 minutes, is bound to one version and one staff member, and dies when revoked or the product is archived.
 // Never cached, never indexed, never linked from the site.
@@ -29,7 +30,7 @@ export default async function HardwarePreviewPage({ params }: { params: Promise<
       </>
     );
   }
-  const { preview, product } = result.data;
+  const { preview, product, package: packageView } = result.data;
   const expires = new Date(preview.expires_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Africa/Lagos" });
   return (
     <>
@@ -37,7 +38,7 @@ export default async function HardwarePreviewPage({ params }: { params: Promise<
         Preview — {preview.status === "published_internally" ? "approved version, not necessarily public" : "not published"} · version {preview.version} · link expires {expires} (Lagos)
       </div>
       <SiteHeader />
-      <ProductDetail product={product} previewToken={token} />
+      {packageView ? <PackageDetail item={packageView} previewToken={token} /> : <ProductDetail product={product} previewToken={token} />}
       <SiteFooter />
     </>
   );
