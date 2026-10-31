@@ -20,8 +20,9 @@ export default function TermsPage() {
           <p className="mt-3 leading-7 text-slate-300">Occupants and operators are responsible for using their accounts securely. Facility administrators may manage roles, permissions, occupant access, invitations, and space assignments.</p>
           <h2 className="mt-8 text-xl font-semibold">Integrations</h2>
           <p className="mt-3 leading-7 text-slate-300">Device, camera, visitor, utility, and service integrations depend on each deployment. Oyi does not guarantee availability of third-party systems.</p>
-          {/* Store section: drafted 2026-10-31 for owner/legal review (FCCPA 2018, NDPA 2023) before release */}
+          {/* Store section (Gate A, 2026-10-31): owner/legal review before release; checked against the enquiry-only Store */}
           <h2 className="mt-8 text-xl font-semibold" id="store">Oyi Store</h2>
+          <p className="mt-3 leading-7 text-slate-300">The Oyi Store is operated by Ochiga Global Concept Investment Limited. How we handle information you send with an enquiry is described in our <Link href="/privacy#store-enquiries" className="text-sky-300 underline underline-offset-4">Privacy Policy</Link>.</p>
           <ul className="mt-3 list-disc space-y-2 pl-5 leading-7 text-slate-300">
             <li><strong className="text-white">Listings are not offers.</strong> Store pages describe hardware the Oyi team can supply. A listing invites you to enquire; it is not an offer to sell. No contract exists until the Oyi team confirms the sale to you in writing and you accept it.</li>
             <li><strong className="text-white">Prices.</strong> Prices are in Nigerian naira and include VAT where applicable. Where a product shows a fixed price, that is the approved price at the time shown and may change until a sale is confirmed. &ldquo;Price on request&rdquo; means the price is confirmed with you directly. Delivery, installation and other services are priced separately.</li>
