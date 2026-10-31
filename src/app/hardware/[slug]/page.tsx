@@ -5,6 +5,8 @@ import { HardwareCatalogue } from "@/components/hardware/HardwareCatalogue";
 import { ProductDetail } from "@/components/hardware/ProductDetail";
 import { catalogueEnabled, getProduct, imageUrl } from "@/lib/catalogue";
 import { siteConfig } from "@/lib/site";
+import { parseQuery } from "@/lib/catalogueQuery";
+import { productJsonLd } from "@/lib/catalogueSeo";
 
 // Rendered per request from the tagged 5-minute data cache (lib/catalogue.ts). Office's refresh call expires that cache immediately, so a
 // withdrawn, renamed or unpublished product is gone on the very next request (a route-level ISR cache would serve one stale page first).
@@ -16,7 +18,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!catalogueEnabled()) return {};
   const { slug } = await params;
   const result = await getProduct(slug);
-  if (result.state !== "ok") return { title: "Hardware" };
+  // an outage or missing product is never indexed
+  if (result.state !== "ok") return { title: "Hardware", robots: { index: false, follow: true } };
   const p = result.data.product;
   const cover = p.cover ? new URL(imageUrl(p.cover.srcset[p.cover.srcset.length - 1].src), siteConfig.url).toString() : undefined;
   return {
@@ -37,7 +40,7 @@ export default async function HardwareProductPage({ params }: Props) {
     return (
       <>
         <SiteHeader />
-        <HardwareCatalogue products={{ state: "unavailable", reason: result.reason }} categories={{ state: "unavailable", reason: result.reason }} activeCategory="" />
+        <HardwareCatalogue products={{ state: "unavailable", reason: result.reason }} categories={{ state: "unavailable", reason: result.reason }} query={parseQuery({})} />
         <SiteFooter />
       </>
     );
@@ -45,6 +48,7 @@ export default async function HardwareProductPage({ params }: Props) {
   return (
     <>
       <SiteHeader />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: productJsonLd(result.data.product, siteConfig.url) }} />
       <ProductDetail product={result.data.product} />
       <SiteFooter />
     </>

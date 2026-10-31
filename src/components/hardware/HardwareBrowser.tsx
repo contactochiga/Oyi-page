@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element -- Office supplies validated, processed WebP renditions. */
-"use client";
-import { useState } from "react";
+// Phase 5D: server-rendered browsing. The filter form is a plain GET form and pagination is links, so every view has its own URL,
+// works without JavaScript and can be indexed. Presentation only: products, prices and availability come from Office.
 import Link from "next/link";
 import type { PublicCard } from "@/lib/catalogue";
+import { queryHref, type CatalogueQuery } from "@/lib/catalogueQuery";
 export type StoreCard = PublicCard & {
   image: string;
   priceLabel: string;
@@ -11,13 +12,9 @@ export type StoreCard = PublicCard & {
 export function ProductCard({ product }: { product: StoreCard }) {
   return (
     <article className="hw-card" data-product-card={product.slug}>
-      <Link href={`/hardware/${product.slug}`} className="hw-card-image">
+      <Link href={`/hardware/${product.slug}`} className="hw-card-image" tabIndex={-1} aria-hidden="true">
         {product.image ? (
-          <img
-            src={product.image}
-            alt={product.cover?.alt || product.name}
-            loading="lazy"
-          />
+          <img src={product.image} alt="" loading="lazy" width={480} height={360} />
         ) : (
           <span>Image unavailable</span>
         )}
@@ -28,104 +25,71 @@ export function ProductCard({ product }: { product: StoreCard }) {
           <Link href={`/hardware/${product.slug}`}>{product.name}</Link>
         </h3>
         <p className="hw-card-summary">{product.summary}</p>
-        <p className="hw-price">{product.priceLabel || "Price on request"}</p>
-        <p className={`hw-availability hw-${product.availability}`}>
-          {product.availabilityLabel}
-        </p>
-        <Link
-          className="hw-quote"
-          href={`/contact?type=tech_oem&product=${encodeURIComponent(product.slug)}`}
-        >
-          {product.availability === "unavailable"
-            ? "Ask about availability"
-            : "Request quote"}
+        <p className="hw-price" data-price>{product.priceLabel || "Price on request"}</p>
+        <p className={`hw-availability hw-${product.availability}`}>{product.availabilityLabel}</p>
+        <Link className="hw-quote" href={`/contact?type=tech_oem&product=${encodeURIComponent(product.slug)}`}>
+          {product.availability === "unavailable" ? "Ask about availability" : "Request quote"}
+          <span className="sr-only"> for {product.name}</span>
           <span aria-hidden="true">↗</span>
         </Link>
       </div>
     </article>
   );
 }
+
+type Facet = { slug: string; name: string };
 export function HardwareBrowser({
-  products,
-  initialCategory,
+  items,
+  total,
+  page,
+  pages,
+  query,
+  facets,
+  catalogueEmpty,
 }: {
-  products: StoreCard[];
-  initialCategory: string;
+  items: StoreCard[];
+  total: number;
+  page: number;
+  pages: number;
+  query: CatalogueQuery;
+  facets: { categories: Facet[]; brands: Facet[] };
+  catalogueEmpty: boolean;
 }) {
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState(initialCategory);
-  const [stock, setStock] = useState("");
-  const [sort, setSort] = useState("name");
-  const [page, setPage] = useState(1);
-  const categories = [
-    ...new Map(
-      products
-        .filter((p) => p.category)
-        .map((p) => [p.category!.slug, p.category!]),
-    ).values(),
-  ];
-  const filtered = products
-    .filter(
-      (p) =>
-        (!category || p.category?.slug === category) &&
-        (!stock || p.availability === stock) &&
-        `${p.name} ${p.model} ${p.brand?.name || ""} ${p.summary}`
-          .toLowerCase()
-          .includes(query.toLowerCase().trim()),
-    )
-    .sort((a, b) =>
-      sort === "price"
-        ? (a.price_from_kobo ?? Infinity) - (b.price_from_kobo ?? Infinity) ||
-          a.name.localeCompare(b.name)
-        : a.name.localeCompare(b.name),
-    );
-  const pages = Math.max(1, Math.ceil(filtered.length / 12));
-  const current = Math.min(page, pages);
+  const filtered = Boolean(query.q || query.category || query.brand || query.availability);
   return (
-    <section id="browse" className="hw-section">
+    <section id="browse" className="hw-section" aria-labelledby="browse-heading">
       <div className="hw-section-head">
-        <h2>Browse hardware</h2>
-        <span aria-live="polite">{filtered.length} products</span>
+        <h2 id="browse-heading">Browse hardware</h2>
+        <span role="status" data-result-count>
+          {total} {total === 1 ? "product" : "products"}
+        </span>
       </div>
-      <div className="hw-filters">
+      <form className="hw-filters" method="get" action="/hardware#browse" role="search" aria-label="Filter hardware">
         <label className="hw-search">
           Search hardware
-          <input
-            type="search"
-            placeholder="Search products, brands or solutions"
-            value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setPage(1);
-            }}
-          />
+          <input type="search" name="q" defaultValue={query.q} maxLength={80} placeholder="Search products, brands or solutions" />
         </label>
         <label>
           Category
-          <select
-            value={category}
-            onChange={(e) => {
-              setCategory(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select name="category" defaultValue={query.category}>
             <option value="">All categories</option>
-            {categories.map((c) => (
-              <option key={c.slug} value={c.slug}>
-                {c.name}
-              </option>
+            {facets.categories.map((c) => (
+              <option key={c.slug} value={c.slug}>{c.name}</option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Brand
+          <select name="brand" defaultValue={query.brand}>
+            <option value="">All brands</option>
+            {facets.brands.map((b) => (
+              <option key={b.slug} value={b.slug}>{b.name}</option>
             ))}
           </select>
         </label>
         <label>
           Availability
-          <select
-            value={stock}
-            onChange={(e) => {
-              setStock(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select name="availability" defaultValue={query.availability}>
             <option value="">Any availability</option>
             <option value="in_stock">In stock</option>
             <option value="available_to_order">Available to order</option>
@@ -134,53 +98,45 @@ export function HardwareBrowser({
         </label>
         <label>
           Sort by
-          <select
-            value={sort}
-            onChange={(e) => {
-              setSort(e.target.value);
-              setPage(1);
-            }}
-          >
+          <select name="sort" defaultValue={query.sort}>
+            <option value="featured">Featured</option>
             <option value="name">Name</option>
-            <option value="price">Price: low to high</option>
+            <option value="price_asc">Price: low to high</option>
+            <option value="price_desc">Price: high to low</option>
+            <option value="newest">Newest</option>
           </select>
         </label>
-      </div>
-      {filtered.length ? (
+        <button type="submit" className="hw-apply">Apply</button>
+        {filtered ? <Link href="/hardware#browse" className="hw-clear">Clear filters</Link> : null}
+      </form>
+      {items.length ? (
         <div className="hw-products" data-product-grid>
-          {filtered.slice((current - 1) * 12, current * 12).map((p) => (
+          {items.map((p) => (
             <ProductCard key={p.slug} product={p} />
           ))}
         </div>
       ) : (
         <div className="hw-empty" data-state="empty">
-          <h3>
-            {products.length
-              ? "No matching products"
-              : "Our hardware catalogue is on its way."}
-          </h3>
+          <h3>{catalogueEmpty ? "Our hardware catalogue is on its way." : "No matching products"}</h3>
           <p>
-            {products.length
-              ? "Try another search or category."
-              : "Approved products will appear here when released by the Oyi team. Tell us what you need in the meantime."}
+            {catalogueEmpty
+              ? "Approved products will appear here when released by the Oyi team. Tell us what you need in the meantime."
+              : "Try another search or clear the filters."}
           </p>
           <Link href="/contact?type=tech_oem">Contact sales →</Link>
         </div>
       )}
       {pages > 1 && (
         <nav className="hw-pagination" aria-label="Product pages">
-          <button disabled={current === 1} onClick={() => setPage(current - 1)}>
-            Previous
-          </button>
-          <span>
-            Page {current} of {pages}
-          </span>
-          <button
-            disabled={current === pages}
-            onClick={() => setPage(current + 1)}
-          >
-            Next
-          </button>
+          {page > 1 ? <Link href={queryHref({ ...query, page: page - 1 })} rel="prev">Previous</Link> : <span aria-disabled="true">Previous</span>}
+          <ol>
+            {Array.from({ length: pages }, (_, i) => i + 1).map((n) => (
+              <li key={n}>
+                <Link href={queryHref({ ...query, page: n })} aria-current={n === page ? "page" : undefined} aria-label={`Page ${n}`}>{n}</Link>
+              </li>
+            ))}
+          </ol>
+          {page < pages ? <Link href={queryHref({ ...query, page: page + 1 })} rel="next">Next</Link> : <span aria-disabled="true">Next</span>}
         </nav>
       )}
     </section>

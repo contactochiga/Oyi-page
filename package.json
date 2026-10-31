@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:hardware:carousel": "node tests/phase3/carousel.cjs"
+    "test:hardware:carousel": "node tests/phase3/carousel.cjs",
+    "test:hardware:release-a": "node tests/release-a/unit.cjs && next build && node tests/release-a/http.cjs"
   },
   "dependencies": {
     "next": "16.4.1",

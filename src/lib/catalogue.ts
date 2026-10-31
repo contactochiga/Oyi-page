@@ -6,7 +6,7 @@
 // call failed and has not been retried yet).
 // Imported only by server components and route handlers (no "use client" module imports it).
 
-const DEFAULT_OFFICE_BASE_URL = "https://ochiga-lead-agents.onrender.com";
+import { officeBaseUrlOrEmpty } from "./officeTarget";
 export const CATALOGUE_TAG = "hardware-catalogue";
 export const CATALOGUE_REVALIDATE_SECONDS = 300;
 const TIMEOUT_MS = 8_000;
@@ -66,7 +66,7 @@ export function previewEnabled(): boolean {
 }
 
 function baseUrl(): string {
-  return (process.env.OCHIGA_OFFICE_BASE_URL || DEFAULT_OFFICE_BASE_URL).replace(/\/$/, "");
+  return officeBaseUrlOrEmpty();
 }
 
 function catalogueKey(): string {
@@ -85,7 +85,7 @@ type FetchMode = { cache: "public"; tags: string[] } | { cache: "none" };
 
 async function officeJson<T>(path: string, mode: FetchMode): Promise<CatalogueResult<T>> {
   const key = catalogueKey();
-  if (!key) return { state: "unavailable", reason: "not_configured" };
+  if (!key || !baseUrl()) return { state: "unavailable", reason: "not_configured" };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
@@ -129,7 +129,7 @@ export function getPreview(token: string) {
 // Raw image bytes from Office (validated path segments only). The caller sets the response caching.
 export async function fetchImage(path: string): Promise<{ status: number; body: ArrayBuffer | null }> {
   const key = catalogueKey();
-  if (!key) return { status: 404, body: null };
+  if (!key || !baseUrl()) return { status: 404, body: null };
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {

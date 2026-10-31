@@ -706,3 +706,13 @@
     padding-top: 10px;
   }
 }
+
+/* Phase 5D: server-rendered browsing controls */
+.hw-apply, .hw-clear { align-self: end; min-height: 44px; padding: 0 18px; border-radius: 999px; font-weight: 600; }
+.hw-apply { background: #07154b; color: #fff; border: 0; cursor: pointer; }
+.hw-clear { display: inline-flex; align-items: center; color: #07154b; text-decoration: underline; }
+.hw-apply:focus-visible, .hw-clear:focus-visible, .hw-pagination a:focus-visible { outline: 3px solid #2563eb; outline-offset: 2px; }
+.hw-pagination ol { display: flex; gap: 6px; list-style: none; margin: 0; padding: 0; }
+.hw-pagination a, .hw-pagination span { display: inline-flex; min-width: 44px; min-height: 44px; align-items: center; justify-content: center; padding: 0 10px; border-radius: 10px; }
+.hw-pagination a[aria-current="page"] { background: #07154b; color: #fff; }
+.hw-pagination span[aria-disabled="true"] { opacity: 0.45; }
