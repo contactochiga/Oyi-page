@@ -28,10 +28,10 @@ export default function PrivacyPage() {
           <h2 className="mt-8 text-xl font-semibold" id="store-enquiries">Store browsing and product enquiries</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 leading-7 text-slate-300">
             <li><strong className="text-white">Browsing.</strong> You can browse the Store without an account. The Store sets no tracking or advertising cookies; our hosting and security providers may use strictly necessary cookies to protect the website.</li>
-            <li><strong className="text-white">What we collect when you enquire.</strong> Your name, email address, optional phone number and organisation, your message, and the product or option you asked about.</li>
+            <li><strong className="text-white">What we collect when you enquire.</strong> Your name, email address, your organisation if you give one, your message, and the product or option you asked about.</li>
             <li><strong className="text-white">Why.</strong> To answer your enquiry, prepare prices or proposals you ask for, and keep a record of our conversation. We rely on your request and our legitimate interest in responding to it.</li>
             <li><strong className="text-white">Who handles it.</strong> Enquiries are stored in the Oyi team&apos;s internal customer system. A confirmation email may be sent to you and to our team through our email provider. Service providers that host the website and our systems process it only on our behalf. We do not sell it.</li>
-            <li><strong className="text-white">How long.</strong> We keep enquiry records for as long as we need them to respond to you and to maintain our business records, then delete or anonymise them.</li>
+            <li><strong className="text-white">How long.</strong> We keep enquiry records only for as long as we need them to respond to you and to keep proper business records. You can ask us to delete them at any time.</li>
             <li><strong className="text-white">Your rights.</strong> You can ask to access, correct or delete your information, or object to its use, through the contact page.</li>
           </ul>
           <h2 className="mt-8 text-xl font-semibold">Contact</h2>
