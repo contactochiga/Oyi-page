@@ -1,33 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CinematicOpening } from "@/components/CinematicOpening";
-import { pillars, primaryCta, primaryNav, siteConfig } from "@/lib/site";
-
-const sections = [
-  {
-    eyebrow: "Oyi Facility",
-    title: "Operate the environment.",
-    body: "Facility teams manage infrastructure, operations, spaces, occupants, devices, visitors, maintenance, community, security posture, and administration from one operational control surface.",
-    href: "/facility",
-    points: ["Infrastructure and MEP operations", "Security and access operations", "Maintenance and operational workflows"],
-  },
-  {
-    eyebrow: "Oyi Experience",
-    title: "Interact with the environment.",
-    body: "Experience connects the person to the building — the home experience, the workspace experience, the guest experience. Invite-first activation, spaces, assigned devices, visitors, maintenance requests, and services.",
-    href: "/experience",
-    points: ["Invite-first activation", "Rooms and device controls", "Visitors, maintenance, community"],
-  },
-  {
-    eyebrow: "Oyi Core",
-    title: "Intelligence across both.",
-    body: "Core is the awareness, context, and reasoning layer running through Facility and Experience — contextual guidance, operator insight, safe commands, and automation reasoning.",
-    href: "/core",
-    points: ["Contextual awareness", "Operator insight", "Safe automation reasoning"],
-  },
-];
+import { MobileMenu } from "@/components/MobileMenu";
+import { experiences, primaryCta, primaryNav, siteConfig, solutionTypes } from "@/lib/site";
 
 const visualLabels = ["Facility", "Devices", "Visitors", "Maintenance", "Community", "Security"];
+
+const experienceCards = [
+  {
+    eyebrow: "Facility Experience",
+    title: "For the people who run the building.",
+    body: "Operations teams manage infrastructure, security, visitors, maintenance, community and administration from one operational view, instead of a different system for each.",
+    href: "/facility",
+    points: ["Infrastructure and MEP operations", "Security, access and visitors", "Maintenance and administration"],
+  },
+  {
+    eyebrow: "Resident Experience",
+    title: "For the people who live and work in it.",
+    body: "Residents, guests and occupants get one calm, invite-first way to use the space around them: rooms and devices, visitors, requests and community updates.",
+    href: "/experience",
+    points: ["Invite-first activation", "Rooms and assigned devices", "Visitors, requests and community"],
+  },
+];
 
 // Capability storytelling: each entry gets a full section, alternating
 // text/visual sides, rather than being compressed into a feature-card grid.
@@ -35,109 +29,208 @@ const capabilitySections = [
   {
     eyebrow: "Digital Twin",
     title: "See your building.",
-    body: "A living representation of the building — model, placement, devices, cameras, and utility layers — gives Facility teams a way to see the building the way they operate it, not just a floor plan. The interface can become the building.",
+    body: "A living representation of the building — model, placement, devices, cameras, and utility layers — gives Facility teams a way to see the building the way they operate it, not just a floor plan.",
     stat: "Model · Placement · Layers",
     href: "/twin",
   },
   {
-    eyebrow: "Facility",
+    eyebrow: "Facility Experience",
     title: "Know what's happening.",
-    body: "Facility gives operations teams visibility into power, water, security, and maintenance status without stitching together separate systems — one operational picture instead of several disconnected ones.",
+    body: "Operations teams see power, water, security, and maintenance status without stitching together separate systems — one operational picture instead of several disconnected ones.",
     stat: "Infrastructure · Security · Maintenance",
     href: "/facility",
   },
   {
-    eyebrow: "Experience",
+    eyebrow: "Resident Experience",
     title: "Control your environment.",
-    body: "Rooms, assigned devices, visitors, maintenance requests, and services — the Experience layer gives the person in the building a calm, invite-first way to interact with the space around them.",
+    body: "Rooms, assigned devices, visitors, maintenance requests, and services — residents and occupants get a calm, invite-first way to interact with the space around them.",
     stat: "Rooms · Devices · Visitors",
     href: "/experience",
   },
   {
-    eyebrow: "Core",
+    eyebrow: "Oyi Core",
     title: "Ask Oyi.",
     body: "Oyi Core is built to answer real operational questions — which units haven't confirmed maintenance access this week, what this week's utility usage looks like, which visitors are expected today — with context, not just data.",
     stat: "Contextual guidance · Operator insight",
     href: "/core",
   },
-  {
-    eyebrow: "Automation",
-    title: "Automate what happens next.",
-    body: "Scenes, schedules, and workflows let routine responses happen without manual intervention, with supervised actions kept in view rather than handed off to unsupervised autonomy.",
-    stat: "Scenes · Schedules · Supervised actions",
-    href: "/technology#automation",
-  },
 ];
+
+const consultationSteps = [
+  ["Consultation", "We learn how the building is run and who lives or works in it."],
+  ["Fit and design", "We confirm the deployment fit and plan spaces, people, devices and operations."],
+  ["Deployment", "Oyi is configured with your team, alongside the infrastructure you already have."],
+  ["Operation", "Controlled onboarding for operators and residents, then day-to-day operation."],
+];
+
+function Kicker({ children }: { children: React.ReactNode }) {
+  return <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">{children}</p>;
+}
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#06101d]/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#06101d]/85 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-4">
         <Link href="/" className="flex items-center gap-3" aria-label="Oyi home">
           <span className="grid h-10 w-10 place-items-center rounded-2xl border border-sky-300/30 bg-sky-400/10 shadow-[0_0_30px_rgba(56,189,248,0.25)]">
             <Image src={siteConfig.logo} width={26} height={26} alt="Oyi" priority />
           </span>
           <span className="text-lg font-semibold tracking-tight text-white">Oyi</span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex" aria-label="Primary navigation">
-          {primaryNav.slice(1).map((item) => (
-            <Link key={item.href} href={item.href} className="transition hover:text-white">
-              {item.label}
-            </Link>
-          ))}
+        <nav className="hidden items-center gap-1 text-sm text-slate-300 lg:flex" aria-label="Primary navigation">
+          {primaryNav.map((item) =>
+            item.children ? (
+              <div key={item.href} className="group relative">
+                <Link href={item.href} className="flex items-center gap-1 rounded-full px-3 py-2 transition hover:text-white group-focus-within:text-white">
+                  {item.label}
+                  <span aria-hidden className="text-[10px] text-slate-500 transition group-hover:rotate-180">▾</span>
+                </Link>
+                <div className="invisible absolute left-0 top-full w-80 pt-2 opacity-0 transition group-focus-within:visible group-focus-within:opacity-100 group-hover:visible group-hover:opacity-100">
+                  <div className="grid gap-1 rounded-3xl border border-white/10 bg-[#081423]/95 p-2 shadow-[0_30px_80px_rgba(0,0,0,0.5)] backdrop-blur-xl">
+                    {item.children.map((child) => (
+                      <Link key={child.href} href={child.href} className="rounded-2xl px-4 py-3 transition hover:bg-white/[0.07] focus:bg-white/[0.07]">
+                        <span className="block font-semibold text-white">{child.label}</span>
+                        <span className="mt-1 block text-xs leading-5 text-slate-400">{child.description}</span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <Link key={item.href} href={item.href} className="rounded-full px-3 py-2 transition hover:text-white">
+                {item.label}
+              </Link>
+            )
+          )}
         </nav>
-        <Link href={primaryCta.href} className="rounded-full bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-300">
-          {primaryCta.label}
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link href={primaryCta.href} className="hidden rounded-full bg-sky-400 px-4 py-2 text-sm font-semibold text-slate-950 transition hover:bg-sky-300 sm:inline-flex">
+            {primaryCta.label}
+          </Link>
+          <MobileMenu items={primaryNav} cta={primaryCta} />
+        </div>
       </div>
     </header>
   );
 }
 
 export function SiteFooter() {
+  const columns: { title: string; links: { label: string; href: string }[] }[] = [
+    { title: "Oyi", links: [{ label: "What is Oyi", href: "/oyi" }, { label: "Oyi Core", href: "/core" }, { label: "Technology", href: "/technology" }, { label: "Developers", href: "/developers" }] },
+    { title: "Experiences", links: [...experiences, { label: "Solutions", href: "/solutions" }] },
+    { title: "Store and partners", links: [{ label: "Store", href: "/hardware" }, { label: "Partners", href: "/partners" }, { label: "Book a consultation", href: "/deployments" }] },
+    { title: "Company", links: [{ label: "Support", href: "/support" }, { label: "Contact", href: "/contact" }, { label: "Privacy", href: "/privacy" }, { label: "Terms", href: "/terms" }] },
+  ];
   return (
     <footer className="border-t border-white/10 bg-[#03070d]">
-      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-10 md:grid-cols-[1.3fr_1fr_1fr_1fr]">
-        <div>
+      <div className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1fr]">
+        <div className="sm:col-span-2 lg:col-span-1">
           <div className="mb-3 flex items-center gap-3 text-white">
             <Image src={siteConfig.logo} width={30} height={30} alt="Oyi" />
             <span className="text-lg font-semibold">Oyi</span>
           </div>
-          <p className="max-w-md text-sm leading-6 text-slate-400">
-            The operating system for buildings.
-          </p>
+          <p className="max-w-sm text-sm leading-6 text-slate-400">One intelligent operating system for buildings, with Facility and Resident experiences.</p>
         </div>
-        <div>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-sky-200">Product</h2>
-          <div className="grid gap-2 text-sm text-slate-400">
-            {pillars.map((item) => (
-              <Link key={item.href} href={item.href} className="hover:text-white">
-                {item.label}
-              </Link>
-            ))}
-            <Link href="/technology" className="hover:text-white">Technology</Link>
+        {columns.map((column) => (
+          <div key={column.title}>
+            <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-sky-200">{column.title}</h2>
+            <div className="grid gap-2 text-sm text-slate-400">
+              {column.links.map((link) => (
+                <Link key={link.href + link.label} href={link.href} className="hover:text-white">
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           </div>
-        </div>
-        <div>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-sky-200">Ecosystem</h2>
-          <div className="grid gap-2 text-sm text-slate-400">
-            <Link href="/solutions" className="hover:text-white">Solutions</Link>
-            <Link href="/hardware" className="hover:text-white">Hardware</Link>
-            <Link href="/partners" className="hover:text-white">Partners</Link>
-            <Link href="/developers" className="hover:text-white">Developers</Link>
-          </div>
-        </div>
-        <div>
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-[0.2em] text-sky-200">Trust</h2>
-          <div className="grid gap-2 text-sm text-slate-400">
-            <Link href="/privacy" className="hover:text-white">Privacy</Link>
-            <Link href="/terms" className="hover:text-white">Terms</Link>
-            <Link href="/support" className="hover:text-white">Support</Link>
-            <Link href="/contact" className="hover:text-white">Contact</Link>
-          </div>
-        </div>
+        ))}
       </div>
     </footer>
+  );
+}
+
+// One system, two experiences, intelligence across both: the core positioning, drawn with real page labels only.
+export function SystemDiagram() {
+  return (
+    <div className="relative overflow-hidden rounded-[2rem] border border-sky-300/20 bg-slate-950/70 p-6 shadow-[0_30px_120px_rgba(14,165,233,0.18)] md:p-8">
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(125,211,252,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(125,211,252,0.07)_1px,transparent_1px)] bg-[size:34px_34px]" />
+      <div className="relative grid gap-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          {experienceCards.map((card) => (
+            <Link key={card.href} href={card.href} className="rounded-3xl border border-white/10 bg-white/[0.07] p-5 transition hover:border-sky-300/40">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-200">{card.eyebrow}</p>
+              <p className="mt-2 text-sm text-slate-300">{card.points.join(" · ")}</p>
+            </Link>
+          ))}
+        </div>
+        <Link href="/core" className="flex items-center justify-between gap-4 rounded-3xl border border-sky-300/30 bg-gradient-to-r from-sky-400/20 to-cyan-300/10 p-5 transition hover:border-sky-300/60">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-sky-100">Oyi Core</p>
+            <p className="mt-2 text-sm text-slate-200">Intelligence across both experiences: context, guidance and supervised automation.</p>
+          </div>
+          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-sky-300/40 bg-sky-400/20 text-sm font-semibold text-white shadow-[0_0_40px_rgba(56,189,248,0.35)]">Oyi</span>
+        </Link>
+        <div className="grid grid-cols-2 gap-2 text-center text-xs text-slate-300 sm:grid-cols-4">
+          {[["Digital Twin", "/twin"], ["Edge", "/edge"], ["Automation", "/core"], ["Watch", "/watch"]].map(([label, href]) => (
+            <Link key={href} href={href} className="rounded-2xl border border-white/10 bg-slate-900/70 px-3 py-3 transition hover:border-sky-300/40 hover:text-white">{label}</Link>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function ConsultationSteps({ heading = "Software deployments start with a conversation." }: { heading?: string }) {
+  return (
+    <section className="px-5 py-20">
+      <div className="mx-auto max-w-7xl rounded-[2rem] border border-sky-300/20 bg-sky-400/10 p-6 md:p-10">
+        <div className="grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <Kicker>How deployment works</Kicker>
+            <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.03em] md:text-5xl">{heading}</h2>
+            <p className="mt-4 max-w-2xl text-slate-300">Oyi is deployed with your team, not bought off a shelf. Every building starts with a consultation so the system fits how it is actually run.</p>
+          </div>
+          <Link href={primaryCta.href} className="rounded-full bg-white px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-sky-100">
+            {primaryCta.label}
+          </Link>
+        </div>
+        <ol className="mt-10 grid gap-4 md:grid-cols-4">
+          {consultationSteps.map(([title, body], index) => (
+            <li key={title} className="rounded-3xl border border-white/10 bg-slate-950/50 p-5">
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-sky-400 text-sm font-semibold text-slate-950">{index + 1}</span>
+              <h3 className="mt-4 font-semibold text-white">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+// Store introduction without products: the catalogue is switched off, so nothing here lists, prices or sells anything.
+export function StoreIntro() {
+  return (
+    <section className="px-5 py-20">
+      <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1fr_1fr] lg:items-center">
+        <div>
+          <Kicker>Oyi Store</Kicker>
+          <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">Hardware that is approved to work with Oyi.</h2>
+          <p className="mt-5 max-w-xl text-slate-300">The Store offers only hardware our team has reviewed and approved for buildings running Oyi, with integrated Ochiga packages to follow. Every request starts as a quotation, and availability and installation are confirmed by our team.</p>
+          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+            <Link href="/hardware" className="rounded-full bg-sky-400 px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-sky-300">Visit the Store</Link>
+            <Link href="/contact?type=tech_oem" className="rounded-full border border-white/15 px-6 py-3 text-center font-semibold text-white transition hover:border-sky-300/60 hover:bg-white/10">Ask about hardware</Link>
+          </div>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1 xl:grid-cols-3">
+          {[["Approved hardware", "Only devices reviewed and approved by the Oyi team."], ["Ochiga packages", "Integrated packages for common building needs, coming later."], ["Quotation-led", "Prices, availability and installation confirmed with you."]].map(([title, body]) => (
+            <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.06] p-5">
+              <h3 className="font-semibold text-white">{title}</h3>
+              <p className="mt-2 text-sm leading-6 text-slate-400">{body}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -202,25 +295,29 @@ export function HomePage() {
     <main className="bg-[#050b14] text-white">
       <Hero />
       <section className="px-5 py-20">
-        <div className="mx-auto max-w-7xl">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Meet Oyi</p>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">Operate it. Experience it. Understand it.</h2>
+        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.9fr_1fr] lg:items-center">
+          <div>
+            <Kicker>Meet Oyi</Kicker>
+            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] md:text-5xl">One operating system. Two experiences.</h2>
+            <p className="mt-5 max-w-xl text-slate-300">Oyi connects the infrastructure that runs a building with the people who operate it and the people who live and work in it. Oyi Core brings intelligence to both.</p>
+            <Link href="/oyi" className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-sky-300">What is Oyi <span>→</span></Link>
           </div>
-          <div className="mt-10 grid gap-5 lg:grid-cols-3">
-            {sections.map((section) => (
-              <Link key={section.href} href={section.href} className="group rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 transition hover:-translate-y-1 hover:border-sky-300/40 hover:bg-white/[0.09]">
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-200">{section.eyebrow}</p>
-                <h3 className="mt-5 text-2xl font-semibold text-white">{section.title}</h3>
-                <p className="mt-4 text-sm leading-6 text-slate-300">{section.body}</p>
-                <div className="mt-6 grid gap-2 text-sm text-slate-300">
-                  {section.points.map((point) => (
-                    <span key={point} className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-sky-300" />{point}</span>
-                  ))}
-                </div>
-              </Link>
-            ))}
-          </div>
+          <SystemDiagram />
+        </div>
+        <div className="mx-auto mt-14 grid max-w-7xl gap-5 lg:grid-cols-2">
+          {experienceCards.map((card) => (
+            <Link key={card.href} href={card.href} className="group rounded-[2rem] border border-white/10 bg-white/[0.06] p-6 transition hover:-translate-y-1 hover:border-sky-300/40 hover:bg-white/[0.09] md:p-8">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-200">{card.eyebrow}</p>
+              <h3 className="mt-5 text-2xl font-semibold text-white md:text-3xl">{card.title}</h3>
+              <p className="mt-4 text-sm leading-6 text-slate-300">{card.body}</p>
+              <div className="mt-6 grid gap-2 text-sm text-slate-300">
+                {card.points.map((point) => (
+                  <span key={point} className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-sky-300" />{point}</span>
+                ))}
+              </div>
+              <span className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-sky-300">Explore <span className="transition group-hover:translate-x-1">→</span></span>
+            </Link>
+          ))}
         </div>
       </section>
       <section className="border-y border-white/10 bg-slate-950/70">
@@ -232,7 +329,7 @@ export function HomePage() {
               }`}
             >
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">{capability.eyebrow}</p>
+                <Kicker>{capability.eyebrow}</Kicker>
                 <h2 className="mt-4 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">{capability.title}</h2>
                 <p className="mt-5 max-w-xl text-slate-300">{capability.body}</p>
                 <Link href={capability.href} className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-sky-300">
@@ -248,18 +345,21 @@ export function HomePage() {
           </div>
         ))}
       </section>
-      <section className="px-5 py-20">
-        <div className="mx-auto grid max-w-7xl gap-8 rounded-[2rem] border border-sky-300/20 bg-sky-400/10 p-8 md:grid-cols-[1fr_auto] md:items-center">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">Deployment</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.03em] md:text-5xl">Bring Oyi to your building.</h2>
-            <p className="mt-4 max-w-2xl text-slate-300">Create homes or spaces, invite people, connect supported systems, assign devices, and move from setup into day-to-day operations.</p>
+      <section className="px-5 pt-20">
+        <div className="mx-auto max-w-7xl">
+          <Kicker>Solutions</Kicker>
+          <h2 className="mt-4 max-w-3xl text-3xl font-semibold tracking-[-0.03em] md:text-5xl">Configured for the building you run.</h2>
+          <div className="mt-8 flex flex-wrap gap-3">
+            {solutionTypes.map((solution) => (
+              <Link key={solution.slug} href={`/solutions/${solution.slug}`} className="rounded-full border border-white/15 bg-white/[0.04] px-5 py-3 text-sm font-semibold text-white transition hover:border-sky-300/60 hover:bg-white/10">
+                {solution.label}
+              </Link>
+            ))}
           </div>
-          <Link href={primaryCta.href} className="rounded-full bg-white px-6 py-3 text-center font-semibold text-slate-950 transition hover:bg-sky-100">
-            {primaryCta.label}
-          </Link>
         </div>
       </section>
+      <StoreIntro />
+      <ConsultationSteps />
     </main>
   );
 }
@@ -270,14 +370,18 @@ export function ProductPage({
   body,
   points,
   cta,
+  secondaryCta,
   visual,
+  after,
 }: {
   eyebrow: string;
   title: string;
   body: string;
   points: string[];
   cta?: { label: string; href: string };
+  secondaryCta?: { label: string; href: string };
   visual?: React.ReactNode;
+  after?: React.ReactNode;
 }) {
   return (
     <main className="bg-[#050b14] text-white">
@@ -287,10 +391,19 @@ export function ProductPage({
             <p className="text-sm font-semibold uppercase tracking-[0.24em] text-sky-200">{eyebrow}</p>
             <h1 className="mt-5 text-5xl font-semibold tracking-[-0.05em] md:text-7xl">{title}</h1>
             <p className="mt-6 text-lg leading-8 text-slate-300">{body}</p>
-            {cta && (
-              <Link href={cta.href} className="mt-8 inline-flex rounded-full bg-sky-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-sky-300">
-                {cta.label}
-              </Link>
+            {(cta || secondaryCta) && (
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                {cta && (
+                  <Link href={cta.href} className="inline-flex justify-center rounded-full bg-sky-400 px-6 py-3 font-semibold text-slate-950 transition hover:bg-sky-300">
+                    {cta.label}
+                  </Link>
+                )}
+                {secondaryCta && (
+                  <Link href={secondaryCta.href} className="inline-flex justify-center rounded-full border border-white/15 px-6 py-3 font-semibold text-white transition hover:border-sky-300/60 hover:bg-white/10">
+                    {secondaryCta.label}
+                  </Link>
+                )}
+              </div>
             )}
           </div>
           {visual}
@@ -298,14 +411,15 @@ export function ProductPage({
       </section>
       <section className="px-5 pb-20">
         <div className="mx-auto grid max-w-7xl gap-4 md:grid-cols-3">
-          {points.map((point) => (
+          {points.map((point, index) => (
             <div key={point} className="rounded-3xl border border-white/10 bg-white/[0.06] p-6">
-              <div className="mb-5 h-10 w-10 rounded-2xl bg-sky-400/20 shadow-[0_0_40px_rgba(56,189,248,0.2)]" />
+              <span className="mb-5 grid h-10 w-10 place-items-center rounded-2xl bg-sky-400/20 text-sm font-semibold text-sky-100 shadow-[0_0_40px_rgba(56,189,248,0.2)]">{String(index + 1).padStart(2, "0")}</span>
               <h2 className="text-xl font-semibold text-white">{point}</h2>
             </div>
           ))}
         </div>
       </section>
+      {after}
     </main>
   );
 }

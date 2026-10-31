@@ -1,42 +1,53 @@
 export const siteConfig = {
   name: "Oyi",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://getoyi.com",
-  title: "Oyi — The Operating System for Buildings",
+  title: "Oyi — The Intelligent Operating System for Buildings",
   description:
-    "Oyi is one operating system connecting the infrastructure that runs a building, the people who operate it, and the people who experience it.",
+    "Oyi is one intelligent operating system for buildings, with a Facility experience for the teams who run them and a Resident experience for the people who live and work in them.",
   logo: "/oyi-logo-transparent.png",
   ogImage: "/oyi-logo-transparent.png",
   contactEmail: process.env.NEXT_PUBLIC_OYI_CONTACT_EMAIL || "",
 };
 
-// Primary architecture: Oyi is one operating system with three pillars
-// (Facility, Experience, Core). Digital Twin and Edge are technology
-// capabilities inside the system, not separate flagship products, so they
-// live under /technology rather than the primary nav. Watch is a real,
-// working companion capability of Experience — kept as a route, reachable
-// from the Experience page and footer, not the primary nav.
-export const primaryNav = [
-  { label: "Oyi", href: "/" },
+// Primary architecture (approved six-part navigation): Oyi is ONE intelligent operating system. People meet it through two experiences --
+// Facility (the teams who run a building) and Resident (the people who live, stay or work in it). Core is the intelligence inside Oyi, not a
+// separate product. Software deployments are consultation-led (primaryCta). The Store lives at /hardware (the route the Office catalogue
+// integration publishes to); it sells only Office-approved hardware and, later, integrated Ochiga packages, and stays a static page until the
+// catalogue switch is turned on.
+export type NavItem = { label: string; href: string; description?: string; children?: { label: string; href: string; description: string }[] };
+
+export const primaryNav: NavItem[] = [
+  {
+    label: "Oyi",
+    href: "/oyi",
+    children: [
+      { label: "What is Oyi", href: "/oyi", description: "One intelligent operating system for the whole building." },
+      { label: "Oyi Core", href: "/core", description: "The intelligence that runs through every experience." },
+    ],
+  },
+  {
+    label: "Experiences",
+    href: "/experiences",
+    children: [
+      { label: "Facility Experience", href: "/facility", description: "For the teams who operate and maintain the building." },
+      { label: "Resident Experience", href: "/experience", description: "For the people who live, stay or work in it." },
+    ],
+  },
   { label: "Solutions", href: "/solutions" },
-  { label: "Technology", href: "/technology" },
-  { label: "Hardware", href: "/hardware" },
+  { label: "Store", href: "/hardware" },
   { label: "Partners", href: "/partners" },
-  { label: "Developers", href: "/developers" },
-  { label: "Support", href: "/support" },
+  { label: "Technology", href: "/technology" },
 ];
 
-export const primaryCta = { label: "Deploy Oyi", href: "/deployments" };
+export const primaryCta = { label: "Book a consultation", href: "/deployments" };
 
-export const pillars = [
-  { label: "Facility", href: "/facility" },
-  { label: "Experience", href: "/experience" },
-  { label: "Core", href: "/core" },
+export const experiences = [
+  { label: "Facility Experience", href: "/facility" },
+  { label: "Resident Experience", href: "/experience" },
 ];
 
 export const technologyLinks = [
-  { label: "Facility", href: "/facility" },
-  { label: "Experience", href: "/experience" },
-  { label: "Core", href: "/core" },
+  { label: "Oyi Core", href: "/core" },
   { label: "Digital Twin", href: "/twin" },
   { label: "Automation", href: "/technology#automation" },
   { label: "Edge", href: "/edge" },
@@ -52,6 +63,8 @@ export const solutionTypes = [
 
 export const publicRoutes = [
   "/",
+  "/oyi",
+  "/experiences",
   "/facility",
   "/experience",
   "/core",
